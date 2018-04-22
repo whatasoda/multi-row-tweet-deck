@@ -1,0 +1,12 @@
+{
+  "name": "Multi Row TweetDeck",
+  "version": "1.0",
+  "description": "Google Chrome Extension for multi row view of TweetDeck",
+  "manifest_version": 2,
+  "content_scripts": [
+    {
+      "matches": ["https://tweetdeck.twitter.com/*"],
+      "js": ["index.js"]
+    }
+  ]
+}

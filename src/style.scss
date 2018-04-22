@@ -1,0 +1,55 @@
+.js-app-columns {
+  width: fit-content !important;
+  padding: 0 0 0 2px !important;
+  display: grid;
+  grid-auto-flow: column;
+  grid-row-gap: 2px;
+  grid-column-gap: 2px;
+  grid-template-rows: 4fr 3fr;
+}
+.js-column {
+  margin: 0 !important;
+}
+.js-column-drag-handle, .column-number {
+  opacity: 0 !important;
+}
+.js-column-header:hover .column-number {
+  opacity: 0.6 !important;
+}
+
+.needs-scroll-bottom-offset.scroll-styled-h {
+  bottom: 0px !important;
+}
+.scroll-styled-h::-webkit-scrollbar {
+  height: 4px !important;
+}
+.scroll-styled-v::-webkit-scrollbar-thumb,
+.scroll-styled-h::-webkit-scrollbar-thumb {
+  border-radius: 1px !important;
+}
+.js-column-scroller.scroll-styled-v::-webkit-scrollbar {
+  width: 4px !important;
+}
+.column {
+  width: calc(310px - 6px) !important;
+}
+.is-wide-columns .column {
+  width: calc(350px - 6px) !important;
+}
+.is-narrow-columns .column {
+  width: calc(270px - 6px) !important;
+}
+.column-header {
+  height: 40px !important;
+  padding-left: 3px !important;
+}
+.column-type-icon {
+  left: 5px !important;
+  bottom: 23px !important;
+}
+.column-title {
+  margin-top: -5px !important;
+}
+.column-header-link {
+  top: 0px !important;
+}
