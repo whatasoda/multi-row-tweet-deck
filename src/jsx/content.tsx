@@ -52,6 +52,7 @@ const toggleVisible = getToggleClassFunc('is-visible')
     e.preventDefault()
   })
   js_app.appendChild(root)
+  CellRoot.Terminal = MRTD
   render(<CellRoot/>, root)
 
 })()

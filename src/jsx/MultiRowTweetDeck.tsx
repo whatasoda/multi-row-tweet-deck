@@ -1,28 +1,11 @@
-import {
-  genPrefixMapper,
-  genSuffixMapper
-} from 'util/XXXfixMapper'
+import ExtensionConfig, {CellConfig} from 'ExtensionConfig'
+import Terminal, {MouseEventTypes} from 'Terminal'
+import genWatch from 'genWatch'
+import StyleAgent from 'StyleAgent'
 
 const chrome = window.chrome
-export interface CellConfig {
-  unitCount: number
-  options: StringMap<boolean>
-}
 
-export interface MultiRowTweetDeckConfig {
-  columns       : CellConfig[][]
-  unitDivision  : number
-  version       : string
-}
-
-export interface StyleElement {
-  state: {
-    style: string
-  }
-  setState (state: {style: string}): void
-}
-
-const defaultConfig : MultiRowTweetDeckConfig = {
+const defaultConfig : ExtensionConfig = {
   columns: [
     [
       {
@@ -39,29 +22,16 @@ const defaultConfig : MultiRowTweetDeckConfig = {
   version: '1.0'
 }
 
-export class MultiRowTweetDeck {
-  public config!                : MultiRowTweetDeckConfig
-  public currentStyleElement!   : StyleElement
-  private rulse                 : StringMap<CSSRuleAgent> = {}
-
-  private cellStyleElement      : HTMLStyleElement
-  private cellSelector          : string | string[]
-  private cellRules             : CSSRuleAgent[] = []
-
-  private generalStyleElement   : HTMLStyleElement
-  private generalRules          : StringMap<CSSRuleAgent> = {}
-  private cellContainerSelector : string | string[]
-
-
+export class MultiRowTweetDeck implements Terminal {
+  public config!    : ExtensionConfig
+  private app?      : React.Component<any, any>
+  private styleAgent: StyleAgent
+  private watch     : () => void
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
-    this.cellSelector           = ['.js-column', '.cell__block']
-    this.cellContainerSelector  = ['.js-app-columns', '.column-root__columns']
-    this.cellStyleElement       = document.createElement('style')
-    this.generalStyleElement    = document.createElement('style')
-    document.head.appendChild(this.cellStyleElement)
-    document.head.appendChild(this.generalStyleElement)
+    this.styleAgent = new StyleAgent(this)
+    this.watch = genWatch(this.watchCallback.bind(this))
   }
 
   public async init (): Promise<void> {
@@ -70,14 +40,31 @@ export class MultiRowTweetDeck {
 
   private async initConfig (): Promise<void> {
     this.config = await this.getConfig()
-    this.dispatchRules()
+    this.styleAgent.dispatch()
   }
 
-  private async getConfig (): Promise<MultiRowTweetDeckConfig> {
+  public setCurrentApp (
+    app: React.Component<any, any>
+  ): void {
+    this.app = app
+  }
+
+  private updateApp (): void {
+    if (!this.app) return;
+    this.app.forceUpdate()
+    this.styleAgent.dispatch()
+  }
+
+  public updateConfig () {
+    chrome.storage.sync.set({config: this.config})
+    this.styleAgent.dispatch()
+  }
+
+  private async getConfig (): Promise<ExtensionConfig> {
     return new Promise(this.constructor.ConfigExecuter)
   }
   private static ConfigExecuter (
-    resolve: (value?: MultiRowTweetDeckConfig) => void,
+    resolve: (value?: ExtensionConfig) => void,
     reject: (reason?: any) => void
   ) {
     chrome.storage.sync.get(
@@ -86,26 +73,26 @@ export class MultiRowTweetDeck {
         items: StringMap<any>
       ): void {
         if (items.config)
-          resolve( items.config as MultiRowTweetDeckConfig )
+          resolve( items.config as ExtensionConfig )
         else
           resolve( defaultConfig )
       }
     )
   }
 
-  public updateConfig () {
-    chrome.storage.sync.set({config: this.config})
-    this.dispatchRules()
-  }
+
 
   public setUnitCount (
     index : number,
     count : number
   ): void {
+    if (index < 0) return;
     let [x,y] = this.getIndicesForColumns(index)
     const column = this.config.columns[x]
     const config = column[y]
     if (!config) return;
+
+    // 下の要素のunitCountが0以下にならないように結果を反映する
     let gap = count - config.unitCount
     config.unitCount = count
     if (gap > 0) {
@@ -118,32 +105,33 @@ export class MultiRowTweetDeck {
     } else {
       column[y+1].unitCount -= gap
     }
-    this.updateConfig()
-
+    this.updateApp()
   }
 
   public insertCell (
-    index         : number,
-    withNewColumn: boolean = false
+    index         : number
   ): void {
-    if (withNewColumn) {
-      const newConfig = this.createNewConfig()
-      newConfig.unitCount = this.config.unitDivision
-      this.config.columns.push([newConfig])
-    } else {
-      let [x,y] = this.getIndicesForColumns(index)
-      const column = this.config.columns[x]
-      while (column[y].unitCount === 1) {
-        y--
-        if (y < 0) return;
-      }
-      column[y].unitCount--
-      column.push(this.createNewConfig())
+    let [x,y] = this.getIndicesForColumns(index)
+    const column = this.config.columns[x]
+    while (column[y].unitCount === 1) {
+      y--
+      if (y < 0) return;
     }
+    column[y].unitCount--
+    column.push(this.createNewConfig())
+    this.updateApp()
     this.updateConfig()
   }
 
-  public deleteCell (
+  public pushNewColumn () {
+    const newConfig = this.createNewConfig()
+    newConfig.unitCount = this.config.unitDivision
+    this.config.columns.push([newConfig])
+    this.updateApp()
+    this.updateConfig()
+  }
+
+  public removeCell (
     index : number
   ): void {
     const [x,y] = this.getIndicesForColumns(index)
@@ -154,6 +142,7 @@ export class MultiRowTweetDeck {
       target.unitCount += deletedCell[0].unitCount
     else
       this.config.columns.splice(x, 1)
+    this.updateApp()
     this.updateConfig()
   }
 
@@ -192,142 +181,127 @@ export class MultiRowTweetDeck {
     }
   }
 
-  public onChange () {
-    this.dispatchRules()
-  }
 
-  public dispatchRules (): void {
-
-    this.dispatchCellContainerRule()
-    this.dispatchCellRule()
-  }
-
-  private dispatchCellContainerRule (): void {
-    const rows: string[] = []
-    const unitHeight = 100 / this.config.unitDivision
-    for (let i=0; i<this.config.unitDivision; i++) {
-      // rows.push(`${unitHeight}%`)
-      rows.push('1fr')
-    }
-    const selecter = this.composeSelecter(this.cellContainerSelector)
-    const properties = this.composeStyleProperties({
-      'grid-template-rows': rows.join(' '),
-    })
-    const cssText = `${selecter} ${properties}`
-    if (!this.generalRules.cellContainer) {
-      this.generalRules.cellContainer =
-        new CSSRuleAgent(this.generalStyleElement)
-    }
-    this.generalRules.cellContainer.rule = cssText
-  }
-
-  private dispatchCellRule (): void {
-    const column_count  = this.config.columns.length
-    let global_index    = 0
-    for (let column_index=0; column_index<column_count; column_index++) {
-      const column = this.config.columns[column_index]
-      let unitStart = 1
-      for (const cell of column) {
-        this.assignCellRule(
-          global_index,
-          column_index,
-          unitStart,
-          cell.unitCount,
-          column_index + 1 === column_count,
-          column.length
-        )
-        unitStart += cell.unitCount
-        global_index++
-      }
-    }
-    const rulesNeverUse
-      = this.cellRules.splice(global_index, this.cellRules.length)
-    rulesNeverUse.forEach(ruleAgent => ruleAgent.destroy())
-  }
-  private assignCellRule (
-    global_index    : number, // 0,1,2...
-    column_index    : number, // 0,1,2...
-    unitStart       : number, // > 0
-    unitCount       : number, // > 0
-    isLastColumn    : boolean,
-    coefficient     : number = 1
+  public gridRootElement!: HTMLDivElement
+  private activeCell        : number = -1
+  private active2dIndex     : [number, number] = [-1, -1]
+  private activeCellConfig? : CellConfig
+  private count_start!      : number
+  private clientY!          : number
+  private divUnitHeight!    : number
+  private unitCountOffset!  : number
+  private unitCountMax!     : number
+  public setMouseState (
+    type  : MouseEventTypes,
+    event : MouseEvent,
+    index : number = -1
   ): void {
-    const coeff_str = coefficient === 1 ? '' : coefficient
-    let nth = `${isLastColumn ? `${coeff_str}n+` : ''}${global_index+1}`
-    const selecter = this.composeSelecter(
-      this.cellSelector,
-      '',
-      `:nth-child(${nth})`
-    )
-    const unitEnd = unitStart + unitCount
-    isLastColumn
-    const properties: string = this.composeStyleProperties(
-      Object.assign({
-        'grid-row-start'    : unitStart.toString(),
-        'grid-row-end'      : unitEnd.toString(),
-      }, isLastColumn ? {} : {
-        'grid-column-start' : (column_index+1).toString(),
-        'grid-column-end'   : (column_index+2).toString(),
-      })
-    )
-    const cssText = `${selecter} ${properties}`
-    if (!this.cellRules[global_index]) {
-      this.cellRules[global_index] = new CSSRuleAgent(this.cellStyleElement)
-    }
-    this.cellRules[global_index].rule = cssText
-  }
-
-  private composeSelecter (
-    selecter_base : string | string[],
-    prefix        : string = '',
-    suffix        : string = ''
-  ) {
-    if (Array.isArray(selecter_base)) {
-      return selecter_base
-        .map( genPrefixMapper(prefix) )
-        .map( genSuffixMapper(suffix) )
-        .join(', ')
-    } else {
-      return `${prefix}${selecter_base}${suffix}`
+    if        (type === 'mousedown') {
+      this.activeCell = index
+      this.active2dIndex = this.getIndicesForColumns(index)
+      this.attachActiveCellConfig()
+      this.divUnitHeight = this.unitDivision / this.gridRootElement.clientHeight
+      this.unitCountOffset = this.getUnitCountOffset()
+      this.unitCountMax = this.getUnitCountMax()
+      window.addEventListener('mousemove', this.onMouseMoveBinded)
+      window.addEventListener('mouseup', this.onMouseUpBinded)
+      this.watch()
+    } else if (type === 'mousemove') {
+      if (this.activeCell === -1) return;
+      this.clientY = event.clientY
+    } else if (type === 'mouseup') {
+      this.activeCell = -1
+      window.removeEventListener('mousemove', this.onMouseMoveBinded)
+      window.removeEventListener('mouseup', this.onMouseUpBinded)
+      this.updateConfig()
     }
   }
 
-  private composeStyleProperties (
-    properties: StringMap<string>
-  ): string {
-    const composed = Object.entries(properties)
-      .map(
-        (entry: [string, string]) => `${entry[0]} : ${entry[1]};`
-      )
-      .join(' ')
-    return `{ ${composed} }`
+  private onMouseMove (
+    e: MouseEvent
+  ): void {
+    this.setMouseState('mousemove', e)
+  }
+  private _onMouseMoveBinded!: (e: MouseEvent) => void
+  private get onMouseMoveBinded (): (e: MouseEvent) => void {
+    if (!this._onMouseMoveBinded)
+      this._onMouseMoveBinded = this.onMouseMove.bind(this)
+    return this._onMouseMoveBinded
+  }
+
+  private onMouseUp (
+    e: MouseEvent
+  ): void {
+    this.setMouseState('mouseup', e)
+  }
+  private _onMouseUpBinded!: (e: MouseEvent) => void
+  private get onMouseUpBinded (): (e: MouseEvent) => void {
+    if (!this._onMouseUpBinded)
+      this._onMouseUpBinded = this.onMouseUp.bind(this)
+    return this._onMouseUpBinded
+  }
+
+  private watchCallback (): boolean {
+    if (this.activeCell === -1) return false;
+    this.updateCellState()
+    return true;
+  }
+
+  private updateCellState () {
+    const cellConfig = this.activeCellConfig
+    if (!cellConfig) return;
+    const unitCountBase
+      = this.clientY * this.divUnitHeight
+        - (cellConfig.unitCount + this.unitCountOffset)
+    const unitCountDiff
+      = Math.sign(unitCountBase) * Math.floor(Math.abs(unitCountBase) * 1.5)
+    const unitCount = unitCountDiff + cellConfig.unitCount
+    if (
+      unitCountDiff !== 0 &&
+      unitCount >= 0 &&
+      unitCount <= this.unitCountMax
+    ) {
+      this.setUnitCount(this.activeCell, unitCount)
+    }
+  }
+
+
+  private attachActiveCellConfig (): void {
+    this.activeCellConfig = this.getCellConfig(this.active2dIndex)
+  }
+  private get unitDivision (): number {
+    return this.config.unitDivision
+  }
+  private getCellConfig (
+    index: number | [number, number]
+  ): CellConfig | undefined {
+    const [x, y]
+      = Array.isArray(index) ? index : this.getIndicesForColumns(index)
+    const column = this.config.columns[x]
+    if (!column) return undefined
+    return column[y]
+  }
+
+  private getUnitCountOffset (): number {
+    const [x, y] = this.active2dIndex
+    const column = this.config.columns[x]
+    let unitOffset = 0
+    for (let i=0; i<y; i++) {
+      unitOffset += column[i].unitCount
+    }
+    return unitOffset
+  }
+
+  private getUnitCountMax () {
+    const [x, y] = this.active2dIndex
+    const column = this.config.columns[x]
+    const unitOffset = this.getUnitCountOffset()
+    const afterSiblingsCount = column.length - (y + 1)
+    return this.config.unitDivision - (unitOffset + afterSiblingsCount)
   }
 
 }
 
-export class CSSRuleAgent {
-  private index: number
-  private sheet: CSSStyleSheet
-  constructor (
-    styleElem : HTMLStyleElement
-  ) {
-    this.sheet = styleElem.sheet as CSSStyleSheet
-    this.index = this.sheet.cssRules.length
-    this.sheet.insertRule('.NEVER_USED_RULE {}', this.index)
-  }
-
-  public get rule (): string {
-    return this.sheet.cssRules[this.index].cssText
-  }
-  public set rule (value: string) {
-    this.sheet.deleteRule(this.index)
-    this.sheet.insertRule(value, this.index)
-  }
-
-  public destroy () {
-    this.sheet.deleteRule(this.index)
-  }
-}
 
 
 export default new MultiRowTweetDeck()

@@ -1,20 +1,14 @@
 import * as React from 'react'
-import Cell, {InactiveCell} from 'Cell'
-import MRTD from 'MultiRowTweetDeck'
+import Cell from 'Cell'
+import Terminal from 'Terminal'
 
 import TDIcon from 'icon'
 const PLUS = TDIcon('plus', 'medium')
 
+
 const chrome = window.chrome
-export interface CellRootProp {
-}
-export interface CellRootState {
-  unitDivision  : number
-}
-
-export interface MultiRowTweetDeckOptions {
-
-}
+export interface CellRootProp {}
+export interface CellRootState {}
 
 const columns = document.getElementsByClassName('js-column')
 
@@ -27,65 +21,48 @@ React.Component<CellRootProp, CellRootState> {
     props: CellRootProp
   ) {
     super(props)
-    ;(MRTD as any).cur = this
-    this.state = {
-      unitDivision  : MRTD.config.unitDivision,
-    }
+    this.terminal.setCurrentApp(this)
   }
 
+  public static Terminal: Terminal
+  private get terminal (): Terminal {
+    return this.constructor.Terminal
+  }
 
-  private callWithUpdate<T extends (...args: any[]) => void> (
-    callee: T
-  ): T {
-    const self = this
-    return function () {
-      callee.apply(undefined, arguments)
-      self.forceUpdate()
-    } as T
+  public componentDidMount () {
+
   }
 
   public render (): React.ReactNode {
+    const config  = this.terminal.config
 
-    const config  = MRTD.config
-    let global_index                = 0
-    const cells: React.ReactNode[]  = []
+    const cells: React.ReactNode[] = []
     for (const column of config.columns) {
-      let unitMax     = this.state.unitDivision - (column.length - 1)
-      let cell_index  = 0
-      let offset      = 0
+      const lastIndex = column.length - 1
       for (const cell of column) {
-        cell_index++
         cells.push(
           <Cell
             key          = {cells.length}
-            index        = {global_index}
-            unitCount    = {cell.unitCount}
-            unitMax      = {unitMax - offset}
-            isLastRow    = {cell_index === column.length}
+            index        = {cells.length}
+            isActive     = {true}
+            isLastRow    = {column.indexOf(cell, lastIndex) === lastIndex}
             options      = {cell.options}
-
-            unitDivision = {this.state.unitDivision}
-            setUnitCount = {this.callWithUpdate(MRTD.setUnitCount.bind(MRTD))}
-            insertCell   = {this.callWithUpdate(MRTD.insertCell.bind(MRTD))}
-            deleteCell   = {this.callWithUpdate(MRTD.deleteCell.bind(MRTD))}
-            setOptions   = {this.callWithUpdate(MRTD.setOptions.bind(MRTD))}
+            terminal     = {this.terminal}
           ></Cell>
         )
-        offset += cell.unitCount
-        unitMax++
-        global_index++
       }
     }
 
     let isFirst = true
     while (cells.length < columns.length) {
       cells.push(
-        <InactiveCell
-          key        = {cells.length}
-          isFirst    = {isFirst}
-
-          insertCell = {this.callWithUpdate(MRTD.insertCell.bind(MRTD))}
-        ></InactiveCell>
+        <Cell
+          key             = {cells.length}
+          index           = {cells.length}
+          isActive        = {false}
+          isFirstInactive = {isFirst}
+          terminal        = {this.terminal}
+        ></Cell>
       )
       isFirst = false
     }
@@ -93,7 +70,7 @@ React.Component<CellRootProp, CellRootState> {
     return (
       <div className="app-content">
         <div className="app-columns-container scroll-h needs-scroll-bottom-offset scroll-styled-h">
-          <div className="app-columns">
+          <div className="app-columns" ref = { element => {if (element) this.terminal.gridRootElement = element} }>
             { cells }
           </div>
         </div>

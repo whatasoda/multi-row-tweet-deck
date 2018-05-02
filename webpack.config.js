@@ -1,11 +1,26 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  entry: './src/index.js',
-  output: {
-    filename: 'index.js',
-    path: path.join(__dirname, '/dist'),
+  entry: {
+    content: './src/jsx/content.tsx',
+    // options: './src/options.js',
+    // 'icon-16': './src/icons/icon-16.png'
   },
+  output: {
+    filename: '[name].js',
+    path    : path.join(__dirname, '/dist'),
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
+    modules: [path.join(__dirname, 'src/jsx'), 'node_modules']
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] },
+      { from: 'src/manifest.json', to: '' },
+    ])
+  ],
   module: {
     rules: [
       {
@@ -28,7 +43,12 @@ module.exports = {
             }
           }
         ],
-      }
+      },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader'
+      },
+
     ],
   },
 }
