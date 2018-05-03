@@ -1,10 +1,10 @@
 import * as React from 'react'
-import CellOption from 'CellOption'
-import {toggleClass} from 'util/toggleClass'
+import CellOption from './CellOption'
+import {toggleClass} from './util/toggleClass'
 
-import Terminal from 'Terminal'
+import Terminal from './Terminal'
 
-import TDIcon from 'icon'
+import TDIcon from './TDIcon'
 const CLOSE = TDIcon('close', 'large')
 const PLUS  = TDIcon('plus', 'large')
 
@@ -44,18 +44,14 @@ React.Component<CellProps, CellState> {
     this.props.terminal.removeCell(this.props.index)
   }
 
-  private pushNewColumn (): void {
-    this.props.terminal.pushNewColumn()
+  private pushColumn (): void {
+    this.props.terminal.pushColumn()
   }
 
   private dragInit (
     e: React.MouseEvent<HTMLDivElement>
   ): void {
-    this.props.terminal.setMouseState(
-      'mousedown',
-      e.nativeEvent,
-      this.props.index
-    )
+    this.props.terminal.dragInit(this.props.index, e.nativeEvent)
   }
 
   private insertCell (): void {
@@ -108,7 +104,7 @@ React.Component<CellProps, CellState> {
     if (isActive) {
       headerLinkAction = this.removeCell.bind(this)
     } else if (isFirstInactive) {
-      headerLinkAction = this.pushNewColumn.bind(this)
+      headerLinkAction = this.pushColumn.bind(this)
     }
 
     const headerLinkElement = headerLinkAction && (
@@ -137,8 +133,8 @@ React.Component<CellProps, CellState> {
 }
 
 
-import cc from 'util/composeClassName'
-import ep, {SFCProps} from 'util/excludedProps'
+import cc from './util/composeClassName'
+import ep, {SFCProps} from './util/excludedProps'
 const preventEventDefault: (...args: any[]) => void
   = (e: Event) => { e.preventDefault() }
 

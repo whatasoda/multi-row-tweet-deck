@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Cell from 'Cell'
+import Cell from './Cell'
 
 export interface CellOptionProps {
   index           : number

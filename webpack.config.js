@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: {
-    content: './src/jsx/content.tsx',
+    content: './src/tsx/content.tsx',
     // options: './src/options.js',
     // 'icon-16': './src/icons/icon-16.png'
   },
@@ -13,7 +13,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
-    modules: [path.join(__dirname, 'src/jsx'), 'node_modules']
+    modules: [path.join(__dirname, 'src/tsx'), 'node_modules']
   },
   plugins: [
     new CopyWebpackPlugin([

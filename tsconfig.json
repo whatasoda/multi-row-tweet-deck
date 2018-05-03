@@ -6,10 +6,9 @@
     "strict": true,
     "jsx": "react",
     "experimentalDecorators": true,
+    "moduleResolution": "node",
     "baseUrl": ".",
-    "paths": {
-      "*": ["src/types/*"]
-    }
+    "paths": {}
   },
   "exclude": [
     "dist"

@@ -1,20 +1,24 @@
 import * as React from 'react'
-import Cell from 'Cell'
-import Terminal from 'Terminal'
+import Cell from './Cell'
+import Terminal from './Terminal'
 
-import TDIcon from 'icon'
+import TDIcon from './TDIcon'
 const PLUS = TDIcon('plus', 'medium')
 
-
 const chrome = window.chrome
-export interface CellRootProp {}
-export interface CellRootState {}
+export interface CellRootProp {
+  terminal: Terminal
+}
+export interface CellRootState {
+  isVisible: boolean
+}
 
 const columns = document.getElementsByClassName('js-column')
 
 
 export default class CellRoot extends
 React.Component<CellRootProp, CellRootState> {
+  private gridElement?: HTMLDivElement
 
   public ['constructor']: typeof CellRoot
   constructor (
@@ -22,18 +26,26 @@ React.Component<CellRootProp, CellRootState> {
   ) {
     super(props)
     this.terminal.setCurrentApp(this)
+    this.state = {
+      isVisible: false
+    }
   }
 
-  public static Terminal: Terminal
   private get terminal (): Terminal {
-    return this.constructor.Terminal
+    return this.props.terminal
   }
 
   public componentDidMount () {
+    this.terminal.gridElement = this.gridElement
+  }
 
+  public componentWillUnmount () {
+    this.terminal.gridElement = undefined
   }
 
   public render (): React.ReactNode {
+    if (!this.state.isVisible) return ''
+
     const config  = this.terminal.config
 
     const cells: React.ReactNode[] = []
@@ -69,8 +81,21 @@ React.Component<CellRootProp, CellRootState> {
 
     return (
       <div className="app-content">
-        <div className="app-columns-container scroll-h needs-scroll-bottom-offset scroll-styled-h">
-          <div className="app-columns" ref = { element => {if (element) this.terminal.gridRootElement = element} }>
+        <div className="drawer">
+
+        </div>
+        <div
+          className={[
+            'app-columns-container',
+            'scroll-h',
+            'needs-scroll-bottom-offset',
+            'scroll-styled-h'
+          ].join(' ')}
+        >
+          <div
+            className="app-columns"
+            ref = { element => { this.gridElement = element || undefined } }
+          >
             { cells }
           </div>
         </div>

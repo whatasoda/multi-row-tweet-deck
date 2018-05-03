@@ -25,6 +25,7 @@
     "awesome-typescript-loader": "^5.0.0",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^0.28.11",
+    "csstype": "^2.4.2",
     "node-sass": "^4.8.3",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",

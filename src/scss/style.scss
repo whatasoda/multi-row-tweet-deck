@@ -1,5 +1,12 @@
+.toggle-multi-row-config {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .column-root__block {
-  display: none;
+  display         : none;
   position        : absolute;
   top             : 0;
   left            : 0;
@@ -12,13 +19,13 @@
 }
 
 
-.column-root__block .app-content {
-  transition-duration: 0.2s;
-}
+// .column-root__block .app-content {
+//   transition-duration: 0.2s;
+// }
 
-.is-condensed .column-root__block .app-content {
-  left            : 50px;
-}
+// .is-condensed .column-root__block .app-content {
+//   left            : 50px;
+// }
 
 .is-open ~ .column-root__block .app-content {
   transform: translateX(270px);
@@ -62,6 +69,8 @@ $light-article: #ffffff;
 $drag-handle-dark: #ccd6dd;
 $drag-handle-light: #66757f;
 
+$handle-height: 9px;
+$handle-padding-top: ($handle-height - 5);
 .cell{
   &__handle {
     position    : absolute;
@@ -69,7 +78,8 @@ $drag-handle-light: #66757f;
     left        : 0;
     right       : 0;
     bottom      : 0;
-    height      : 5px;
+    height      : $handle-height;
+    padding-top : $handle-padding-top;
     cursor      : row-resize;
     &::before, &::after {
       content: '.';
@@ -79,17 +89,17 @@ $drag-handle-light: #66757f;
       position: absolute;
     }
     &::before {
-      top: 0;
-      bottom: 0;
-      box-sizing  : border-box;
-      border: 1px solid $drag-handle-light;
-      border-left: none;
-      border-right: none;
+      height        : 5px;
+      bottom        : 0;
+      box-sizing    : border-box;
+      border        : 1px solid $drag-handle-light;
+      border-left   : none;
+      border-right  : none;
     }
     &::after {
-      background: $drag-handle-light;
-      top   : 2px;
-      height: 1px;
+      background  : $drag-handle-light;
+      bottom      : 2px;
+      height      : 1px;
     }
   }
   &__insert {

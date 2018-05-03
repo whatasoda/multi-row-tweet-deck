@@ -4,7 +4,8 @@ export interface toggleClass {
     isActive  : boolean
   ): string
 }
-export default function getToggleClassFunc(
+
+export default function genToggleClassFunc(
   className: string
 ) {
   const pattern = new RegExp(`\\b\\s*${className}\\b`)
