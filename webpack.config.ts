@@ -2,12 +2,30 @@ import * as webpack from "webpack"
 import * as path from "path"
 import manifestObj from './manifest'
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 const CopyWebpackPlugin   = require('copy-webpack-plugin')
 const ZipPlugin           = require('zip-webpack-plugin')
 const GenerateJsonPlugin  = require('generate-json-webpack-plugin')
+const { version }         = require('./package.json')
 
+const plugins: webpack.Plugin[] = [
+  new GenerateJsonPlugin('manifest.json', manifestObj),
+]
+if (!isDev) {
+  plugins.push(
+    new CopyWebpackPlugin([
+      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] }
+    ]),
+    new ZipPlugin({
+      path        : path.join(__dirname, 'archive'),
+      filename    : `v${version}`,
+      pathPrefix  : 'dist'
+    })
+  )
+}
 
-export default {
+const config: webpack.Configuration = {
   entry: {
     content: './src/tsx/content.tsx',
     // options: './src/options.js',
@@ -15,21 +33,13 @@ export default {
   },
   output: {
     filename: '[name].js',
-    path    : path.join(__dirname, '/dist'),
+    path    : path.join(__dirname, 'dist'),
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     modules: [path.join(__dirname, 'src/tsx'), 'node_modules']
   },
-  plugins: [
-    new CopyWebpackPlugin([
-      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] }
-    ]),
-    new GenerateJsonPlugin('manifest.json', manifestObj),
-    // new ZipPlugin({
-    //
-    // })
-  ],
+  plugins: plugins,
   module: {
     rules: [
       {
@@ -61,3 +71,5 @@ export default {
     ],
   },
 }
+
+export default config
