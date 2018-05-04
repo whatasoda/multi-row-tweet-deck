@@ -8,6 +8,8 @@ import CellRoot from './CellRoot'
 import waitFor from './util/waitFor'
 import genToggleClass from './util/toggleClass'
 
+const { version } = require('../manifest.json')
+
 const chrome = window.chrome
 
 const defaultConfig : ExtensionConfig = {
@@ -24,7 +26,7 @@ const defaultConfig : ExtensionConfig = {
     ]
   ],
   unitDivision: 32,
-  version: '1.0'
+  version: version
 }
 
 export default class MultiRowTweetDeck implements Terminal {
