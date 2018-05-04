@@ -2,7 +2,7 @@ import * as React from 'react'
 import Cell from './Cell'
 import Terminal from './Terminal'
 
-import TDIcon from './TDIcon'
+import TDIcon from './TweetDeckIcon'
 const PLUS = TDIcon('plus', 'medium')
 
 const chrome = window.chrome
@@ -35,7 +35,7 @@ React.Component<CellRootProp, CellRootState> {
     return this.props.terminal
   }
 
-  public componentDidMount () {
+  public componentDidUpdate () {
     this.terminal.gridElement = this.gridElement
   }
 

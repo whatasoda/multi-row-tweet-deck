@@ -4,7 +4,9 @@ import {toggleClass} from './util/toggleClass'
 
 import Terminal from './Terminal'
 
-import TDIcon from './TDIcon'
+import TDIcon, {
+  TweetDeckIconType
+} from './TweetDeckIcon'
 const CLOSE = TDIcon('close', 'large')
 const PLUS  = TDIcon('plus', 'large')
 
@@ -19,7 +21,8 @@ export interface CellProps {
 export interface CellState {
 }
 
-const GenuineCells = document.getElementsByClassName('js-column')
+const columns = document.getElementsByClassName('column')
+const columnTypeIcons = document.getElementsByClassName('column-type-icon')
 
 export default class Cell extends
 React.Component<CellProps, CellState> {
@@ -34,10 +37,6 @@ React.Component<CellProps, CellState> {
     super(props)
     this.state = {
     }
-  }
-
-  public get genuine (): Element {
-    return GenuineCells[this.props.index]
   }
 
   private removeCell () {
@@ -67,7 +66,7 @@ React.Component<CellProps, CellState> {
   ): void {
     const activationClass = this.constructor.OptionActivationClass[label]
     this.constructor.ToggleClassFuncs[activationClass](
-      this.genuine,
+      columns[this.props.index],
       isActive
     )
   }
@@ -107,11 +106,23 @@ React.Component<CellProps, CellState> {
       headerLinkAction = this.pushColumn.bind(this)
     }
 
-    const headerLinkElement = headerLinkAction && (
-      <ColumnHeaderLink linkPosition = {isActive ? 'right' : 'left'}
-        onClick = {headerLinkAction}
-      >{isActive ? <CLOSE/> : <PLUS/>}</ColumnHeaderLink>
-    )
+    let headerLinkElement: JSX.Element | undefined = undefined
+    if (headerLinkAction) {
+      headerLinkElement = (
+        <ColumnHeaderLink linkPosition = {isActive ? 'right' : 'left'}
+          onClick = {headerLinkAction}
+        >{isActive ? <CLOSE/> : <PLUS/>}</ColumnHeaderLink>
+      )
+    }
+
+    const columnType = isActive ? this.getColumnType() : undefined
+    let TypeIconElement: JSX.Element | undefined = undefined
+    if (columnType) {
+      const TypeIcon = TDIcon(columnType, 'large')
+      TypeIconElement = (
+        <TypeIcon className="pull-left margin-hs column-type-icon"/>
+      )
+    }
 
     const actionElement = isLastRow
       ? <InsertButton onClick = {this.insertCell.bind(this)}></InsertButton>
@@ -120,6 +131,7 @@ React.Component<CellProps, CellState> {
     return (
       <Column className={isActive ? undefined : 'inactive-cell'}>
         <ColumnHeader>
+          { TypeIconElement }
           <ul className="cell__option">
             {option_elems}
           </ul>
@@ -128,9 +140,17 @@ React.Component<CellProps, CellState> {
         { isActive ? actionElement : undefined }
       </Column>
     )
+  }
 
+  private getColumnType (): TweetDeckIconType | undefined {
+    const columnIcon  = columnTypeIcons[this.props.index]
+    const match       = DETECT_ICON_TYPE[Symbol.match](columnIcon.className)
+    const iconType    = match ? match[1] : undefined
+    return TDIcon.isType(iconType) ? iconType : undefined
   }
 }
+
+const DETECT_ICON_TYPE = / icon-(.+?)(?= |$)/
 
 
 import cc from './util/composeClassName'
