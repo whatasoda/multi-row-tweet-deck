@@ -1,7 +1,7 @@
-import ExtensionManifest from './ExtensionManifest'
+import { Manifest } from './types/ExtensionManifest'
 const { version } = require('../package.json')
 
-const manifest: ExtensionManifest = {
+const manifest: Manifest = {
   name: 'Multi Row TweetDeck',
   icons: {
     16    : 'icons/icon-16.png',

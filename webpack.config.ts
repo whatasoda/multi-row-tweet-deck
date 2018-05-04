@@ -1,6 +1,6 @@
 import * as webpack from "webpack"
 import * as path from "path"
-import manifestObj from './manifest'
+import manifestObj from './src/manifest'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -27,7 +27,7 @@ if (!isDev) {
 
 const config: webpack.Configuration = {
   entry: {
-    content: './src/tsx/content.tsx',
+    content: './src/content.ts',
     // options: './src/options.js',
     // 'icon-16': './src/icons/icon-16.png'
   },

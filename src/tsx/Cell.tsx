@@ -1,6 +1,6 @@
 import * as React from 'react'
 import CellOption from './CellOption'
-import {toggleClass} from './util/toggleClass'
+import {ToggleClass} from './util/toggleClass'
 
 import Terminal from './Terminal'
 
@@ -71,7 +71,7 @@ React.Component<CellProps, CellState> {
     )
   }
   public static OptionActivationClass: StringMap<string>
-  public static ToggleClassFuncs: StringMap<toggleClass> = {}
+  public static ToggleClassFuncs: StringMap<ToggleClass> = {}
 
 
 
@@ -118,9 +118,9 @@ React.Component<CellProps, CellState> {
     const columnType = isActive ? this.getColumnType() : undefined
     let TypeIconElement: JSX.Element | undefined = undefined
     if (columnType) {
-      const TypeIcon = TDIcon(columnType, 'large')
+      const TypeIcon = TDIcon(columnType)
       TypeIconElement = (
-        <TypeIcon className="pull-left margin-hs column-type-icon"/>
+        <TypeIcon className="pull-left margin-hs column-type-icon inside-cell"/>
       )
     }
 
@@ -142,8 +142,12 @@ React.Component<CellProps, CellState> {
     )
   }
 
+
+
   private getColumnType (): TweetDeckIconType | undefined {
     const columnIcon  = columnTypeIcons[this.props.index]
+    if (!columnIcon) return;
+    if (Array.from(columnIcon.classList).includes('inside-cell')) return;
     const match       = DETECT_ICON_TYPE[Symbol.match](columnIcon.className)
     const iconType    = match ? match[1] : undefined
     return TDIcon.isType(iconType) ? iconType : undefined
@@ -160,9 +164,9 @@ const preventEventDefault: (...args: any[]) => void
 
 const Column = ( props: ColumnProps ) => (
   <div {...ep(props, '_ref', 'children')} ref={props._ref}
-    className={cc('cell__block column', props)}
+    className={cc('column inside-cell', props)}
   >
-    <div className="column-holder">
+    <div className="column-holder inside-cell">
       {props.children}
     </div>
   </div>

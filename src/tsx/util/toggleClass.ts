@@ -1,13 +1,13 @@
-export interface toggleClass {
+export interface ToggleClass {
   (
     elem      : Element,
     isActive  : boolean
-  ): string
+  ): string | null
 }
 
 export default function genToggleClassFunc(
   className: string
-) {
+): ToggleClass {
   const pattern = new RegExp(`\\b\\s*${className}\\b`)
   return function (
     elem      : Element,

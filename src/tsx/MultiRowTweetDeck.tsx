@@ -2,13 +2,20 @@ import * as React from 'react'
 import { render } from 'react-dom'
 import ExtensionConfig, {CellConfig} from './ExtensionConfig'
 import Terminal from './Terminal'
-import genWatch from './genWatch'
+import watch from './util/watch'
+import isEmptyArray from './util/isEmptyArray'
+import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
-import waitFor from './util/waitFor'
-import genToggleClass from './util/toggleClass'
 
-const { version } = require('../../package.json')
+const { version, appConfig } = require('../../package.json') as PackageJSON
+interface PackageJSON {
+  version: string
+  appConfig: AppConfig
+}
+interface AppConfig {
+  unitDivision: number
+}
 
 const chrome = window.chrome
 
@@ -30,59 +37,90 @@ const defaultConfig : ExtensionConfig = {
 }
 
 export default class MultiRowTweetDeck implements Terminal {
-  public config!      : ExtensionConfig
-  private styleAgent  : StyleAgent
-  private watchHeight : () => void
-  private drag        : (e: MouseEvent) => void
-  private dragCommit  : (e: MouseEvent) => void
-  private app?        : CellRoot
-  private userId?     : string
+  public config!        : ExtensionConfig
+  private styleAgent    : StyleAgent
+  private watchHeight   : () => void
+  private drag          : (e: MouseEvent) => void
+  private dragCommit    : (e: MouseEvent) => void
+  private setVisibility : ToggleClass
+  private rootElement?  : HTMLDivElement
+  private app?          : CellRoot
+  private userId?       : string
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
-    this.styleAgent  = new StyleAgent(this)
-    this.watchHeight = genWatch(this.updateCellHeight.bind(this))
-    this.drag        = this._drag.bind(this)
-    this.dragCommit  = this._dragCommit.bind(this)
+    this.styleAgent       = new StyleAgent(this)
+    this.watchHeight      = watch(this.updateCellHeight.bind(this))
+    this.drag             = this._drag.bind(this)
+    this.dragCommit       = this._dragCommit.bind(this)
+    this.setVisibility = genToggleClass('is-visible')
   }
 
   public async init (): Promise<void> {
-    const account_items = document.getElementsByClassName('js-account-item')
-    await waitFor(account_items)
-    const accountKey =
-      account_items[0].getAttribute('data-account-key') || 'default'
-    this.userId = accountKey.split(':')[1]
-
+    this.userId = await this.getUserId()
     this.config = await this.getConfig<ExtensionConfig>(this.userId)
-    if (!this.config)
-      this.config = defaultConfig
+
+    if (!this.config) this.config = defaultConfig
+
     this.styleAgent.dispatch()
 
-    const root = document.createElement('div')
-    root.className = 'column-root__block'
-    document.getElementsByClassName('js-app')[0].appendChild(root)
+    this.setUpRootElement()
+    this.setUpToggleButton()
 
-    const title = document.getElementsByClassName('app-title')[0]
+    if (this.rootElement)
+      render(<CellRoot terminal={this}/>, this.rootElement)
+  }
+
+
+
+  private async getUserId () {
+    const account_items = document.getElementsByClassName('js-account-item')
+    await watch(() => isEmptyArray(account_items))()
+
+    const accountKey =
+      account_items[0].getAttribute('data-account-key') || 'default'
+    return accountKey.split(':')[1]
+  }
+
+
+
+  private setUpRootElement (): Element {
+    const rootElem = document.createElement('div')
+    rootElem.className = 'column-root__block'
+    document.getElementsByClassName('js-app')[0].appendChild(rootElem)
+
+    return this.rootElement = rootElem
+  }
+
+
+
+  private setUpToggleButton (): HTMLAnchorElement {
     const toggleButton = document.createElement('a')
     toggleButton.href = '#'
-    toggleButton.className = 'toggle-multi-row-config'
+    toggleButton.className = 'toggle-multi-row-setting-view'
+
+    const title = document.getElementsByClassName('app-title')[0]
     title.appendChild(toggleButton)
 
-    const toggleVisible = genToggleClass('is-visible')
+    toggleButton.addEventListener('click', this.toggleSettingView.bind(this))
 
-    toggleButton.addEventListener('click', function (
-      this: MultiRowTweetDeck,
-      e: MouseEvent
-    ): void {
-      if (this.app) {
-        this.app.setState(
-          prevState => ({ isVisible: !prevState.isVisible })
-        )
-        toggleVisible(root, this.app.state.isVisible)
-      }
-      e.preventDefault()
-    }.bind(this))
-    render(<CellRoot terminal={this}/>, root)
+    return toggleButton
+  }
+
+
+
+  private toggleSettingView (
+    this: MultiRowTweetDeck,
+    e: MouseEvent
+  ): void {
+    if (!(this.app && this.rootElement)) return e.preventDefault()
+
+    this.app.setState(
+      prevState => ({ isVisible: !prevState.isVisible })
+    )
+    this.setVisibility(this.rootElement, this.app.state.isVisible)
+
+    return e.preventDefault()
   }
 
 
@@ -167,15 +205,30 @@ export default class MultiRowTweetDeck implements Terminal {
     const x = this.getCellCoord(index)[0]
     if (x < 0) return;
     const column = this.config.columns[x]
-
-    let y = column.length
-    while (column[--y].unitCount === 1) {
-      // 追加する余裕が無い場合は失敗
-      if (y < 0) return;
-    }
-
-    column[y].unitCount--
     column.push(this.createNewConfig())
+
+    this.divideIntoEqual(column)
+
+    this.updateApp()
+    this.updateConfig()
+  }
+
+
+
+
+  public removeCell (
+    index : number
+  ): void {
+    const [x,y] = this.getCellCoord(index)
+    if (y < 0) return;
+    const column    = this.config.columns[x]
+    const deadCell  = column.splice(y, 1)
+
+    if (column.length) {
+      this.divideIntoEqual(column)
+    } else {
+      this.config.columns.splice(x, 1)
+    }
 
     this.updateApp()
     this.updateConfig()
@@ -195,27 +248,6 @@ export default class MultiRowTweetDeck implements Terminal {
     this.updateConfig()
   }
 
-
-
-
-  public removeCell (
-    index : number
-  ): void {
-    const [x,y] = this.getCellCoord(index)
-    if (y < 0) return;
-    const column    = this.config.columns[x]
-    const deadCell  = column.splice(y, 1)
-
-    const nearestAlive = column[y] || column[y-1]
-    if (nearestAlive) {
-      nearestAlive.unitCount += deadCell[0].unitCount
-    } else {
-      this.config.columns.splice(x, 1)
-    }
-
-    this.updateApp()
-    this.updateConfig()
-  }
 
 
 
@@ -346,6 +378,19 @@ export default class MultiRowTweetDeck implements Terminal {
     return [x, y]
   }
 
+
+
+
+  private divideIntoEqual (
+    column: CellConfig[]
+  ): void {
+    const ave = Math.floor(this.config.unitDivision / column.length)
+    const mod = this.config.unitDivision % column.length
+
+    for (let i=0; i<column.length; i++) {
+      column[i].unitCount = ave + (i < mod ? 1 : 0)
+    }
+  }
 
 
 

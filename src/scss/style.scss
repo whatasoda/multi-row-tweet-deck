@@ -1,4 +1,4 @@
-.toggle-multi-row-config {
+.toggle-multi-row-setting-view {
   position: absolute;
   display: block;
   width: 100%;
@@ -45,16 +45,16 @@
 }
 
 
-.column, .cell__block {
+.column {
   width: 310px - 6px !important;
 }
 .is-wide-columns {
-  .column, .cell__block {
+  .column {
     width: 350px - 6px !important;
   }
 }
 .is-narrow-columns {
-  .column, .cell__block {
+  .column {
     width: 270px - 6px !important;
   }
 }
