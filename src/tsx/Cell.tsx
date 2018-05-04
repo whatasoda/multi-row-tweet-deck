@@ -47,10 +47,16 @@ React.Component<CellProps, CellState> {
     this.props.terminal.pushColumn()
   }
 
-  private dragInit (
+  private dragInitUnitCount (
     e: React.MouseEvent<HTMLDivElement>
   ): void {
-    this.props.terminal.dragInit(this.props.index, e.nativeEvent)
+    this.props.terminal.dragInit('unitCount', this.props.index, e.nativeEvent)
+  }
+
+  private dragInitColumnWidth (
+    e: React.MouseEvent<HTMLDivElement>
+  ): void {
+    this.props.terminal.dragInit('columnWidth', this.props.index, e.nativeEvent)
   }
 
   private insertCell (): void {
@@ -124,9 +130,25 @@ React.Component<CellProps, CellState> {
       )
     }
 
-    const actionElement = isLastRow
-      ? <InsertButton onClick = {this.insertCell.bind(this)}></InsertButton>
-      : <DragHandle onMouseDown = {this.dragInit.bind(this)}></DragHandle>
+    let actionElement: JSX.Element | JSX.Element[] | undefined = undefined
+    if (isActive) {
+      if (isLastRow) {
+        actionElement = [
+          <InsertButton key={0} onClick = {this.insertCell.bind(this)}/>,
+          <DragHandle key={1}
+            handleType = 'vertical'
+            onMouseDown = {this.dragInitColumnWidth.bind(this)}
+          />
+        ]
+      } else {
+        actionElement = (
+          <DragHandle
+            handleType = 'horizonal'
+            onMouseDown = {this.dragInitUnitCount.bind(this)}
+          />
+        )
+      }
+    }
 
     return (
       <Column className={isActive ? undefined : 'inactive-cell'}>
@@ -134,7 +156,7 @@ React.Component<CellProps, CellState> {
           { TypeIconElement }
           { headerLinkElement }
         </ColumnHeader>
-        { isActive ? actionElement : undefined }
+        { actionElement }
       </Column>
     )
   }
@@ -199,12 +221,14 @@ DetailedHTMLProps<HTMLAnchorElement>, SFCProps<HTMLAnchorElement> {
 }
 
 const DragHandle = ( props: DragHandleProps ) => (
-  <div {...ep(props, '_ref')}
+  <div {...ep(props, '_ref', 'handleType')}
     onDragStart = {preventEventDefault}
-    className   = {cc('cell__handle', props)}
+    className   = {cc(`cell__handle cell__handle--${props.handleType}`, props)}
   ></div>
 )
 type DragHandleProps = {
+  handleType: 'horizonal' | 'vertical'
+} & {
   [K in 'onMouseDown']: DetailedHTMLProps<HTMLDivElement>[K]
 } & DetailedHTMLProps<HTMLDivElement> & SFCProps<HTMLDivElement>
 

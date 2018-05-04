@@ -1,21 +1,25 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import ExtensionConfig, {CellConfig} from './ExtensionConfig'
-import Terminal from './Terminal'
+import ExtensionConfig, {
+  PackageJSON,
+  CellConfig,
+  upgradeConfig,
+} from './ExtensionConfig'
+import Terminal, {
+  DragType,
+  DragFuncMap
+} from './Terminal'
 import watch from './util/watch'
 import isEmptyArray from './util/isEmptyArray'
 import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
 
-const { version, appConfig } = require('../../package.json') as PackageJSON
-interface PackageJSON {
-  version: string
-  appConfig: AppConfig
-}
-interface AppConfig {
-  unitDivision: number
-}
+const {
+  version,
+  appConfig
+} = require('../../package.json') as PackageJSON
+
 
 const chrome = window.chrome
 
@@ -32,35 +36,39 @@ const defaultConfig : ExtensionConfig = {
       }
     ]
   ],
-  unitDivision: 32,
+  unitDivision: appConfig.unitDivision,
+  columnWidth: [],
   version: version
 }
 
 export default class MultiRowTweetDeck implements Terminal {
-  public config!        : ExtensionConfig
-  private styleAgent    : StyleAgent
-  private watchHeight   : () => void
-  private drag          : (e: MouseEvent) => void
-  private dragCommit    : (e: MouseEvent) => void
-  private setVisibility : ToggleClass
-  private rootElement?  : HTMLDivElement
-  private app?          : CellRoot
-  private userId?       : string
+  public config!          : ExtensionConfig
+  private styleAgent      : StyleAgent
+  private watchUnitCount  : () => void
+  private watchColumnWidth: () => void
+  private dragState       : (e: MouseEvent) => void
+  private dragCommit      : (e: MouseEvent) => void
+  private setVisibility   : ToggleClass
+  private rootElement?    : HTMLDivElement
+  private app?            : CellRoot
+  private userId?         : string
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
     this.styleAgent       = new StyleAgent(this)
-    this.watchHeight      = watch(this.updateCellHeight.bind(this))
-    this.drag             = this._drag.bind(this)
+    this.watchUnitCount   = watch(this.updateUnitCount.bind(this))
+    this.watchColumnWidth = watch(this.updateColumnWidth.bind(this))
+    this.dragState        = this._dragState.bind(this)
     this.dragCommit       = this._dragCommit.bind(this)
-    this.setVisibility = genToggleClass('is-visible')
+    this.setVisibility    = genToggleClass('is-visible')
   }
 
   public async init (): Promise<void> {
     this.userId = await this.getUserId()
-    this.config = await this.getConfig<ExtensionConfig>(this.userId)
+    let config = await this.getStorageItem<ExtensionConfig>(this.userId)
+    if (!config) config = defaultConfig
 
-    if (!this.config) this.config = defaultConfig
+    this.config = upgradeConfig(config)
 
     this.styleAgent.dispatch()
 
@@ -126,7 +134,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
 
-  private async getConfig<T> (
+  private async getStorageItem<T> (
     key: string
   ): Promise<T> {
     return new Promise<T>( (resolve, reject) => chrome.storage.sync.get(
@@ -169,7 +177,6 @@ export default class MultiRowTweetDeck implements Terminal {
     index : number,
     count : number
   ): void {
-    if (index < 0) return;
     let [x,y] = this.getCellCoord(index)
     if (y < -1) return;
 
@@ -196,6 +203,23 @@ export default class MultiRowTweetDeck implements Terminal {
 
     this.updateApp()
   }
+
+
+
+
+  public setColumnWidth (
+    column_index: number,
+    width       : number
+  ): void {
+    if (column_index < -1) return;
+    const { min, max } = appConfig.columnWidth
+
+    width = Math.min(Math.max(width, min), max)
+
+    this.config.columnWidth[column_index] = width
+    this.updateApp()
+  }
+
 
 
 
@@ -278,6 +302,48 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
 
+  private dragType? : DragType
+
+  public dragInit (
+    type  : DragType,
+    index : number,
+    event : MouseEvent
+  ): void {
+    if (!this[DragFuncMap.Init[type]](index, event)) return;
+
+    this.dragType = type
+    window.addEventListener('mousemove', this.dragState)
+    window.addEventListener('mouseup',   this.dragCommit)
+
+    this[DragFuncMap.Watch[type]]()
+  }
+
+
+  private _dragState (
+    event : MouseEvent
+  ): void {
+    if (!this.dragType) return;
+
+    this[DragFuncMap.State[this.dragType]](event)
+  }
+
+  private _dragCommit (): void {
+    if (!this.dragType) return;
+
+    this[DragFuncMap.Commit[this.dragType]]()
+    this.dragType = undefined
+
+    window.removeEventListener('mousemove', this.dragState)
+    window.removeEventListener('mouseup',   this.dragCommit)
+
+    this.updateConfig()
+  }
+
+
+
+
+
+
 
   public gridElement?         : HTMLDivElement
   private clientY?            : number
@@ -286,44 +352,42 @@ export default class MultiRowTweetDeck implements Terminal {
   private activeCellConfig!   : CellConfig
   private unitHeight!         : number
   private unitConstraint!     : UnitConstraint
-  private get unitDivision () : number {
-    return this.config.unitDivision
-  }
 
-
-  public dragInit (
-    index: number,
-    event: MouseEvent
-  ): void {
-    if (!this.gridElement) return;
+  private updateUnitCountInit (
+    index : number,
+    event : MouseEvent
+  ): boolean {
+    if (!this.gridElement) return false
 
     const [x, y] = this.getCellCoord(index)
-    if (y < 0) return;
+    if (y < 0) return false
 
     this.activeCell       = index
     this.activeCoord      = [x, y]
     this.activeCellConfig = this.config.columns[x][y]
 
     const containerHeight = this.gridElement.clientHeight
-    this.unitHeight       = containerHeight / this.unitDivision
+    this.unitHeight       = containerHeight / this.config.unitDivision
 
     this.unitConstraint   = this.getUnitConstraint(x, y)
 
-    window.addEventListener('mousemove', this.drag)
-    window.addEventListener('mouseup',   this.dragCommit)
-    this.watchHeight()
+    return true
   }
 
-
-  private _drag (
-    e: MouseEvent
+  private stateUnitCount (
+    event: MouseEvent
   ): void {
     if (this.activeCell === undefined) return;
-    this.clientY = e.clientY
+    this.clientY = event.clientY
+  }
+
+  private commitUnitCount (): void {
+    this.activeCell = undefined
+    this.clientY    = undefined
   }
 
   // return false => break, return true => continue
-  private updateCellHeight (): boolean {
+  private updateUnitCount (): boolean {
     if (this.activeCell === undefined)  return false;
     if (this.clientY === undefined)     return true;
 
@@ -344,15 +408,56 @@ export default class MultiRowTweetDeck implements Terminal {
     return true
   }
 
-  private _dragCommit (
-    e: MouseEvent
-  ): void {
-    this.activeCell = undefined
-    this.clientY    = undefined
 
-    window.removeEventListener('mousemove', this.drag)
-    window.removeEventListener('mouseup',   this.dragCommit)
-    this.updateConfig()
+
+
+
+  private activeColumn? : number
+  private startX!       : number
+  private startWidth!   : number
+  private clientX?      : number
+
+  private updateColumnWidthInit (
+    index : number,
+    event : MouseEvent
+  ): boolean {
+    const x = this.getCellCoord(index)[0]
+    if (x < -1) return false
+
+    this.activeColumn = x
+    this.startX       = event.clientX
+    this.startWidth   = this.config.columnWidth[this.activeColumn]
+
+    return true
+  }
+
+
+  private stateColumnWidth (
+    event: MouseEvent
+  ): void {
+    if (this.activeColumn === undefined) return;
+    this.clientX = event.clientX
+  }
+
+
+  private commitColumnWidth (): void {
+    this.activeColumn = undefined
+    this.clientX      = undefined
+  }
+
+
+  private updateColumnWidth (): boolean {
+    if (this.activeColumn === undefined) return false
+    if (this.clientX === undefined) return true
+
+    const diff  = this.clientX - this.startX
+    const width = diff + this.startWidth
+
+    if (this.config.columnWidth[this.activeColumn] !== width) {
+      this.setColumnWidth(this.activeColumn, width)
+    }
+
+    return true
   }
 
 
@@ -412,6 +517,7 @@ export default class MultiRowTweetDeck implements Terminal {
   }
 
 }
+
 
 interface UnitConstraint {
   offset: number

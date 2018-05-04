@@ -46,18 +46,24 @@
 
 
 .column {
-  width: 310px - 6px !important;
+  min-width: 200px !important;
+  width: auto !important;
+  max-width: 600px !important;
 }
-.is-wide-columns {
-  .column {
-    width: 350px - 6px !important;
-  }
-}
-.is-narrow-columns {
-  .column {
-    width: 270px - 6px !important;
-  }
-}
+
+// .column {
+//   width: 310px - 6px !important;
+// }
+// .is-wide-columns {
+//   .column {
+//     width: 350px - 6px !important;
+//   }
+// }
+// .is-narrow-columns {
+//   .column {
+//     width: 270px - 6px !important;
+//   }
+// }
 
 $light-column-header: #F5F8FA;
 $dark-column-header: #243447;
@@ -75,32 +81,61 @@ $handle-padding: ($handle-height - 5) / 2;
   &__handle {
     position    : absolute;
     z-index     : 100;
-    left        : $handle-padding;
-    right       : $handle-padding;
-    bottom      : -2px - $handle-padding;
-    height      : $handle-height;
-    padding     : $handle-padding 0;
+    padding     : $handle-padding;
     box-sizing  : border-box;
-    cursor      : row-resize;
     &::before, &::after {
       content: '.';
       font-size: 0;
       display: block;
-      width: 100%;
       position: absolute;
     }
     &::before {
-      height        : 5px;
-      bottom        : $handle-padding;
       box-sizing    : border-box;
       border        : 1px solid $drag-handle-light;
-      border-left   : none;
-      border-right  : none;
     }
     &::after {
       background  : $drag-handle-light;
-      bottom      : 2px + $handle-padding;
-      height      : 1px;
+    }
+
+    &--horizonal {
+      left        : $handle-padding + 1;
+      right       : $handle-padding + 6;
+      bottom      : -2px - $handle-padding;
+      height      : $handle-height;
+      cursor      : row-resize;
+      &::before, &::after {
+        width: 100%;
+      }
+      &::before {
+        height        : 5px;
+        bottom        : $handle-padding;
+        border-left   : none;
+        border-right  : none;
+      }
+      &::after {
+        bottom      : 2px + $handle-padding;
+        height      : 1px;
+      }
+    }
+    &--vertical {
+      bottom  : 0;
+      right   : -4px - $handle-padding;
+      height  : calc(100vh - 4px);
+      width   : $handle-height;
+      cursor  : col-resize;
+      &::before, &::after {
+        height: 100%;
+      }
+      &::before {
+        width         : 5px;
+        right         : $handle-padding;
+        border-top    : none;
+        border-bottom : none;
+      }
+      &::after {
+        right : 2px + $handle-padding;
+        width : 1px;
+      }
     }
   }
   &__insert {

@@ -11,19 +11,21 @@ import {
 } from './CSSRuleAgent'
 
 export default class StyleAgent {
-  private terminal  : Terminal
-  private ruleRoot  : CSSRuleAgentRoot
-  private rules     : CSSRuleAgentGroup
-  private cellRules : CSSRuleAgentGroup
+  private terminal    : Terminal
+  private ruleRoot    : CSSRuleAgentRoot
+  private rules       : CSSRuleAgentGroup
+  private cellRules   : CSSRuleAgentGroup
+  private columnRules : CSSRuleAgentGroup
 
   public ['constructor']: typeof StyleAgent
   constructor (
     terminal: Terminal
   ) {
-    this.terminal   = terminal
-    this.ruleRoot   = new CSSRuleAgentRoot()
-    this.rules      = new CSSRuleAgentGroup(this.ruleRoot)
-    this.cellRules  = new CSSRuleAgentGroup(this.ruleRoot)
+    this.terminal     = terminal
+    this.ruleRoot     = new CSSRuleAgentRoot()
+    this.rules        = new CSSRuleAgentGroup(this.ruleRoot)
+    this.cellRules    = new CSSRuleAgentGroup(this.ruleRoot)
+    this.columnRules  = new CSSRuleAgentGroup(this.ruleRoot)
     document.head.appendChild(this.ruleRoot.DOM)
   }
 
@@ -31,6 +33,7 @@ export default class StyleAgent {
   public dispatch (): void {
     this.dispatchCellContainerRule()
     this.dispatchCellRule()
+    this.dispatchColumnRule()
   }
 
   private dispatchCellContainerRule (): void {
@@ -39,7 +42,7 @@ export default class StyleAgent {
       rows.push('1fr')
     }
 
-    this.rules.agent('app-columns').style(
+    this.rules.agent('app-columns:row').style(
       undefined, ['.app-columns'], undefined, {
         'grid-template-rows': rows.join(' '),
       }
@@ -78,6 +81,23 @@ export default class StyleAgent {
     }
 
     this.cellRules.deleteInactive()
+  }
+
+  private dispatchColumnRule () {
+    this.columnRules.deleteInactiveInit()
+
+    const columns = []
+    for (const width of this.terminal.config.columnWidth) {
+      columns.push(`${width}px`)
+    }
+
+    this.rules.agent('app-columns:column').style(
+      undefined, ['.app-columns'], undefined, {
+        'grid-template-columns': columns.join(' ')
+      }
+    )
+
+    this.columnRules.deleteInactive()
   }
 
 }
