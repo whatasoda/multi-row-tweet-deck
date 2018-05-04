@@ -8,7 +8,7 @@ import CellRoot from './CellRoot'
 import waitFor from './util/waitFor'
 import genToggleClass from './util/toggleClass'
 
-const { version } = require('../manifest.json')
+const { version } = require('../../package.json')
 
 const chrome = window.chrome
 

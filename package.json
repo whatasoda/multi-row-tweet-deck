@@ -1,6 +1,6 @@
 {
   "name": "multi-row-tweet-deck",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Google Chrome Extension for multi row view of TweetDeck",
   "main": "index.js",
   "scripts": {
@@ -22,10 +22,12 @@
     "@types/chrome": "0.0.64",
     "@types/react": "^16.3.12",
     "@types/react-dom": "^16.0.5",
+    "@types/webpack": "^4.1.4",
     "awesome-typescript-loader": "^5.0.0",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^0.28.11",
     "csstype": "^2.4.2",
+    "generate-json-webpack-plugin": "^0.3.1",
     "node-sass": "^4.8.3",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
@@ -35,6 +37,7 @@
     "ts-loader": "^4.2.0",
     "typescript": "^2.8.3",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.15"
+    "webpack-cli": "^2.0.15",
+    "zip-webpack-plugin": "^3.0.0"
   }
 }

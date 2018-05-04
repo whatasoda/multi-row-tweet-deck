@@ -1,7 +1,13 @@
-const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+import * as webpack from "webpack"
+import * as path from "path"
+import manifestObj from './manifest'
 
-module.exports = {
+const CopyWebpackPlugin   = require('copy-webpack-plugin')
+const ZipPlugin           = require('zip-webpack-plugin')
+const GenerateJsonPlugin  = require('generate-json-webpack-plugin')
+
+
+export default {
   entry: {
     content: './src/tsx/content.tsx',
     // options: './src/options.js',
@@ -17,9 +23,12 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] },
-      { from: 'src/manifest.json', to: '' },
-    ])
+      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] }
+    ]),
+    new GenerateJsonPlugin('manifest.json', manifestObj),
+    // new ZipPlugin({
+    //
+    // })
   ],
   module: {
     rules: [
