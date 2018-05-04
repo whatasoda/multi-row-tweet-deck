@@ -70,16 +70,17 @@ $drag-handle-dark: #ccd6dd;
 $drag-handle-light: #66757f;
 
 $handle-height: 9px;
-$handle-padding-top: ($handle-height - 5);
+$handle-padding: ($handle-height - 5) / 2;
 .cell{
   &__handle {
     position    : absolute;
     z-index     : 100;
-    left        : 0;
-    right       : 0;
-    bottom      : 0;
+    left        : $handle-padding;
+    right       : $handle-padding;
+    bottom      : -2px - $handle-padding;
     height      : $handle-height;
-    padding-top : $handle-padding-top;
+    padding     : $handle-padding 0;
+    box-sizing  : border-box;
     cursor      : row-resize;
     &::before, &::after {
       content: '.';
@@ -90,7 +91,7 @@ $handle-padding-top: ($handle-height - 5);
     }
     &::before {
       height        : 5px;
-      bottom        : 0;
+      bottom        : $handle-padding;
       box-sizing    : border-box;
       border        : 1px solid $drag-handle-light;
       border-left   : none;
@@ -98,7 +99,7 @@ $handle-padding-top: ($handle-height - 5);
     }
     &::after {
       background  : $drag-handle-light;
-      bottom      : 2px;
+      bottom      : 2px + $handle-padding;
       height      : 1px;
     }
   }
@@ -106,7 +107,7 @@ $handle-padding-top: ($handle-height - 5);
     background  : $light-column-header;
     position    : absolute;
     bottom  : 0;
-    right   : unset;
+    right   : $handle-padding;
     height  : auto;
     width   : auto;
     padding : 0 4px;
@@ -151,6 +152,9 @@ $handle-padding-top: ($handle-height - 5);
 
 .column {
   margin: 0 !important;
+  &.inside-cell {
+    overflow: visible !important;
+  }
 }
 .column-number {
   opacity: 0 !important;

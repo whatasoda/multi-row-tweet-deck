@@ -60,18 +60,18 @@ React.Component<CellProps, CellState> {
 
 
 
-  private activateOption (
-    isActive  : boolean,
-    label     : string,
-  ): void {
-    const activationClass = this.constructor.OptionActivationClass[label]
-    this.constructor.ToggleClassFuncs[activationClass](
-      columns[this.props.index],
-      isActive
-    )
-  }
-  public static OptionActivationClass: StringMap<string>
-  public static ToggleClassFuncs: StringMap<ToggleClass> = {}
+  // private activateOption (
+  //   isActive  : boolean,
+  //   label     : string,
+  // ): void {
+  //   const activationClass = this.constructor.OptionActivationClass[label]
+  //   this.constructor.ToggleClassFuncs[activationClass](
+  //     columns[this.props.index],
+  //     isActive
+  //   )
+  // }
+  // public static OptionActivationClass: StringMap<string>
+  // public static ToggleClassFuncs: StringMap<ToggleClass> = {}
 
 
 
@@ -79,7 +79,7 @@ React.Component<CellProps, CellState> {
     const { isLastRow, isActive, isFirstInactive } = this.props
 
     // TODO: Optionのやつ、なんとかする
-    const option_elems: React.ReactNode[] = []
+    // const option_elems: React.ReactNode[] = []
     // let key = 0
     // for (const label in this.props.options) {
     //   const isActive = this.props.options[label]
@@ -109,13 +109,13 @@ React.Component<CellProps, CellState> {
     let headerLinkElement: JSX.Element | undefined = undefined
     if (headerLinkAction) {
       headerLinkElement = (
-        <ColumnHeaderLink linkPosition = {isActive ? 'right' : 'left'}
+        <ColumnHeaderLink linkPosition = 'right'
           onClick = {headerLinkAction}
         >{isActive ? <CLOSE/> : <PLUS/>}</ColumnHeaderLink>
       )
     }
 
-    const columnType = isActive ? this.getColumnType() : undefined
+    const columnType = this.getColumnType()
     let TypeIconElement: JSX.Element | undefined = undefined
     if (columnType) {
       const TypeIcon = TDIcon(columnType)
@@ -132,9 +132,6 @@ React.Component<CellProps, CellState> {
       <Column className={isActive ? undefined : 'inactive-cell'}>
         <ColumnHeader>
           { TypeIconElement }
-          <ul className="cell__option">
-            {option_elems}
-          </ul>
           { headerLinkElement }
         </ColumnHeader>
         { isActive ? actionElement : undefined }
@@ -148,6 +145,7 @@ React.Component<CellProps, CellState> {
     const columnIcon  = columnTypeIcons[this.props.index]
     if (!columnIcon) return;
     if (Array.from(columnIcon.classList).includes('inside-cell')) return;
+
     const match       = DETECT_ICON_TYPE[Symbol.match](columnIcon.className)
     const iconType    = match ? match[1] : undefined
     return TDIcon.isType(iconType) ? iconType : undefined
@@ -161,6 +159,8 @@ import cc from './util/composeClassName'
 import ep, {SFCProps} from './util/excludedProps'
 const preventEventDefault: (...args: any[]) => void
   = (e: Event) => { e.preventDefault() }
+
+
 
 const Column = ( props: ColumnProps ) => (
   <div {...ep(props, '_ref', 'children')} ref={props._ref}
