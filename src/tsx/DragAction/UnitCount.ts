@@ -1,8 +1,7 @@
 import Terminal, { DragAction, DragActionBase } from '../Terminal'
 import watch from '../util/watch'
-import packageJSON from '../../../packageJSON'
+import appConfig from '../appConfig'
 import { CellConfig } from '../ExtensionConfig'
-const { appConfig } = packageJSON
 
 
 interface UnitConstraint {

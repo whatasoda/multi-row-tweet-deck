@@ -1,6 +1,5 @@
 import Terminal, { DragAction, DragActionBase } from '../Terminal'
-import packageJSON from '../../../packageJSON'
-const { appConfig } = packageJSON
+import appConfig from '../appConfig'
 
 
 export default class ColumnWidthDragAction

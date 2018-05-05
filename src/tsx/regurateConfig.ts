@@ -1,6 +1,6 @@
-import packageJSON from '../../packageJSON'
 import ExtensionConfig from './ExtensionConfig'
-const freeTrial = packageJSON.appConfig.freeTrial
+import appConfig from './appConfig'
+const freeTrial = appConfig.freeTrial
 
 export default function regurateConfig (
   config: ExtensionConfig
