@@ -1,26 +1,20 @@
 import * as React from 'react'
 import { render } from 'react-dom'
 import ExtensionConfig, {
-  PackageJSON,
+  packageJSON,
   CellConfig,
   upgradeConfig,
 } from './ExtensionConfig'
-import Terminal, {
-  DragType,
-  DragFuncMap
-} from './Terminal'
+import Terminal, { DragType, DragAction } from './Terminal'
+import UnitCountDragAction from './DragAction/UnitCount'
+import ColumnWidthDragAction from './DragAction/ColumnWidth'
 import watch from './util/watch'
 import isEmptyArray from './util/isEmptyArray'
 import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
 
-const {
-  version,
-  appConfig
-} = require('../../package.json') as PackageJSON
-
-
+const { version, appConfig } = packageJSON
 const chrome = window.chrome
 
 const defaultConfig : ExtensionConfig = {
@@ -41,11 +35,15 @@ const defaultConfig : ExtensionConfig = {
   version: version
 }
 
+type DragActions = {
+  [K in DragType]: DragAction
+}
+
 export default class MultiRowTweetDeck implements Terminal {
   public config!          : ExtensionConfig
+  public gridElement?     : HTMLDivElement
   private styleAgent      : StyleAgent
-  private watchUnitCount  : () => void
-  private watchColumnWidth: () => void
+  private dragActions     : DragActions
   private dragState       : (e: MouseEvent) => void
   private dragCommit      : (e: MouseEvent) => void
   private setVisibility   : ToggleClass
@@ -55,12 +53,14 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
-    this.styleAgent       = new StyleAgent(this)
-    this.watchUnitCount   = watch(this.updateUnitCount.bind(this))
-    this.watchColumnWidth = watch(this.updateColumnWidth.bind(this))
-    this.dragState        = this._dragState.bind(this)
-    this.dragCommit       = this._dragCommit.bind(this)
-    this.setVisibility    = genToggleClass('is-visible')
+    this.styleAgent     = new StyleAgent(this)
+    this.dragState      = this._dragState.bind(this)
+    this.dragCommit     = this._dragCommit.bind(this)
+    this.dragActions    = {
+      unitCount   : new UnitCountDragAction(this),
+      columnWidth : new ColumnWidthDragAction(this),
+    }
+    this.setVisibility  = genToggleClass('is-visible')
   }
 
   public async init (): Promise<void> {
@@ -155,7 +155,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
 
-  private updateApp (): void {
+  public updateApp (): void {
     if (!this.app) return;
     this.app.forceUpdate()
     this.styleAgent.dispatch()
@@ -172,53 +172,6 @@ export default class MultiRowTweetDeck implements Terminal {
   }
 
 
-
-  public setUnitCount (
-    index : number,
-    count : number
-  ): void {
-    let [x,y] = this.getCellCoord(index)
-    if (y < -1) return;
-
-    const column      = this.config.columns[x]
-    const config      = column[y]
-    const count_curr  = config.unitCount
-
-    config.unitCount  = count
-
-    let diff = count - count_curr
-    if (diff < 0) {
-      const afterSibling = column[y+1]
-      afterSibling.unitCount += Math.abs(diff)
-    }
-    while (diff > 0) {
-      const afterSibling  = column[y+1]
-      const subMax        = afterSibling.unitCount - 1
-
-      afterSibling.unitCount -= Math.min(diff, subMax)
-      diff -= subMax
-
-      y++
-    }
-
-    this.updateApp()
-  }
-
-
-
-
-  public setColumnWidth (
-    column_index: number,
-    width       : number
-  ): void {
-    if (column_index < -1) return;
-    const { min, max } = appConfig.columnWidth
-
-    width = Math.min(Math.max(width, min), max)
-
-    this.config.columnWidth[column_index] = width
-    this.updateApp()
-  }
 
 
 
@@ -309,13 +262,13 @@ export default class MultiRowTweetDeck implements Terminal {
     index : number,
     event : MouseEvent
   ): void {
-    if (!this[DragFuncMap.Init[type]](index, event)) return;
+    if (!this.dragActions[type].init(index, event)) return;
 
     this.dragType = type
     window.addEventListener('mousemove', this.dragState)
     window.addEventListener('mouseup',   this.dragCommit)
 
-    this[DragFuncMap.Watch[type]]()
+    this.dragActions[type].watch()
   }
 
 
@@ -324,13 +277,13 @@ export default class MultiRowTweetDeck implements Terminal {
   ): void {
     if (!this.dragType) return;
 
-    this[DragFuncMap.State[this.dragType]](event)
+    this.dragActions[this.dragType].state(event)
   }
 
   private _dragCommit (): void {
     if (!this.dragType) return;
 
-    this[DragFuncMap.Commit[this.dragType]]()
+    this.dragActions[this.dragType].commit()
     this.dragType = undefined
 
     window.removeEventListener('mousemove', this.dragState)
@@ -344,127 +297,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
 
-
-  public gridElement?         : HTMLDivElement
-  private clientY?            : number
-  private activeCell?         : number
-  private activeCoord!        : [number, number]
-  private activeCellConfig!   : CellConfig
-  private unitHeight!         : number
-  private unitConstraint!     : UnitConstraint
-
-  private updateUnitCountInit (
-    index : number,
-    event : MouseEvent
-  ): boolean {
-    if (!this.gridElement) return false
-
-    const [x, y] = this.getCellCoord(index)
-    if (y < 0) return false
-
-    this.activeCell       = index
-    this.activeCoord      = [x, y]
-    this.activeCellConfig = this.config.columns[x][y]
-
-    const containerHeight = this.gridElement.clientHeight
-    this.unitHeight       = containerHeight / this.config.unitDivision
-
-    this.unitConstraint   = this.getUnitConstraint(x, y)
-
-    return true
-  }
-
-  private stateUnitCount (
-    event: MouseEvent
-  ): void {
-    if (this.activeCell === undefined) return;
-    this.clientY = event.clientY
-  }
-
-  private commitUnitCount (): void {
-    this.activeCell = undefined
-    this.clientY    = undefined
-  }
-
-  // return false => break, return true => continue
-  private updateUnitCount (): boolean {
-    if (this.activeCell === undefined)  return false;
-    if (this.clientY === undefined)     return true;
-
-    const curr = this.activeCellConfig.unitCount
-    const { offset, max } = this.unitConstraint
-
-    const base = this.clientY / this.unitHeight - (curr + offset)
-    const diff = Math.sign(base) * Math.floor(Math.abs(base) * 1.5)
-    const count = diff + curr
-
-    if (
-      diff !== 0 &&
-      count >= 0 &&
-      count <= max
-    ) {
-      this.setUnitCount(this.activeCell, count)
-    }
-    return true
-  }
-
-
-
-
-
-  private activeColumn? : number
-  private startX!       : number
-  private startWidth!   : number
-  private clientX?      : number
-
-  private updateColumnWidthInit (
-    index : number,
-    event : MouseEvent
-  ): boolean {
-    const x = this.getCellCoord(index)[0]
-    if (x < -1) return false
-
-    this.activeColumn = x
-    this.startX       = event.clientX
-    this.startWidth   = this.config.columnWidth[this.activeColumn]
-
-    return true
-  }
-
-
-  private stateColumnWidth (
-    event: MouseEvent
-  ): void {
-    if (this.activeColumn === undefined) return;
-    this.clientX = event.clientX
-  }
-
-
-  private commitColumnWidth (): void {
-    this.activeColumn = undefined
-    this.clientX      = undefined
-  }
-
-
-  private updateColumnWidth (): boolean {
-    if (this.activeColumn === undefined) return false
-    if (this.clientX === undefined) return true
-
-    const diff  = this.clientX - this.startX
-    const width = diff + this.startWidth
-
-    if (this.config.columnWidth[this.activeColumn] !== width) {
-      this.setColumnWidth(this.activeColumn, width)
-    }
-
-    return true
-  }
-
-
-
-
-
-  private getCellCoord (
+  public getCellCoord (
     index: number
   ): [number, number] {
     if (index < 0) return [-1, -1]
@@ -497,29 +330,4 @@ export default class MultiRowTweetDeck implements Terminal {
     }
   }
 
-
-
-
-  private getUnitConstraint (
-    x: number,
-    y: number
-  ): UnitConstraint {
-    const column = this.config.columns[x]
-    let offset = 0
-    for (let i=0; i<y; i++) {
-      offset += column[i].unitCount
-    }
-
-    const afterSiblings = column.length-1 - y
-    const max = this.config.unitDivision - (offset + afterSiblings)
-
-    return { offset, max }
-  }
-
-}
-
-
-interface UnitConstraint {
-  offset: number
-  max   : number
 }

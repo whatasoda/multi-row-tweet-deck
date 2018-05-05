@@ -1,19 +1,19 @@
-const {
-  version,
-  appConfig
-} = require('../../package.json') as PackageJSON
+export const packageJSON = require('../../package.json') as PackageJSON
 export interface PackageJSON {
   version     : string
   appConfig   : AppConfig
 }
 export interface AppConfig {
-  unitDivision: number
+  unitDivision      : number
+  dragOptimalCoeff  : number
   columnWidth : {
     min     : number
     default : number
     max     : number
+    step    : number
   }
 }
+const { version, appConfig } = packageJSON
 
 export default interface ExtensionConfig {
   columns       : ColumnConfig

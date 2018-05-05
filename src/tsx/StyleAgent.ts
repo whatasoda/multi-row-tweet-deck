@@ -93,7 +93,8 @@ export default class StyleAgent {
 
     this.rules.agent('app-columns:column').style(
       undefined, ['.app-columns'], undefined, {
-        'grid-template-columns': columns.join(' ')
+        'grid-template-columns': columns.join(' '),
+        'grid-auto-columns'    : columns[columns.length-1],
       }
     )
 
