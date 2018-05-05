@@ -1,18 +1,4 @@
-export const packageJSON = require('../../package.json') as PackageJSON
-export interface PackageJSON {
-  version     : string
-  appConfig   : AppConfig
-}
-export interface AppConfig {
-  unitDivision      : number
-  dragOptimalCoeff  : number
-  columnWidth : {
-    min     : number
-    default : number
-    max     : number
-    step    : number
-  }
-}
+import packageJSON from '../../packageJSON'
 const { version, appConfig } = packageJSON
 
 export default interface ExtensionConfig {
@@ -41,16 +27,11 @@ export function upgradeConfig (
     version_splited.push(0)
   }
 
-  if (version_splited[0] <= 1) {
-    if (version_splited[1] <= 2) {
-      if (version_splited[2] <= 2) {
-        if (!config.columnWidth) {
-          config.columnWidth = []
-          config.columnWidth.length = config.columns.length
-          config.columnWidth.fill(appConfig.columnWidth.default)
-        }
-      }
-    }
+
+  if (!(config.columnWidth && config.columnWidth.length)) {
+    config.columnWidth = []
+    config.columnWidth.length = config.columns.length
+    config.columnWidth.fill(appConfig.columnWidth.default)
   }
 
   config.version = version

@@ -1,5 +1,5 @@
 import Terminal, { DragAction, DragActionBase } from '../Terminal'
-import { packageJSON } from '../ExtensionConfig'
+import packageJSON from '../../../packageJSON'
 const { appConfig } = packageJSON
 
 
@@ -7,7 +7,7 @@ export default class ColumnWidthDragAction
 extends DragActionBase implements DragAction {
   private activeColumn? : number
   private startX!       : number
-  private startWidth!   : number
+  private startWidth?   : number
   private clientX?      : number
 
 
@@ -41,6 +41,7 @@ extends DragActionBase implements DragAction {
 
   public commit (): void {
     this.activeColumn = undefined
+    this.startWidth   = undefined
     this.clientX      = undefined
   }
 
@@ -49,6 +50,7 @@ extends DragActionBase implements DragAction {
 
   public update (): boolean {
     if (this.activeColumn === undefined) return false
+    if (this.startWidth   === undefined) return false
     if (this.clientX      === undefined) return true
 
     const { min, max, step }  = appConfig.columnWidth

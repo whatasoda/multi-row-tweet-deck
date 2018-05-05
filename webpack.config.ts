@@ -1,8 +1,10 @@
 import * as webpack from "webpack"
 import * as path from "path"
 import manifestObj from './src/manifest'
+import packageJSON from './packageJSON'
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev       = process.env.NODE_ENV !== 'production'
+const { isTrial } = packageJSON.appConfig.freeTrial
 
 const CopyWebpackPlugin   = require('copy-webpack-plugin')
 const ZipPlugin           = require('zip-webpack-plugin')
@@ -19,7 +21,7 @@ if (!isDev) {
     ]),
     new ZipPlugin({
       path        : path.join(__dirname, 'archive'),
-      filename    : `v${version}`,
+      filename    : isTrial ? `v${version}` : `trial_v${version}`,
       pathPrefix  : 'dist'
     })
   )

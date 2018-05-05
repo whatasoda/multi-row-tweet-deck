@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { render } from 'react-dom'
+import packageJSON from '../../packageJSON'
 import ExtensionConfig, {
-  packageJSON,
   CellConfig,
   upgradeConfig,
 } from './ExtensionConfig'
@@ -13,8 +13,10 @@ import isEmptyArray from './util/isEmptyArray'
 import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
+import regurateConfig from './regurateConfig'
 
 const { version, appConfig } = packageJSON
+const { isTrial } = packageJSON.appConfig.freeTrial
 const chrome = window.chrome
 
 const defaultConfig : ExtensionConfig = {
@@ -66,9 +68,10 @@ export default class MultiRowTweetDeck implements Terminal {
   public async init (): Promise<void> {
     this.userId = await this.getUserId()
     let config = await this.getStorageItem<ExtensionConfig>(this.userId)
-    if (!config) config = defaultConfig
-
-    this.config = upgradeConfig(config)
+    config = config ? config : defaultConfig
+    config = upgradeConfig(config)
+    config = isTrial ? regurateConfig(config) : config
+    this.config = config
 
     this.styleAgent.dispatch()
 
@@ -85,9 +88,11 @@ export default class MultiRowTweetDeck implements Terminal {
     const account_items = document.getElementsByClassName('js-account-item')
     await watch(() => isEmptyArray(account_items))()
 
-    const accountKey =
-      account_items[0].getAttribute('data-account-key') || 'default'
-    return accountKey.split(':')[1]
+
+    const raw         = account_items[0].getAttribute('data-account-key')
+    const accountKey  = raw ? raw.split(':')[1] : 'default'
+
+    return isTrial ? 'default' : accountKey
   }
 
 
@@ -157,6 +162,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public updateApp (): void {
     if (!this.app) return;
+    regurateConfig(this.config)
     this.app.forceUpdate()
     this.styleAgent.dispatch()
   }
@@ -166,6 +172,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public updateConfig () {
     if (!this.userId) return;
+      regurateConfig(this.config)
       chrome.storage.sync.set({
         [this.userId]: this.config
       })
@@ -220,6 +227,7 @@ export default class MultiRowTweetDeck implements Terminal {
     newConfig.unitCount = this.config.unitDivision
 
     this.config.columns.push([ newConfig ])
+    this.config.columnWidth.push( appConfig.columnWidth.default )
 
     this.updateApp()
     this.updateConfig()

@@ -1,6 +1,6 @@
 {
   "name": "multi-row-tweet-deck",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "appConfig": {
     "unitDivision"      : 32,
     "dragOptimalCoeff"  : 1.5,
@@ -9,6 +9,11 @@
       "default" : 310,
       "max"     : 600,
       "step"    : 10
+    },
+    "freeTrial": {
+      "isTrial" : false,
+      "column"  : 1,
+      "row"     : 3
     }
   },
   "description": "Google Chrome Extension for multi row view of TweetDeck",
