@@ -1,10 +1,29 @@
 const packageJSON = require('./package.json') as PackageJSON
-export default packageJSON
-export interface PackageJSON {
+interface PackageJSON {
   version     : string
-  appConfig   : AppConfig
 }
+
+const appConfig: AppConfig = {
+  version: packageJSON.version,
+  unitDivision      : 32,
+  dragOptimalCoeff  : 1.5,
+  columnWidth: {
+    min     : 200,
+    default : 310,
+    max     : 600,
+    step    : 10,
+  },
+  freeTrial: {
+    isTrial : false,
+    column  : 1,
+    row     : 3,
+  },
+}
+export default appConfig
+
+
 export interface AppConfig {
+  version           : string
   unitDivision      : number
   dragOptimalCoeff  : number
   columnWidth : {

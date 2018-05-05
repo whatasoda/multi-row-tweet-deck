@@ -1,19 +1,41 @@
 import * as webpack from "webpack"
 import * as path from "path"
-import manifestObj from './src/manifest'
-import packageJSON from './packageJSON'
+import JSONProxy from './JSONProxy'
 
-const isDev       = process.env.NODE_ENV !== 'production'
-const { isTrial } = packageJSON.appConfig.freeTrial
-
+type Reload = <T>(path: string) => { default: T }
+const reload              = require('require-nocache')(module) as Reload
 const CopyWebpackPlugin   = require('copy-webpack-plugin')
 const ZipPlugin           = require('zip-webpack-plugin')
 const GenerateJsonPlugin  = require('generate-json-webpack-plugin')
-const { version }         = require('./package.json')
+const PreBuildWebpack     = require('pre-build-webpack')
+
+import { Manifest }   from './manifest'
+import { AppConfig }  from './appConfig'
+
+const manifest  = () => reload<Manifest>('./manifest').default
+const appConfig = () => reload<AppConfig>('./appConfig').default
+
+const json = {
+  manifest  : manifest(),
+  appConfig : appConfig(),
+}
+
+const MANIFEST  = JSONProxy(json, 'manifest')
+const APPCONFIG = JSONProxy(json, 'appConfig')
+
+const isDev       = process.env.NODE_ENV !== 'production'
+const { isTrial } = APPCONFIG.freeTrial
+const { version } = APPCONFIG
 
 const plugins: webpack.Plugin[] = [
-  new GenerateJsonPlugin('manifest.json', manifestObj),
+  new PreBuildWebpack(function () {
+    json.manifest   = manifest()
+    json.appConfig  = appConfig()
+  }),
+  new GenerateJsonPlugin('manifest.json', MANIFEST),
+  new GenerateJsonPlugin('../src/appConfig.json', APPCONFIG),
 ]
+
 if (!isDev) {
   plugins.push(
     new CopyWebpackPlugin([

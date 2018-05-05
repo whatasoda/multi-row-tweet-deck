@@ -1,5 +1,5 @@
-import packageJSON from '../../packageJSON'
-const { version, appConfig } = packageJSON
+import appConfig from './appConfig'
+const { version } = appConfig
 
 export default interface ExtensionConfig {
   columns       : ColumnConfig

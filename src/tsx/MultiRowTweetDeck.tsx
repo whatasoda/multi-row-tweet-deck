@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import packageJSON from '../../packageJSON'
 import ExtensionConfig, {
   CellConfig,
   upgradeConfig,
@@ -14,9 +13,10 @@ import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
 import regurateConfig from './regurateConfig'
+import appConfig from './appConfig'
 
-const { version, appConfig } = packageJSON
-const { isTrial } = packageJSON.appConfig.freeTrial
+const { version } = appConfig
+const { isTrial } = appConfig.freeTrial
 const chrome = window.chrome
 
 const defaultConfig : ExtensionConfig = {

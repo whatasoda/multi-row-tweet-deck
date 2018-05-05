@@ -1,21 +1,6 @@
 {
   "name": "multi-row-tweet-deck",
-  "version": "1.2.5",
-  "appConfig": {
-    "unitDivision"      : 32,
-    "dragOptimalCoeff"  : 1.5,
-    "columnWidth": {
-      "min"     : 200,
-      "default" : 310,
-      "max"     : 600,
-      "step"    : 10
-    },
-    "freeTrial": {
-      "isTrial" : false,
-      "column"  : 1,
-      "row"     : 3
-    }
-  },
+  "version": "1.2.6",
   "description": "Google Chrome Extension for multi row view of TweetDeck",
   "main": "index.js",
   "scripts": {
@@ -44,8 +29,10 @@
     "csstype": "^2.4.2",
     "generate-json-webpack-plugin": "^0.3.1",
     "node-sass": "^4.8.3",
+    "pre-build-webpack": "^0.1.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "require-nocache": "^1.0.0",
     "sass-loader": "^7.0.1",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.21.0",
