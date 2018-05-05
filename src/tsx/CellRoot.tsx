@@ -49,7 +49,12 @@ React.Component<CellRootProp, CellRootState> {
     const config  = this.terminal.config
 
     const cells: React.ReactNode[] = []
+    const columnWidth = config.columnWidth
+    const width_iter  = columnWidth[Symbol.iterator]()
+    let width: number = 0
     for (const column of config.columns) {
+      // columnWidthには空きがある可能性がある。 無料試用版とか
+      width           = width_iter.next().value || width
       const lastIndex = column.length - 1
       for (const cell of column) {
         cells.push(
@@ -58,6 +63,8 @@ React.Component<CellRootProp, CellRootState> {
             index        = {cells.length}
             isActive     = {true}
             isLastRow    = {column.indexOf(cell, lastIndex) === lastIndex}
+            unitCount    = {cell.unitCount}
+            columnWidth  = {width}
             options      = {cell.options}
             terminal     = {this.terminal}
           ></Cell>
@@ -66,6 +73,9 @@ React.Component<CellRootProp, CellRootState> {
     }
 
     let isFirst = true
+    let i = 0
+    const cycle       = config.columns.length
+    const lastColumn  = config.columns[cycle-1]
     while (cells.length < columns.length) {
       cells.push(
         <Cell
@@ -73,6 +83,8 @@ React.Component<CellRootProp, CellRootState> {
           index           = {cells.length}
           isActive        = {false}
           isFirstInactive = {isFirst}
+          unitCount       = {lastColumn[i%cycle].unitCount}
+          columnWidth     = {width}
           terminal        = {this.terminal}
         ></Cell>
       )

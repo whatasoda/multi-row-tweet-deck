@@ -70,7 +70,7 @@ export default class MultiRowTweetDeck implements Terminal {
     let config = await this.getStorageItem<ExtensionConfig>(this.userId)
     config = config ? config : defaultConfig
     config = upgradeConfig(config)
-    config = isTrial ? regurateConfig(config) : config
+    config = regurateConfig(config)
     this.config = config
 
     this.styleAgent.dispatch()
@@ -205,13 +205,15 @@ export default class MultiRowTweetDeck implements Terminal {
   ): void {
     const [x,y] = this.getCellCoord(index)
     if (y < 0) return;
-    const column    = this.config.columns[x]
+    const { columns, columnWidth } = this.config
+    const column    = columns[x]
     const deadCell  = column.splice(y, 1)
 
     if (column.length) {
       this.divideIntoEqual(column)
     } else {
-      this.config.columns.splice(x, 1)
+      columns.splice(x, 1)
+      columnWidth.length = Math.min(columns.length, columnWidth.length)
     }
 
     this.updateApp()
@@ -222,12 +224,14 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
   public pushColumn () {
+    const { columns, columnWidth } = this.config
     // TODO: createNewConfigじゃなくてCellConfigをクラスにしたい
     const newConfig     = this.createNewConfig()
     newConfig.unitCount = this.config.unitDivision
 
-    this.config.columns.push([ newConfig ])
-    this.config.columnWidth.push( appConfig.columnWidth.default )
+    columns.push([ newConfig ])
+    columnWidth.push( appConfig.columnWidth.default )
+    columnWidth.length = Math.min(columns.length, columnWidth.length)
 
     this.updateApp()
     this.updateConfig()

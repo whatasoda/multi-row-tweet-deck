@@ -15,6 +15,8 @@ export interface CellProps {
   isActive        : boolean
   isLastRow?      : boolean
   isFirstInactive?: boolean
+  columnWidth     : number
+  unitCount       : number
   options?        : StringMap<boolean>
   terminal        : Terminal
 }
@@ -156,6 +158,12 @@ React.Component<CellProps, CellState> {
           { TypeIconElement }
           { headerLinkElement }
         </ColumnHeader>
+        <div className="measure measure-horizonal">
+          <span className="measure-label">{ this.props.columnWidth }</span>
+        </div>
+        <div className="measure measure-vertical">
+          <span className="measure-label">{ this.props.unitCount }</span>
+        </div>
         { actionElement }
       </Column>
     )

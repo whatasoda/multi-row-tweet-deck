@@ -1,6 +1,6 @@
 {
   "name": "multi-row-tweet-deck",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "appConfig": {
     "unitDivision"      : 32,
     "dragOptimalCoeff"  : 1.5,
