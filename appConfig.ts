@@ -14,7 +14,7 @@ const appConfig: AppConfig = {
     step    : 10,
   },
   freeTrial: {
-    isTrial : false,
+    isTrial : true,
     column  : 1,
     row     : 3,
   },

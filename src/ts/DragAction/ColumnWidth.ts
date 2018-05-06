@@ -1,5 +1,5 @@
 import Terminal, { DragAction, DragActionBase } from '../Terminal'
-import appConfig from '../appConfig'
+import appConfig from '../config/app'
 
 
 export default class ColumnWidthDragAction

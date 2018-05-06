@@ -1,4 +1,4 @@
-import ExtensionConfig from './ExtensionConfig'
+import ExtensionConfig from './config/extension'
 import watch from './util/watch'
 
 export default interface Terminal {

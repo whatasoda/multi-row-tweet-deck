@@ -1,7 +1,7 @@
 import Terminal, { DragAction, DragActionBase } from '../Terminal'
 import watch from '../util/watch'
-import appConfig from '../appConfig'
-import { CellConfig } from '../ExtensionConfig'
+import appConfig from '../config/app'
+import { CellConfig } from '../config/extension'
 
 
 interface UnitConstraint {

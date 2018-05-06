@@ -1,9 +1,6 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import ExtensionConfig, {
-  CellConfig,
-  upgradeConfig,
-} from './ExtensionConfig'
+import ExtensionConfig, { CellConfig } from './config/extension'
 import Terminal, { DragType, DragAction } from './Terminal'
 import UnitCountDragAction from './DragAction/UnitCount'
 import ColumnWidthDragAction from './DragAction/ColumnWidth'
@@ -12,30 +9,13 @@ import isEmptyArray from './util/isEmptyArray'
 import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
-import regurateConfig from './regurateConfig'
-import appConfig from './appConfig'
+import regurateConfig from './config/regurate'
+import upgradeConfig from './config/upgrade'
+import appConfig from './config/app'
 
 const { version } = appConfig
 const { isTrial } = appConfig.freeTrial
 const chrome = window.chrome
-
-const defaultConfig : ExtensionConfig = {
-  columns: [
-    [
-      {
-        unitCount : 16,
-        options   : {}
-      },
-      {
-        unitCount : 16,
-        options   : {}
-      }
-    ]
-  ],
-  unitDivision: appConfig.unitDivision,
-  columnWidth: [],
-  version: version
-}
 
 type DragActions = {
   [K in DragType]: DragAction
@@ -67,10 +47,9 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public async init (): Promise<void> {
     this.userId = await this.getUserId()
-    let config = await this.getStorageItem<ExtensionConfig>(this.userId)
-    config = config ? config : defaultConfig
-    config = upgradeConfig(config)
-    config = regurateConfig(config)
+    let config  = await this.getStorageItem<ExtensionConfig>(this.userId)
+    config      = upgradeConfig(config)
+    config      = regurateConfig(config)
     this.config = config
 
     this.styleAgent.dispatch()
@@ -87,7 +66,6 @@ export default class MultiRowTweetDeck implements Terminal {
   private async getUserId () {
     const account_items = document.getElementsByClassName('js-account-item')
     await watch(() => isEmptyArray(account_items))()
-
 
     const raw         = account_items[0].getAttribute('data-account-key')
     const accountKey  = raw ? raw.split(':')[1] : 'default'
@@ -162,7 +140,6 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public updateApp (): void {
     if (!this.app) return;
-    regurateConfig(this.config)
     this.app.forceUpdate()
     this.styleAgent.dispatch()
   }
@@ -172,9 +149,8 @@ export default class MultiRowTweetDeck implements Terminal {
 
   public updateConfig () {
     if (!this.userId) return;
-      regurateConfig(this.config)
       chrome.storage.sync.set({
-        [this.userId]: this.config
+        [this.userId]: JSON.parse(JSON.stringify(this.config))
       })
   }
 

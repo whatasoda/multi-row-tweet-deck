@@ -49,11 +49,9 @@ React.Component<CellRootProp, CellRootState> {
     const config  = this.terminal.config
 
     const cells: React.ReactNode[] = []
-    const columnWidth = config.columnWidth
-    const width_iter  = columnWidth[Symbol.iterator]()
+    const width_iter  = config.columnWidth[Symbol.iterator]()
     let width: number = 0
     for (const column of config.columns) {
-      // columnWidthには空きがある可能性がある。 無料試用版とか
       width           = width_iter.next().value || width
       const lastIndex = column.length - 1
       for (const cell of column) {
