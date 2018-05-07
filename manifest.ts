@@ -1,6 +1,6 @@
 const { version } = require('./package.json')
 
-const manifest: Manifest = {
+export default (): Manifest => ({
   name: 'Multi Row TweetDeck',
   icons: {
     16    : 'icons/icon-16.png',
@@ -19,9 +19,7 @@ const manifest: Manifest = {
   permissions: [
     'storage'
   ]
-}
-
-export default manifest
+})
 
 
 export interface Manifest {
