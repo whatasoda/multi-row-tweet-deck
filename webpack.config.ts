@@ -42,7 +42,7 @@ const plugins: webpack.Plugin[] = [
 if (!isDev) {
   plugins.push(
     new CopyWebpackPlugin([
-      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai' ] }
+      { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai', '*.svg' ] }
     ]),
     new ZipPlugin({
       path        : path.join(__dirname, 'archive'),
@@ -51,6 +51,69 @@ if (!isDev) {
     })
   )
 }
+
+
+
+const common = {
+  exclude: /svg/,
+}
+
+const rules: webpack.Rule[] = []
+rules.push({
+  ...common,
+  test: /\.scss/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        // 0 => no loaders (default);
+        // 1 => postcss-loader;
+        // 2 => postcss-loader, sass-loader
+        importLoaders: 2
+      },
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sourceMap: false,
+      }
+    }
+  ],
+})
+
+rules.push({
+  ...common,
+  test: /\.svg$/,
+  exclude: /node_modules/,
+  include: /svg/,
+  loader: 'svg-react-loader',
+  query: {
+  //     classIdPrefix: '[name]-[hash:8]__',
+  //     filters: [
+  //         function (value) {
+  //             // ...
+  //             this.update(newvalue);
+  //         }
+  //     ],
+  //     propsMap: {
+  //         fillRule: 'fill-rule',
+  //         foo: 'bar'
+  //     },
+      xmlnsTest: /^xmlns.*$/
+  }
+})
+
+rules.push({
+  ...common,
+  test: /\.tsx?$/,
+  loader: 'ts-loader'
+})
+
+
+
+
+
 
 const config: webpack.Configuration = {
   entry: {
@@ -67,36 +130,7 @@ const config: webpack.Configuration = {
     modules: [path.join(__dirname, 'src/tsx'), 'node_modules']
   },
   plugins: plugins,
-  module: {
-    rules: [
-      {
-        test: /\.scss/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              // 0 => no loaders (default);
-              // 1 => postcss-loader;
-              // 2 => postcss-loader, sass-loader
-              importLoaders: 2
-            },
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: false,
-            }
-          }
-        ],
-      },
-      {
-        test: /\.tsx?$/,
-        loader: 'ts-loader'
-      },
-
-    ],
-  },
+  module: { rules },
 }
 
 export default config
