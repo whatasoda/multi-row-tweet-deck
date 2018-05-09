@@ -33,6 +33,7 @@ export default class MultiRowTweetDeck implements Terminal {
   private rootElement?    : HTMLDivElement
   private app?            : CellRoot
   private userId?         : string
+  private updater?        : MutationObserver
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
@@ -134,7 +135,12 @@ export default class MultiRowTweetDeck implements Terminal {
   public setCurrentApp (
     app: CellRoot
   ): void {
+    if (this.updater)
+      this.updater.disconnect()
     this.app = app
+    this.updater = new MutationObserver(() => app.forceUpdate())
+    const target = document.getElementsByClassName('js-app-columns')[0]
+    this.updater.observe(target, { childList: true })
   }
 
 
