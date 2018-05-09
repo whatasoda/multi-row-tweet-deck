@@ -1,14 +1,16 @@
-const { version } = require('./package.json')
+const { version } = require('../package.json')
 
 export default (): Manifest => ({
-  name: 'Multi Row TweetDeck',
-  icons: {
+  name  : 'Multi Row TweetDeck',
+  author: 'whatasoda',
+  icons : {
     16    : 'icons/icon-16.png',
     48    : 'icons/icon-48.png',
     128   : 'icons/icon-128.png'
   },
   version: version,
-  description: 'Google Chrome Extension for multi row view of TweetDeck',
+  default_locale: 'ja',
+  description: message('description'),
   manifest_version: 2,
   content_scripts: [
     {
@@ -21,20 +23,20 @@ export default (): Manifest => ({
   ]
 })
 
+const message = (name: string): string => `__MSG_${name}__`
+
 
 export interface Manifest {
 
-    // Required
     manifest_version  : 1 | 2
     name              : string
+    short_name?       : string
     version           : string
 
-    // Recommended
-    default_locale? : Locale
+    default_locale  : Locale
     description?    : string
     icons?          : Icons<'16' | '48' | '128', '32'>
 
-    // Pick one (or none)
     browser_action?: {
       default_icon: Icons<never,'16' | '24' | '32'>
       default_title: string
@@ -42,9 +44,11 @@ export interface Manifest {
     }
     // page_action?: {...}
     //
+
+
     // // Optional
     // action?: ...
-    // author?: ...
+    author?: string
     // automation?: ...
     // background?: {
     //   // Recommended
@@ -99,7 +103,6 @@ export interface Manifest {
     // platforms: ...
     // requirements: {...}
     // sandbox: [...]
-    // short_name: "Short Name"
     // signature: ...
     // spellcheck: ...
     // storage: {

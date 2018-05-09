@@ -14,11 +14,32 @@ const ZipPlugin           = require('zip-webpack-plugin')
 const GenerateJsonPlugin  = require('generate-json-webpack-plugin')
 const PreBuildWebpack     = require('pre-build-webpack')
 
-import genManifest from './manifest'
+import genManifest  from './manifest'
 import genAppConfig from './appConfig'
+import GenMessage   from './manifest/locales/base'
 
+const locales = {
+  ja: true,
+  en: true
+}
 const manifest  = () => reload<typeof genManifest>('./manifest').default
 const appConfig = () => reload<typeof genAppConfig>('./appConfig').default
+
+type LocaleMap<T>         = { [L in keyof typeof locales]: T}
+type GenMessageReloaders  = LocaleMap<() => GenMessage>
+type Messages             = LocaleMap<ReturnType<GenMessage>>
+
+const msgReloaders: GenMessageReloaders = {} as GenMessageReloaders
+const messages: Messages = {} as Messages
+const MESSAGES: Messages = {} as Messages
+for (const _locale in locales) {
+  const locale = _locale as keyof Messages
+  const reloadGen =
+    () => reload<GenMessage>(`./manifest/locales/${locale}`).default
+  msgReloaders[locale] = reloadGen
+  messages[locale] = reloadGen()(isTrial)
+  MESSAGES[locale] = JSONProxy(messages, locale)
+}
 
 const json = {
   manifest  : manifest()(),
@@ -40,13 +61,19 @@ const plugins: webpack.Plugin[] = [
 ]
 
 if (!isDev) {
+  for (const locale in MESSAGES) {
+    const MESSAGE = MESSAGES[locale as keyof Messages]
+    plugins.push(
+      new GenerateJsonPlugin(`_locales/${locale}/messages.json`, MESSAGE)
+    )
+  }
   plugins.push(
     new CopyWebpackPlugin([
       { from: 'src/icons/', to: 'icons/', ignore: [ '*.ai', '*.svg' ] }
     ]),
     new ZipPlugin({
       path        : path.join(__dirname, 'archive'),
-      filename    : isTrial ? `v${version}` : `trial_v${version}`,
+      filename    : isTrial ? `trial_v${version}` : `v${version}`,
       pathPrefix  : 'dist'
     })
   )
