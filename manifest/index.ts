@@ -1,6 +1,6 @@
 const { version } = require('../package.json')
 
-export default (): Manifest => ({
+export default (isTrial: boolean): Manifest => ({
   name  : 'Multi Row TweetDeck',
   author: 'whatasoda',
   icons : {
@@ -85,7 +85,7 @@ export interface Manifest {
     // import: [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
     // incognito: "spanning split or not_allowed"
     // input_components: ...
-    // key: "publicKey"
+    // key?: string
     // minimum_chrome_version: "versionString"
     // nacl_modules: [...]
     // oauth2: ...
