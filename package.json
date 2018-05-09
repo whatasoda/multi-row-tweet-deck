@@ -4,10 +4,10 @@
   "description": "Google Chrome Extension for multi row view of TweetDeck",
   "main": "index.js",
   "scripts": {
-    "dev"       : "                           webpack --mode development --watch",
-    "devTrial"  : "NODE_ENV=trial             webpack --mode development --watch",
+    "dev": "                           webpack --mode development --watch",
+    "devTrial": "NODE_ENV=trial             webpack --mode development --watch",
     "buildTrial": "NODE_ENV=production,trial  webpack --mode production",
-    "build"     : "NODE_ENV=production        webpack --mode production"
+    "build": "NODE_ENV=production        webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/whatasoda/multi-row-tweet-deck#readme",
   "devDependencies": {
     "@types/chrome": "0.0.64",
+    "@types/fs-extra": "^5.0.2",
     "@types/react": "^16.3.12",
     "@types/react-dom": "^16.0.5",
     "@types/webpack": "^4.1.4",
@@ -28,6 +29,7 @@
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^0.28.11",
     "csstype": "^2.4.2",
+    "fs-extra": "^6.0.0",
     "generate-json-webpack-plugin": "^0.3.1",
     "node-sass": "^4.8.3",
     "pre-build-webpack": "^0.1.0",
@@ -37,6 +39,7 @@
     "sass-loader": "^7.0.1",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.21.0",
+    "svg-react-loader": "^0.4.5",
     "ts-loader": "^4.2.0",
     "typescript": "^2.8.3",
     "webpack": "^4.6.0",
