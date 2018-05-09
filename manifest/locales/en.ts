@@ -1,8 +1,8 @@
 import GenMessage, { ManifestMessage } from './base'
 
-const Gen: GenMessage = (isTrial: boolean): ManifestMessage => ({
+const Gen: GenMessage = (): ManifestMessage => ({
   description: {
-    message: `${isTrial ? '[TRIAL] ' : ''}Extend TweetDeck Layout to Customizable & Multi-Rowed`,
+    message: 'Extend TweetDeck Layout to Customizable & Multi-Rowed',
     description: 'Extension Description'
   }
 })

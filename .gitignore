@@ -60,3 +60,4 @@ typings/
 # my setting
 dist
 src/appConfig.json
+pre_bundle

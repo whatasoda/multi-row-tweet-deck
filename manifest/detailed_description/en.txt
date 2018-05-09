@@ -8,8 +8,3 @@ OVERVIEW
 FEATURES
   * Multi-Row display
   * column width adjustment with individually
-
-FREE TRIAL
-  Free trial version is restricted.
-  * You can manage row count of only 3 columns.
-  * You can manage width, but the width applies in all together

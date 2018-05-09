@@ -8,13 +8,14 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "paths": {}
+    "paths": {},
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types",
+      "node_modules/csstype"
+    ]
   },
   "exclude": [
-    "dist"
-  ],
-  "include": [
-    "**/*",
-    "src/types/**/*.d.ts"
+    "dist", "node_modules"
   ]
 }

@@ -244,7 +244,8 @@ export class CSSRuleAgentGroup {
   }
 
   public deleteInactive () {
-    if (!this.isFiltering) return
+    if (!this.isFiltering) return;
+
     for (const key of this.inactiveKeys) {
       this.remove(key)
     }
