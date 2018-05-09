@@ -4,7 +4,7 @@ import appConfig from './app'
 export default function upgradeConfig (
   config: ExtensionConfig | undefined
 ): ExtensionConfig {
-  if (!config) return defaultConfig;
+  if (!config) return upgradeConfig(defaultConfig);
   try {
     if (!config.version)
       config.version = appConfig.version
@@ -34,7 +34,7 @@ export default function upgradeConfig (
     config.version = appConfig.version
     return config
   } catch {
-    return defaultConfig
+    return upgradeConfig(defaultConfig)
   }
 }
 

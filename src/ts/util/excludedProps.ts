@@ -1,8 +1,3 @@
-export interface SFCProps<T> {
-  _ref?: DetailedHTMLProps<T>['ref']
-}
-
-
 export default function excludedProps<T extends object> (
   target: T,
   ...exclusions: (keyof T)[]

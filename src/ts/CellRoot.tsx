@@ -52,9 +52,11 @@ React.Component<CellRootProp, CellRootState> {
     const width_iter  = config.columnWidth[Symbol.iterator]()
     let width: number = 0
     for (const column of config.columns) {
+      if (!column) continue;
       width           = width_iter.next().value || width
       const lastIndex = column.length - 1
       for (const cell of column) {
+        if (!cell) continue;
         cells.push(
           <Cell
             key          = {cells.length}

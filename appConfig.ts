@@ -3,7 +3,7 @@ interface PackageJSON {
   version     : string
 }
 
-const appConfig: AppConfig = {
+export default (isTrial: boolean = false): AppConfig => ({
   version: packageJSON.version,
   unitDivision      : 32,
   dragOptimalCoeff  : 1.5,
@@ -14,12 +14,11 @@ const appConfig: AppConfig = {
     step    : 10,
   },
   freeTrial: {
-    isTrial : true,
+    isTrial : isTrial,
     column  : 1,
     row     : 3,
   },
-}
-export default appConfig
+})
 
 
 export interface AppConfig {

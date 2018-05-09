@@ -9,6 +9,7 @@ import isEmptyArray from './util/isEmptyArray'
 import genToggleClass, { ToggleClass } from './util/toggleClass'
 import StyleAgent from './StyleAgent'
 import CellRoot from './CellRoot'
+import ToggleButton from './ToggleButton'
 import regurateConfig from './config/regurate'
 import upgradeConfig from './config/upgrade'
 import appConfig from './config/app'
@@ -32,6 +33,7 @@ export default class MultiRowTweetDeck implements Terminal {
   private rootElement?    : HTMLDivElement
   private app?            : CellRoot
   private userId?         : string
+  private updater?        : MutationObserver
 
   public ['constructor']: typeof MultiRowTweetDeck
   constructor () {
@@ -54,8 +56,8 @@ export default class MultiRowTweetDeck implements Terminal {
 
     this.styleAgent.dispatch()
 
-    this.setUpRootElement()
-    this.setUpToggleButton()
+    if (!this.setUpRootElement()) return;
+    if (!this.setUpToggleButton()) return;
 
     if (this.rootElement)
       render(<CellRoot terminal={this}/>, this.rootElement)
@@ -75,43 +77,44 @@ export default class MultiRowTweetDeck implements Terminal {
 
 
 
-  private setUpRootElement (): Element {
+  private setUpRootElement (): boolean {
     const rootElem = document.createElement('div')
     rootElem.className = 'column-root__block'
     document.getElementsByClassName('js-app')[0].appendChild(rootElem)
 
-    return this.rootElement = rootElem
+    this.rootElement = rootElem
+    return true
   }
 
 
 
-  private setUpToggleButton (): HTMLAnchorElement {
-    const toggleButton = document.createElement('a')
-    toggleButton.href = '#'
+  private setUpToggleButton (): boolean {
+    const toggleButton = document.createElement('div')
     toggleButton.className = 'toggle-multi-row-setting-view'
 
-    const title = document.getElementsByClassName('app-title')[0]
-    title.appendChild(toggleButton)
+    const nestSibling = document.getElementsByClassName('app-title')[0]
+    if (!nestSibling.parentNode) return false
+    nestSibling.parentNode.insertBefore(toggleButton, nestSibling)
 
-    toggleButton.addEventListener('click', this.toggleSettingView.bind(this))
+    render(<ToggleButton terminal = {this}/>, toggleButton)
 
-    return toggleButton
+    return true
   }
 
 
 
-  private toggleSettingView (
-    this: MultiRowTweetDeck,
-    e: MouseEvent
-  ): void {
-    if (!(this.app && this.rootElement)) return e.preventDefault()
+  public toggleSettingView (): void {
+    if (!(this.app && this.rootElement)) return;
 
-    this.app.setState(
-      prevState => ({ isVisible: !prevState.isVisible })
+    const app   = this.app
+    const root  = this.rootElement
+    new Promise((resolve, reject) => app.setState(
+      prevState => ({ isVisible: !prevState.isVisible }),
+      () => resolve()
+    )).then(
+      () => this.setVisibility(root, app.state.isVisible)
     )
-    this.setVisibility(this.rootElement, this.app.state.isVisible)
 
-    return e.preventDefault()
   }
 
 
@@ -132,7 +135,12 @@ export default class MultiRowTweetDeck implements Terminal {
   public setCurrentApp (
     app: CellRoot
   ): void {
+    if (this.updater)
+      this.updater.disconnect()
     this.app = app
+    this.updater = new MutationObserver(() => app.forceUpdate())
+    const target = document.getElementsByClassName('js-app-columns')[0]
+    this.updater.observe(target, { childList: true })
   }
 
 
@@ -292,6 +300,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
     let [x, y] = [0, -1]
     for (const column of this.config.columns) {
+      if (!column) continue;
       if (index >= column.length) {
         index -= column.length
         x++

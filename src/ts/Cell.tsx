@@ -107,56 +107,43 @@ React.Component<CellProps, CellState> {
     //   )
     // }
 
+    const columnType  = this.getColumnType()
+    const Icon        = columnType ? TDIcon(columnType) : undefined
+    const IconProps: SFCProps<ReturnType<typeof TDIcon>> = {
+      className: 'pull-left margin-hs column-type-icon inside-cell'
+    }
+
     let headerLinkAction: (() => void) | undefined = undefined
     if (isActive) {
       headerLinkAction = this.removeCell.bind(this)
     } else if (isFirstInactive) {
       headerLinkAction = this.pushColumn.bind(this)
     }
+    const AddOrRemove: SFCProps<typeof ColumnHeaderLink> | undefined =
+      (headerLinkAction &&{
+        linkPosition: 'right',
+        onClick     : headerLinkAction,
+        children    : isActive ? <CLOSE/> : <PLUS/>
+      }) || undefined
 
-    let headerLinkElement: JSX.Element | undefined = undefined
-    if (headerLinkAction) {
-      headerLinkElement = (
-        <ColumnHeaderLink linkPosition = 'right'
-          onClick = {headerLinkAction}
-        >{isActive ? <CLOSE/> : <PLUS/>}</ColumnHeaderLink>
-      )
-    }
+    const InsertButtonProps: SFCProps<typeof InsertButton> | undefined =
+      (isActive && isLastRow && {
+        onClick : this.insertCell.bind(this)
+      }) || undefined
 
-    const columnType = this.getColumnType()
-    let TypeIconElement: JSX.Element | undefined = undefined
-    if (columnType) {
-      const TypeIcon = TDIcon(columnType)
-      TypeIconElement = (
-        <TypeIcon className="pull-left margin-hs column-type-icon inside-cell"/>
-      )
-    }
-
-    let actionElement: JSX.Element | JSX.Element[] | undefined = undefined
-    if (isActive) {
-      if (isLastRow) {
-        actionElement = [
-          <InsertButton key={0} onClick = {this.insertCell.bind(this)}/>,
-          <DragHandle key={1}
-            handleType = 'vertical'
-            onMouseDown = {this.dragInitColumnWidth.bind(this)}
-          />
-        ]
-      } else {
-        actionElement = (
-          <DragHandle
-            handleType = 'horizonal'
-            onMouseDown = {this.dragInitUnitCount.bind(this)}
-          />
-        )
-      }
-    }
+    const dragType   = isLastRow ? 'dragInitColumnWidth': 'dragInitUnitCount'
+    const handleType = isLastRow ? 'vertical' : 'horizonal'
+    const DragHandleProps: SFCProps<typeof DragHandle> | undefined =
+      (isActive && {
+        handleType  : handleType,
+        onMouseDown : this[dragType].bind(this)
+      }) || undefined
 
     return (
       <Column className={isActive ? undefined : 'inactive-cell'}>
         <ColumnHeader>
-          { TypeIconElement }
-          { headerLinkElement }
+          { Icon         && <Icon {...IconProps}/> }
+          { AddOrRemove  && <ColumnHeaderLink {...AddOrRemove}/> }
         </ColumnHeader>
         <div className="measure measure-horizonal">
           <span className="measure-label">{ this.props.columnWidth }</span>
@@ -164,12 +151,12 @@ React.Component<CellProps, CellState> {
         <div className="measure measure-vertical">
           <span className="measure-label">{ this.props.unitCount }</span>
         </div>
-        { actionElement }
+        { InsertButtonProps && <InsertButton {...InsertButtonProps}/> }
+        { DragHandleProps   && <DragHandle {...DragHandleProps}/> }
       </Column>
     )
+
   }
-
-
 
   private getColumnType (): TweetDeckIconType | undefined {
     const columnIcon  = columnTypeIcons[this.props.index]
@@ -186,14 +173,14 @@ const DETECT_ICON_TYPE = / icon-(.+?)(?= |$)/
 
 
 import cc from './util/composeClassName'
-import ep, {SFCProps} from './util/excludedProps'
+import ep from './util/excludedProps'
 const preventEventDefault: (...args: any[]) => void
   = (e: Event) => { e.preventDefault() }
 
 
 
 const Column = ( props: ColumnProps ) => (
-  <div {...ep(props, '_ref', 'children')} ref={props._ref}
+  <div {...ep(props, 'children')}
     className={cc('column inside-cell', props)}
   >
     <div className="column-holder inside-cell">
@@ -201,19 +188,17 @@ const Column = ( props: ColumnProps ) => (
     </div>
   </div>
 )
-interface ColumnProps extends
-DetailedHTMLProps<HTMLDivElement>, SFCProps<HTMLDivElement> {}
+interface ColumnProps extends DetailedHTMLProps<HTMLDivElement> {}
 
 const ColumnHeader = ( props: ColumnHeaderProps ) => (
-  <div {...ep(props, '_ref')} ref={props._ref}
-    className={cc('column-header', props)}></div>
+  <div {...props} className={cc('column-header', props)}></div>
 )
 interface ColumnHeaderProps extends
-DetailedHTMLProps<HTMLDivElement>, SFCProps<HTMLDivElement> {}
+DetailedHTMLProps<HTMLDivElement> {}
 
 
 const ColumnHeaderLink = ( props: ColumnHeaderLinkProps ) => (
-  <a {...ep(props, '_ref', 'linkPosition', 'linkOffset')} ref={props._ref}
+  <a {...ep(props, 'linkPosition', 'linkOffset')}
   className={cc(
     [
       'column-header-link',
@@ -223,13 +208,13 @@ const ColumnHeaderLink = ( props: ColumnHeaderLinkProps ) => (
   )}></a>
 )
 interface ColumnHeaderLinkProps extends
-DetailedHTMLProps<HTMLAnchorElement>, SFCProps<HTMLAnchorElement> {
+DetailedHTMLProps<HTMLAnchorElement> {
   linkPosition: 'right' | 'left'
   linkOffset?: 0 | 1 | 2
 }
 
 const DragHandle = ( props: DragHandleProps ) => (
-  <div {...ep(props, '_ref', 'handleType')}
+  <div {...ep(props, 'handleType')}
     onDragStart = {preventEventDefault}
     className   = {cc(`cell__handle cell__handle--${props.handleType}`, props)}
   ></div>
@@ -238,13 +223,13 @@ type DragHandleProps = {
   handleType: 'horizonal' | 'vertical'
 } & {
   [K in 'onMouseDown']: DetailedHTMLProps<HTMLDivElement>[K]
-} & DetailedHTMLProps<HTMLDivElement> & SFCProps<HTMLDivElement>
+} & DetailedHTMLProps<HTMLDivElement>
 
 const InsertButton = ( props: InsertButtonProps ) => (
-  <div {...ep(props, '_ref')}
+  <div {...ep(props)}
     className={cc('cell__insert', props)}
   ><PLUS></PLUS></div>
 )
 type InsertButtonProps = {
   [K in 'onClick']: DetailedHTMLProps<HTMLDivElement>[K]
-} & DetailedHTMLProps<HTMLDivElement> & SFCProps<HTMLDivElement>
+} & DetailedHTMLProps<HTMLDivElement>

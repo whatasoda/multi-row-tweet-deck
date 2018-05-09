@@ -1,6 +1,6 @@
 import * as React from 'react'
 import cc from './util/composeClassName'
-export type SFC<T> = (props: DetailedHTMLProps<T>) => JSX.Element
+
 
 interface TweetDeckIcon {
   (
