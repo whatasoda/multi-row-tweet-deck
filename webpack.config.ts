@@ -53,6 +53,7 @@ const { version } = APPCONFIG
 
 const plugins: webpack.Plugin[] = [
   new PreBuildWebpack(function () {
+    reload('./package.json')
     json.manifest   = manifest()()
     json.appConfig  = appConfig()(isTrial)
   }),

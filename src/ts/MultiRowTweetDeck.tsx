@@ -79,7 +79,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
   private setUpRootElement (): boolean {
     const rootElem = document.createElement('div')
-    rootElem.className = 'column-root__block'
+    rootElem.className = 'multi-row-app'
     document.getElementsByClassName('js-app')[0].appendChild(rootElem)
 
     this.rootElement = rootElem

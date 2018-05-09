@@ -2,7 +2,7 @@ import * as React from 'react'
 import { render } from 'react-dom'
 import Terminal from './Terminal'
 
-import LOGO from '!svg-react-loader!../svg/icon.svg'
+import LOGO from '!svg-react-loader!../svg/app-icon.svg'
 
 export interface ToggleButtonProps {
   terminal: Terminal
