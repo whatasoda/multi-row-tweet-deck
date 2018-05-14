@@ -120,7 +120,7 @@ React.Component<CellProps, CellState> {
       headerLinkAction = this.pushColumn.bind(this)
     }
     const AddOrRemove: SFCProps<typeof ColumnHeaderLink> | undefined =
-      (headerLinkAction &&{
+      (headerLinkAction && {
         linkPosition: 'right',
         onClick     : headerLinkAction,
         children    : isActive ? <CLOSE/> : <PLUS/>

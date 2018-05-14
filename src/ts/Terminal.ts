@@ -1,8 +1,10 @@
 import ExtensionConfig from './config/extension'
 import watch from './util/watch'
+import * as React from 'react'
 
 export default interface Terminal {
   config              : ExtensionConfig
+  isTrial             : boolean
   gridElement?        : HTMLDivElement
   setCurrentApp       (app: React.Component<any, any>): void
   updateApp           (): void

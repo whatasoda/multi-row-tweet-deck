@@ -1,4 +1,4 @@
-type GenMessage = (isTrial: boolean) => ManifestMessage
+type GenMessage = () => ManifestMessage
 export default GenMessage
 
 export interface ManifestMessage {

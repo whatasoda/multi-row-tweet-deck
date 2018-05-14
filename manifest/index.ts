@@ -1,6 +1,7 @@
 const { version } = require('../package.json')
 
-export default (isTrial: boolean): Manifest => ({
+export default (): Manifest => ({
+  key   : key,
   name  : 'Multi Row TweetDeck',
   author: 'whatasoda',
   icons : {
@@ -12,6 +13,7 @@ export default (isTrial: boolean): Manifest => ({
   default_locale: 'ja',
   description: message('description'),
   manifest_version: 2,
+  minimum_chrome_version: '29',
   content_scripts: [
     {
       matches: ['https://tweetdeck.twitter.com/*'],
@@ -19,12 +21,26 @@ export default (isTrial: boolean): Manifest => ({
     }
   ],
   permissions: [
-    'storage'
-  ]
+    'storage',
+    'identity',
+    'https://www.googleapis.com/*'
+  ],
+  background: {
+    // scripts: ['background.js']
+  },
+  oauth2: {
+    client_id: client_id,
+    scopes: [
+      'https://www.googleapis.com/auth/chromewebstore.readonly'
+    ]
+  }
 })
 
+const key     =
+  'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi/RbEi+P4lE23YlS/8Xecyly5SV2HFAbrObPQkHFJ4C1wmh4nFPh66qc4nPlOVfwxdWTbuDZwkJKvMgxrmXMOfk0+TpCH8gUC6qTmWsqtfNCmjRT1uyt2wP2Czt8RNNERRvcLWpwCzztF2DiO3mVK0tR2V2vYDWadNqhrmDq3UNkWn6x86tWPzsifYU7R5HgBaUc76Fujofyt5g9PedWqHBsBEousP608H4zQvsEPPFI/kQrBJacpzrCDOyXQtLLLnPxZ3aJp5n4Ff/AVeAPg5LYsDBIJuBnpeHsFQP5qrAI5DdIcxIcbRJO0YQgUUQALoLRc72kg8bW4usbaUypRQIDAQAB'
 const message = (name: string): string => `__MSG_${name}__`
-
+const client_id =
+  '1049167218622-3r5bkg11q87qt7d0i16ejralgb8q5s0m.apps.googleusercontent.com'
 
 export interface Manifest {
 
@@ -50,10 +66,10 @@ export interface Manifest {
     // action?: ...
     author?: string
     // automation?: ...
-    // background?: {
-    //   // Recommended
-    //   persistent?: false
-    // }
+    background?: {
+      scripts?    : string[]
+      persistent? : boolean
+    }
     // background_page?: ...
     // chrome_settings_overrides?: {...}
     // chrome_ui_overrides?: {
@@ -85,10 +101,10 @@ export interface Manifest {
     // import: [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
     // incognito: "spanning split or not_allowed"
     // input_components: ...
-    // key?: string
-    // minimum_chrome_version: "versionString"
+    key?: string
+    minimum_chrome_version: string
     // nacl_modules: [...]
-    // oauth2: ...
+    oauth2?: OAuth2
     // offline_enabled: true
     // omnibox: {
     //   keyword: "aString"
@@ -161,4 +177,9 @@ export type Permissions =
   'system.display' | 'system.memory' | 'system.storage' | 'tabCapture' |
   'tabs' | 'topSites' | 'tts' | 'ttsEngine' | 'unlimitedStorage' |
   'vpnProvider' | 'wallpaper' | 'webNavigation' | 'webRequest' |
-  'webRequestBlocking'
+  'webRequestBlocking' | 'https://www.googleapis.com/*'
+
+interface OAuth2 {
+  client_id : string
+  scopes    : string[]
+}
