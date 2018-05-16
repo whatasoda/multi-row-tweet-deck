@@ -1,0 +1,40 @@
+.action-agent {
+  &-block {
+    width       : 600px;
+    height      : 300px;
+    border      : 2px solid $twitter;
+    position    : absolute;
+    z-index     : 300;
+    background  : $dark-compose;
+    display     : flex;
+    flex-direction: column;
+  }
+  &-selector {
+    font-size: 20px;
+  }
+  &-root {
+    position: relative;
+    flex-grow: 1;
+  }
+  &-root-holder-v {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  &-root-holder-h {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+  &-elements {
+    margin-left: 16px;
+    border-left: 1px solid $twitter;
+  }
+  &-element-button {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

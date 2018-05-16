@@ -3,8 +3,9 @@ interface PackageJSON {
   version     : string
 }
 
-export default (isTrial: boolean = false): AppConfig => ({
-  version: packageJSON.version,
+export default (isTrial: boolean = false, isDev: boolean): AppConfig => ({
+  version           : packageJSON.version,
+  isDev             : isDev,
   unitDivision      : 32,
   dragOptimalCoeff  : 1.5,
   columnWidth: {
@@ -23,6 +24,7 @@ export default (isTrial: boolean = false): AppConfig => ({
 
 export interface AppConfig {
   version           : string
+  isDev             : boolean
   unitDivision      : number
   dragOptimalCoeff  : number
   columnWidth : {

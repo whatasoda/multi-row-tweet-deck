@@ -33,11 +33,13 @@
 .scroll-styled-h::-webkit-scrollbar {
   height: 4px !important;
 }
+
 .scroll-styled-v::-webkit-scrollbar-thumb,
 .scroll-styled-h::-webkit-scrollbar-thumb {
   border-radius: 1px !important;
 }
 .column-scroller.scroll-styled-v::-webkit-scrollbar {
+// .scroll-styled-v::-webkit-scrollbar {
   width: 4px !important;
 }
 
