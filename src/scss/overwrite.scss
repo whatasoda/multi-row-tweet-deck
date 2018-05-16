@@ -53,20 +53,28 @@
 
 .column-header {
   height: 40px !important;
-  padding-left: 3px !important;
   display: flex;
   align-items: center;
   .column-type-icon {
-    left: 5px !important;
-    bottom: 23px !important;
+    height        : 8px !important;
+    float         : none !important;
+    line-height   : 0px !important;
+    margin-top    : 0 !important;
+    margin-bottom : 0 !important;
   }
   .column-title {
-    line-height: 1em !important;
-    padding-top: 0.1em !important;
-    margin-left: 34px !important;
+    height: 100% !important;
+    flex-grow: 1;
+    align-items: center;
   }
   .column-header-link {
-    top: 0px !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 0 !important;
+    * {
+      line-height: 0 !important;
+    }
     &.column {
       $offsetStep: 34;
       $offset0: $offsetStep * 0 + 5px;
