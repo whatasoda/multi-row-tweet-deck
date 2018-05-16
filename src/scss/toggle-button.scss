@@ -1,0 +1,21 @@
+$button-size: 28px;
+.toggle-multi-row-setting-view {
+  position: absolute;
+  bottom  : 42px;
+  width   : $button-size;
+  height  : $button-size;
+  cursor  : pointer;
+  left    : -2px;
+  right   : 0;
+  margin  : 0 auto;
+}
+
+.nav-user-info {
+  bottom: 48px + $button-size !important;
+}
+.app-navigator {
+  bottom: 88px + $button-size !important;
+}
+.column-navigator {
+  bottom: 199px + $button-size !important;
+}

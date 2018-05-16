@@ -1,22 +1,27 @@
-import * as React from 'react'
-import { render } from 'react-dom'
-import ExtensionConfig, { CellConfig } from './config/extension'
-import Terminal, { DragType, DragAction } from './Terminal'
-import UnitCountDragAction from './DragAction/UnitCount'
-import ColumnWidthDragAction from './DragAction/ColumnWidth'
-import watch from './util/watch'
-import isEmptyArray from './util/isEmptyArray'
-import genToggleClass, { ToggleClass } from './util/toggleClass'
-import StyleAgent from './StyleAgent'
-import CellRoot from './CellRoot'
-import ToggleButton from './ToggleButton'
-import regurateConfig from './config/regurate'
-import upgradeConfig from './config/upgrade'
-import appConfig from './config/app'
+import * as React             from 'react'
+import { render }             from 'react-dom'
+import  ExtensionConfig, {
+        CellConfig
+      }                       from './config/extension'
+import  Terminal, {
+        DragType,
+        DragAction
+      } from './Terminal'
+import  UnitCountDragAction   from './DragAction/UnitCount'
+import  ColumnWidthDragAction from './DragAction/ColumnWidth'
+import  watch                 from './util/watch'
+import  isEmptyArray          from './util/isEmptyArray'
+import  genToggleClass, {
+        ToggleClass
+      }                       from './util/toggleClass'
+import  StyleAgent            from './StyleAgent'
+import  CellRoot              from './CellRoot'
+import  ToggleButton          from './ToggleButton'
+import  upgradeConfig         from './config/upgrade'
+import  appConfig             from './config/app'
 
 const { version } = appConfig
-const { isTrial } = appConfig.freeTrial
-const chrome = window.chrome
+
 
 type DragActions = {
   [K in DragType]: DragAction
@@ -24,6 +29,7 @@ type DragActions = {
 
 export default class MultiRowTweetDeck implements Terminal {
   public config!          : ExtensionConfig
+  public isTrial!         : boolean
   public gridElement?     : HTMLDivElement
   private styleAgent      : StyleAgent
   private dragActions     : DragActions
@@ -48,12 +54,23 @@ export default class MultiRowTweetDeck implements Terminal {
   }
 
   public async init (): Promise<void> {
+    const forceTrial = appConfig.freeTrial.isTrial
+    type messageRes = undefined | { isTrial: boolean };
+    this.isTrial = forceTrial
+
+    // if (!forceTrial) {
+    //   const res = await new Promise<messageRes>((resolve, reject) => (
+    //     chrome.runtime.sendMessage('isTrial',
+    //       (res: messageRes) => resolve(res)
+    //     )
+    //   ))
+    //   this.isTrial = !res || res.isTrial
+    // }
+
     this.userId = await this.getUserId()
     let config  = await this.getStorageItem<ExtensionConfig>(this.userId)
     config      = upgradeConfig(config)
-    config      = regurateConfig(config)
     this.config = config
-
     this.styleAgent.dispatch()
 
     if (!this.setUpRootElement()) return;
@@ -72,14 +89,14 @@ export default class MultiRowTweetDeck implements Terminal {
     const raw         = account_items[0].getAttribute('data-account-key')
     const accountKey  = raw ? raw.split(':')[1] : 'default'
 
-    return isTrial ? 'default' : accountKey
+    return this.isTrial ? 'default' : accountKey
   }
 
 
 
   private setUpRootElement (): boolean {
     const rootElem = document.createElement('div')
-    rootElem.className = 'column-root__block'
+    rootElem.className = 'multi-row-app'
     document.getElementsByClassName('js-app')[0].appendChild(rootElem)
 
     this.rootElement = rootElem
@@ -300,7 +317,6 @@ export default class MultiRowTweetDeck implements Terminal {
 
     let [x, y] = [0, -1]
     for (const column of this.config.columns) {
-      if (!column) continue;
       if (index >= column.length) {
         index -= column.length
         x++
