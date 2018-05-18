@@ -213,6 +213,7 @@ export default class MultiRowTweetDeck implements Terminal {
   ): void {
     const [x,y] = this.getCellCoord(index)
     if (y < 0) return;
+    if (x === 0 && y === 0) return;
     const { columns, columnWidth } = this.config
     const column    = columns[x]
     const deadCell  = column.splice(y, 1)

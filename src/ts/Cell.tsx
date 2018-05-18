@@ -7,8 +7,9 @@ import Terminal from './Terminal'
 import TDIcon, {
   TweetDeckIconType
 } from './TweetDeckIcon'
-const CLOSE = TDIcon('close', 'large')
-const PLUS  = TDIcon('plus', 'large')
+const CLOSE       = TDIcon('close')
+const PLUS        = TDIcon('plus')
+const PLUS_LARGE  = TDIcon('plus', 'large')
 
 export interface CellProps {
   index           : number
@@ -113,18 +114,13 @@ React.Component<CellProps, CellState> {
       className: 'pull-left margin-hs column-type-icon inside-cell'
     }
 
-    let headerLinkAction: (() => void) | undefined = undefined
+    let addOrRemove: (() => void) | undefined = undefined
     if (isActive) {
-      headerLinkAction = this.removeCell.bind(this)
+      addOrRemove = this.removeCell.bind(this)
     } else if (isFirstInactive) {
-      headerLinkAction = this.pushColumn.bind(this)
+      addOrRemove = this.pushColumn.bind(this)
     }
-    const AddOrRemove: SFCProps<typeof ColumnHeaderLink> | undefined =
-      (headerLinkAction && {
-        linkPosition: 'right',
-        onClick     : headerLinkAction,
-        children    : isActive ? <CLOSE/> : <PLUS/>
-      }) || undefined
+    const addOrRemoveIcon = isActive ? <CLOSE/> : <PLUS/>
 
     const InsertButtonProps: SFCProps<typeof InsertButton> | undefined =
       (isActive && isLastRow && {
@@ -143,7 +139,11 @@ React.Component<CellProps, CellState> {
       <Column className={isActive ? undefined : 'inactive-cell'}>
         <ColumnHeader>
           { Icon         && <Icon {...IconProps}/> }
-          { AddOrRemove  && <ColumnHeaderLink {...AddOrRemove}/> }
+          <div className="column-header-links">
+            {( this.props.index !== 0 && addOrRemove && (
+              <ColumnHeaderLink onClick={addOrRemove} icon={addOrRemoveIcon}/>
+            ) )}
+          </div>
         </ColumnHeader>
         <div className="measure measure-horizonal">
           <span className="measure-label">{ this.props.columnWidth }</span>
@@ -198,19 +198,13 @@ DetailedHTMLProps<HTMLDivElement> {}
 
 
 const ColumnHeaderLink = ( props: ColumnHeaderLinkProps ) => (
-  <a {...ep(props, 'linkPosition', 'linkOffset')}
-  className={cc(
-    [
-      'column-header-link',
-      `column-${props.linkPosition}-link-${props.linkOffset || 0}`
-    ].join(' '),
-    props
-  )}></a>
+  <a {...ep(props, 'icon')} className={cc('column-header-link', props)}>
+    { props.icon }
+  </a>
 )
 interface ColumnHeaderLinkProps extends
 DetailedHTMLProps<HTMLAnchorElement> {
-  linkPosition: 'right' | 'left'
-  linkOffset?: 0 | 1 | 2
+  icon: JSX.Element
 }
 
 const DragHandle = ( props: DragHandleProps ) => (
@@ -228,7 +222,7 @@ type DragHandleProps = {
 const InsertButton = ( props: InsertButtonProps ) => (
   <div {...ep(props)}
     className={cc('cell__insert', props)}
-  ><PLUS></PLUS></div>
+  ><PLUS_LARGE></PLUS_LARGE></div>
 )
 type InsertButtonProps = {
   [K in 'onClick']: DetailedHTMLProps<HTMLDivElement>[K]

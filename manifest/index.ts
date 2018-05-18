@@ -10,7 +10,7 @@ export default (): Manifest => ({
     128   : 'icons/icon-128.png'
   },
   version: version,
-  default_locale: 'ja',
+  default_locale: 'en',
   description: message('description'),
   manifest_version: 2,
   minimum_chrome_version: '29',
