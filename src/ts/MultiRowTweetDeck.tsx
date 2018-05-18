@@ -16,6 +16,7 @@ import  genToggleClass, {
       }                       from './util/toggleClass'
 import  StyleAgent            from './StyleAgent'
 import  CellRoot              from './CellRoot'
+import  ActionAgent           from './ActionAgent'
 import  ToggleButton          from './ToggleButton'
 import  upgradeConfig         from './config/upgrade'
 import  appConfig             from './config/app'
@@ -78,6 +79,12 @@ export default class MultiRowTweetDeck implements Terminal {
 
     if (this.rootElement)
       render(<CellRoot terminal={this}/>, this.rootElement)
+
+    if (appConfig.isDev) {
+      const ACTION_AGENT = document.createElement('div')
+      document.getElementsByClassName('js-app')[0].appendChild(ACTION_AGENT)
+      render(<ActionAgent/>, ACTION_AGENT)
+    }
   }
 
 
@@ -96,7 +103,7 @@ export default class MultiRowTweetDeck implements Terminal {
 
   private setUpRootElement (): boolean {
     const rootElem = document.createElement('div')
-    rootElem.className = 'multi-row-app'
+    rootElem.className = 'multi-row-app app-content'
     document.getElementsByClassName('js-app')[0].appendChild(rootElem)
 
     this.rootElement = rootElem
@@ -206,6 +213,7 @@ export default class MultiRowTweetDeck implements Terminal {
   ): void {
     const [x,y] = this.getCellCoord(index)
     if (y < 0) return;
+    if (x === 0 && y === 0) return;
     const { columns, columnWidth } = this.config
     const column    = columns[x]
     const deadCell  = column.splice(y, 1)

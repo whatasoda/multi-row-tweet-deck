@@ -1,6 +1,6 @@
-import * as React from 'react'
-import Cell from './Cell'
-import Terminal from './Terminal'
+import * as React   from 'react'
+import Cell         from './Cell'
+import Terminal     from './Terminal'
 
 import TDIcon from './TweetDeckIcon'
 const PLUS = TDIcon('plus', 'medium')
@@ -89,9 +89,10 @@ React.Component<CellRootProp, CellRootState> {
     }
 
     return (
-      <div className="app-content">
+      <React.Fragment>
         <div className="drawer">
-
+          <div className="compose">
+          </div>
         </div>
         <div
           className={[
@@ -108,7 +109,7 @@ React.Component<CellRootProp, CellRootState> {
             { cells }
           </div>
         </div>
-      </div>
+      </React.Fragment>
     )
   }
 }

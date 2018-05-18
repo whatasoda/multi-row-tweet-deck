@@ -1,14 +1,10 @@
 @import 'variable';
 @import 'toggle-button';
 @import 'overwrite';
+@import 'action-agent';
 
 .multi-row-app {
   display         : none;
-  position        : absolute;
-  top             : 0;
-  left            : 0;
-  right           : 0;
-  bottom          : 0;
   &.is-visible {
     display: block;
     z-index: 100;
@@ -24,7 +20,7 @@
 //   left            : 50px;
 // }
 
-.is-open ~ .multi-row-app .app-content {
+.is-open ~ .multi-row-app.app-content {
   transform: translateX(270px);
   margin-right: 270px;
 }

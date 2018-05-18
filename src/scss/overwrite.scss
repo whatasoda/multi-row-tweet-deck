@@ -33,11 +33,13 @@
 .scroll-styled-h::-webkit-scrollbar {
   height: 4px !important;
 }
+
 .scroll-styled-v::-webkit-scrollbar-thumb,
 .scroll-styled-h::-webkit-scrollbar-thumb {
   border-radius: 1px !important;
 }
 .column-scroller.scroll-styled-v::-webkit-scrollbar {
+// .scroll-styled-v::-webkit-scrollbar {
   width: 4px !important;
 }
 
@@ -55,6 +57,7 @@
   height: 40px !important;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   .column-type-icon {
     height        : 8px !important;
     float         : none !important;

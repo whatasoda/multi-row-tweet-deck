@@ -59,8 +59,10 @@ export function JsonEmitter (
     out_path  : string
   ): ReturnType<T> {
 
-    const load  = genLoader<T>(path.join(dirname, obj_path))
-    const obj   = { default: load()(isTrial) }
+    const load  = () => (
+      genLoader<T>(path.join(dirname, obj_path))()(isTrial, isDev)
+    )
+    const obj   = { default: load() }
     const OBJ   = JSONProxy(obj, 'default')
     out_path    = path.relative(PATH.dist, path.join(dirname, out_path))
 
@@ -68,7 +70,7 @@ export function JsonEmitter (
     _PLUGINS.push( new GenerateJsonPlugin(out_path, OBJ) )
 
     if (isDev) {
-      PREBUILD.push(() => ( obj.default = load()(isTrial) ))
+      PREBUILD.push(() => ( obj.default = load() ))
     }
     return OBJ
   }
