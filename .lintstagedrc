@@ -1,0 +1,10 @@
+{
+  "linters": {
+    "*.{ts,tsx}": [
+      "tslint --fix -p tsconfig.json",
+      "prettier --write",
+      "true && tsc --noEmit -p tsconfig.json",
+      "git add"
+    ]
+  }
+}
