@@ -9,13 +9,11 @@ export default (): Configuration => {
       options: { transpileOnly: true },
     },
   });
-  
+
   return {
     entry: {
       content: path.resolve(__dirname, '../../src/entries/content.ts'),
-      json: [
-        path.resolve(__dirname, '../../src/entries/manifest.json.ts'),
-      ],
+      json: [path.resolve(__dirname, '../../src/entries/manifest.json.ts')],
     },
     output: {
       path: path.resolve(__dirname, '../../dist'),
@@ -48,13 +46,10 @@ export default (): Configuration => {
               },
             },
             'val-loader',
-            loaders.tsLoader
+            loaders.tsLoader,
           ],
         },
       ],
     },
-    
   };
-}
-
-
+};
