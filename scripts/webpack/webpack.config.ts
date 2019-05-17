@@ -10,10 +10,16 @@ export default (): Configuration => {
     },
   });
 
+  const ENTRY_ROOT = path.resolve(__dirname, '../../src/entries');
+
   return {
     entry: {
-      content: path.resolve(__dirname, '../../src/entries/content.ts'),
-      json: [path.resolve(__dirname, '../../src/entries/manifest.json.ts')],
+      content: path.resolve(ENTRY_ROOT, 'content.ts'),
+      json: [
+        path.resolve(ENTRY_ROOT, 'manifest.json.ts'),
+        path.resolve(ENTRY_ROOT, '_locale/en/message.json.ts'),
+        path.resolve(ENTRY_ROOT, '_locale/ja/message.json.ts'),
+      ],
     },
     output: {
       path: path.resolve(__dirname, '../../dist'),
@@ -42,7 +48,10 @@ export default (): Configuration => {
             {
               loader: 'file-loader',
               options: {
-                name: '[name]',
+                name: (file: string): string => {
+                  const { dir, name } = path.parse(path.relative(ENTRY_ROOT, file));
+                  return path.join(dir, name);
+                },
               },
             },
             'val-loader',
