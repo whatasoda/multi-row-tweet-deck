@@ -1,4 +1,4 @@
-import ValLoaderCode from '../utils/val-loader-helper';
+import ValLoaderCode from '../../../utils/val-loader-helper';
 
 const hello = () => ({ hello: 'world' });
 
