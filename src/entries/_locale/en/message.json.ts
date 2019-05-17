@@ -1,5 +1,11 @@
+import { ManifestMessage } from '../../../manifest/interface';
 import ValLoaderCode from '../../../utils/val-loader-helper';
 
-const hello = () => ({ hello: 'world' });
+const message = (): ManifestMessage => ({
+  description: {
+    message: 'It gives your TweetDeck multi row layout.',
+    description: 'Extension Description',
+  },
+});
 
-export = ValLoaderCode(hello);
+export = ValLoaderCode(message);
