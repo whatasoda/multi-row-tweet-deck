@@ -1,4 +1,4 @@
-import { createModule } from 'typeless';
+import { createModule, useActions } from 'typeless';
 import warning from 'warning';
 import { __DEV__ } from '../../utils/env';
 
@@ -177,6 +177,10 @@ useModule
     profile.columns[sRow + 1] -= amount;
   });
 
-const AppStore = { useModule, Actions, getState };
+const AppStore = {
+  useModule,
+  useActions: () => useActions(Actions),
+  useState: getState.useState.bind(getState),
+};
 
 export default AppStore;
