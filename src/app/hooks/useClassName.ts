@@ -12,7 +12,8 @@ const ClassNameModule = (cnm: ClassNameModule) => {
   const memoStorage: Record<string, ClassNameType> = {};
 
   const useClassName = (moduleKeys: InputArray, raw: InputArray = empty): ClassNameType => {
-    const memoKey = moduleKeys.join('') + (raw === empty) ? '' : raw.join();
+    const memoKey = moduleKeys.join('') + raw.join('');
+
     if (Object.prototype.hasOwnProperty.call(memoStorage, memoKey)) {
       return memoStorage[memoKey];
     }
