@@ -22,6 +22,7 @@
     }
   },
   "devDependencies": {
+    "@types/chrome": "0.0.85",
     "@types/fork-ts-checker-webpack-plugin": "^0.4.5",
     "@types/jss": "^9.5.8",
     "@types/mini-css-extract-plugin": "^0.2.0",

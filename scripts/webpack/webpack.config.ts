@@ -16,8 +16,10 @@ export default (): Configuration => {
   const ENTRY_ROOT = path.resolve(__dirname, '../../src/entries');
 
   return {
+    devtool: 'source-map',
     entry: {
-      content: path.resolve(ENTRY_ROOT, 'content.tsx'),
+      content: path.resolve(ENTRY_ROOT, 'content.ts'),
+      background: path.resolve(ENTRY_ROOT, 'background.ts'),
       json: [
         path.resolve(ENTRY_ROOT, 'manifest.json.ts'),
         path.resolve(ENTRY_ROOT, '_locales/en/messages.json.ts'),
