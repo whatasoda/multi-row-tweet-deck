@@ -7,9 +7,14 @@ export interface Manifest {
   description?: string;
   icons?: Record<'16' | '48' | '128', string> & Partial<Record<'32', string>>;
   browser_action?: {
-    default_icon: Partial<Record<'16' | '24' | '32', string>>;
-    default_title: string;
-    default_popup: string;
+    default_icon?: Partial<Record<'16' | '24' | '32', string>>;
+    default_title?: string;
+    default_popup?: string;
+  };
+  page_action?: {
+    default_icon?: Partial<Record<'16' | '24' | '32', string>>;
+    default_title?: string;
+    default_popup?: string;
   };
   author?: string;
   background?: {
@@ -21,6 +26,7 @@ export interface Manifest {
   minimum_chrome_version: string;
   oauth2?: OAuth2;
   permissions?: string[];
+  web_accessible_resources?: string[];
 }
 
 export type Locale =

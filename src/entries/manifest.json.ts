@@ -13,7 +13,7 @@ const manifest = async (): Promise<Manifest> => ({
   author: 'whatasoda',
   default_locale: 'en',
   description: MSG('description'),
-  minimum_chrome_version: '29',
+  minimum_chrome_version: '60',
   key,
   icons: {
     16: 'icons/icon-16.png',
@@ -26,7 +26,16 @@ const manifest = async (): Promise<Manifest> => ({
       js: ['content.js'],
     },
   ],
-  permissions: Permissions(['storage']),
+  page_action: {
+    default_title: 'Multi Row TweetDeck',
+    default_popup: '',
+  },
+  background: {
+    scripts: ['background.js'],
+  },
+
+  permissions: Permissions(['activeTab', 'declarativeContent', 'storage', 'tabs']),
+  web_accessible_resources: ['style.css'],
 });
 
 export = ValLoaderCode(manifest);
