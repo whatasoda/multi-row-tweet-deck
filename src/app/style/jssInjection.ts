@@ -3,7 +3,7 @@ import jssCamelCase from 'jss-plugin-camel-case';
 import jssGlobal from 'jss-plugin-global';
 import jssNested from 'jss-plugin-nested';
 import { CSSProperties } from 'react';
-import { AppStyle, NativeClassNames } from './appStyle';
+import { AppStyle, NativeClassName } from './appStyle';
 
 jss.use(jssNested(), jssGlobal(), jssCamelCase());
 
@@ -11,16 +11,18 @@ let sheet: StyleSheet | null = null;
 const JssInjection = (styleElement: HTMLStyleElement, { cellCols, cellRows, cellCommon, ...appStyle }: AppStyle) => {
   let cellCount = 0;
   const column = cellCols.reduce<Record<string, CSSProperties>>(
-    (acc, style, i) =>
-      Object.assign(
-        acc,
-        {
-          [`&:nth-child(${cellCount} + n)`]: style,
-        },
-        ...cellRows[i].map<Record<string, CSSProperties>>((style) => ({
-          [`&:nth-child(${++cellCount})`]: style,
-        })),
-      ),
+    (acc, style, i) => {
+      const isLastCol = cellCols.length - 1 === i;
+      const col = cellRows[i];
+      const prefix = isLastCol ? `${col.length}n + ` : '';
+      Object.assign(acc, { [`&:nth-child(n + ${cellCount})`]: style });
+      col.forEach((style) =>
+        Object.assign(acc, {
+          [`&:nth-child(${prefix}${++cellCount})`]: style,
+        }),
+      );
+      return acc;
+    },
     cellCommon as any,
   );
 
@@ -34,8 +36,8 @@ const JssInjection = (styleElement: HTMLStyleElement, { cellCols, cellRows, cell
         ...styleEntries.reduce<Record<string, CSSProperties>>(
           (acc, [key, style]) =>
             Object.assign(acc, {
-              [`html.dark .${NativeClassNames[key]}`]: style,
-              [`html .${NativeClassNames[key]}`]: style,
+              [`html.dark ${NativeClassName.css[key]}`]: style,
+              [`html ${NativeClassName.css[key]}`]: style,
             }),
           {},
         ),
