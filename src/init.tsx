@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DefaultTypelessProvider } from 'typeless';
-import App from '../app/App';
-import { NativeClassName } from '../app/style/appStyle';
+import App from './App';
 import ContextScope from './libs/contextScope';
+import { NativeClassName } from './style/appStyle';
 
 const target = document.getElementsByClassName('application');
 const waitForTDInit = () => {

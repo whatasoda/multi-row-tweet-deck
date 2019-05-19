@@ -1,7 +1,7 @@
-import { Version } from '../manifest/dynamic';
-import { MSG, Permissions } from '../manifest/helpers';
-import { Manifest } from '../manifest/interface';
-import ValLoaderCode from '../utils/val-loader-helper';
+import { Version } from '../src/manifest/dynamic';
+import { MSG, Permissions } from '../src/manifest/helpers';
+import { Manifest } from '../src/manifest/interface';
+import ValLoaderCode from '../src/utils/val-loader-helper';
 
 const key =
   'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi/RbEi+P4lE23YlS/8Xecyly5SV2HFAbrObPQkHFJ4C1wmh4nFPh66qc4nPlOVfwxdWTbuDZwkJKvMgxrmXMOfk0+TpCH8gUC6qTmWsqtfNCmjRT1uyt2wP2Czt8RNNERRvcLWpwCzztF2DiO3mVK0tR2V2vYDWadNqhrmDq3UNkWn6x86tWPzsifYU7R5HgBaUc76Fujofyt5g9PedWqHBsBEousP608H4zQvsEPPFI/kQrBJacpzrCDOyXQtLLLnPxZ3aJp5n4Ff/AVeAPg5LYsDBIJuBnpeHsFQP5qrAI5DdIcxIcbRJO0YQgUUQALoLRc72kg8bW4usbaUypRQIDAQAB';

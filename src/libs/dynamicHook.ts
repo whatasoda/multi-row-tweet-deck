@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import warning from 'warning';
-import { __DEV__ } from '../../utils/env';
+import { __DEV__ } from '../utils/env';
 
 type DynamicHookDescriptor<T, U, V extends any[]> = {
   initial: (selector: U) => T;
