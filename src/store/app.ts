@@ -1,6 +1,6 @@
 import { createModule, useActions } from 'typeless';
 import warning from 'warning';
-import { __DEV__ } from '../../utils/env';
+import { __DEV__ } from '../utils/env';
 
 export type AppState = {
   currentProfile: number;

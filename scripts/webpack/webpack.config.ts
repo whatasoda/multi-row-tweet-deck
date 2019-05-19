@@ -13,7 +13,7 @@ export default (): Configuration => {
     },
   });
 
-  const ENTRY_ROOT = path.resolve(__dirname, '../../src/entries');
+  const ENTRY_ROOT = path.resolve(__dirname, '../../entries');
 
   return {
     devtool: 'source-map',

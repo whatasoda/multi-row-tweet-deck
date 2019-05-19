@@ -1,5 +1,5 @@
-import { ManifestMessage } from '../../../manifest/interface';
-import ValLoaderCode from '../../../utils/val-loader-helper';
+import { ManifestMessage } from '../../../src/manifest/interface';
+import ValLoaderCode from '../../../src/utils/val-loader-helper';
 
 const message = (): ManifestMessage => ({
   description: {
