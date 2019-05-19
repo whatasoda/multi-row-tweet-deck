@@ -1,2 +1,3 @@
-// tslint:disable-next-line: no-console
-console.log('Hello, world.');
+import initialize from '../app/init';
+
+initialize();
