@@ -4,12 +4,12 @@ import ContextScope from '../libs/contextScope';
 type PointerTerminal = {
   start: (initial: MouseEvent) => void;
   end: () => void;
-  movement: () => [number, number];
+  movement: () => [number, number] | null;
 };
 const emptyPointerTerminal: PointerTerminal = {
   start: () => void 0,
   end: () => void 0,
-  movement: () => [0, 0],
+  movement: () => null,
 };
 
 const usePointer = ContextScope.create<PointerTerminal>(emptyPointerTerminal, (set) => {
@@ -47,7 +47,7 @@ const usePointer = ContextScope.create<PointerTerminal>(emptyPointerTerminal, (s
     };
 
     const movement: PointerTerminal['movement'] = () =>
-      !active || dead ? [0, 0] : [curr[0] - origin[0], curr[1] - origin[1]];
+      !active || dead ? null : [curr[0] - origin[0], curr[1] - origin[1]];
 
     window.addEventListener('mouseup', end);
     set({ start, movement, end });
