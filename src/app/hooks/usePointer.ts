@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import ContextScope from '../libs/contextScope';
 
 type PointerTerminal = {
@@ -13,9 +13,9 @@ const emptyPointerTerminal: PointerTerminal = {
 };
 
 const usePointer = ContextScope.create<PointerTerminal>(emptyPointerTerminal, (set) => {
-  useEffect(() => {
+  const effect = useMemo(() => {
     let active = false;
-    let dead = true;
+    let dead = false;
     const origin = new Float32Array([0, 0]);
     const curr = new Float32Array([0, 0]);
 
@@ -25,8 +25,9 @@ const usePointer = ContextScope.create<PointerTerminal>(emptyPointerTerminal, (s
       }
 
       active = true;
-      origin[0] = initial.clientX;
-      origin[1] = initial.clientY;
+      origin[0] = curr[0] = initial.clientX;
+      origin[1] = curr[1] = initial.clientY;
+      initial.preventDefault();
       window.addEventListener('mousemove', observer);
     };
 
@@ -49,15 +50,19 @@ const usePointer = ContextScope.create<PointerTerminal>(emptyPointerTerminal, (s
     const movement: PointerTerminal['movement'] = () =>
       !active || dead ? null : [curr[0] - origin[0], curr[1] - origin[1]];
 
-    window.addEventListener('mouseup', end);
     set({ start, movement, end });
-
-    return () => {
-      end();
-      window.removeEventListener('mouseup', end);
-      dead = true;
+    const effect = () => {
+      window.addEventListener('mouseup', end);
+      return () => {
+        end();
+        window.removeEventListener('mouseup', end);
+        dead = true;
+      };
     };
+    return effect;
   }, []);
+
+  useEffect(effect, []);
 });
 
 export default usePointer;
