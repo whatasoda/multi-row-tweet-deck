@@ -12,10 +12,11 @@ const DynamicHook = <T, U, V extends any[]>({ initial, keyGen, updater }: Dynami
   const settersMap = new Map<string, Set<(value: T) => void>>();
 
   const set = (selector: U, value: T) => {
-    const setters = settersMap.get(keyGen(selector));
+    const key = keyGen(selector);
+    const setters = settersMap.get(key);
     if (!setters) {
       if (__DEV__) {
-        warning(false, 'Invalid selector: not found: %1', selector);
+        warning(false, 'Invalid selector: not found: %s', key);
       }
       return;
     }
