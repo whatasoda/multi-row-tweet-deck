@@ -1,4 +1,5 @@
 import { CSSProperties, useEffect } from 'react';
+import useScreenHeight from '../hooks/useScreenHeight';
 import DynamicHook from '../libs/dynamicHook';
 import AppStore, { AppState } from '../store/app';
 import AppStyle from './appStyle';
@@ -11,11 +12,13 @@ const shared = {
     col: false,
     row: null as null | number,
   },
+  screenHeight: -1,
 };
 
 const useStyleModule = (styleElement: HTMLStyleElement) => {
   AppStore.useModule();
   shared.action = AppStore.useActions();
+  shared.screenHeight = useScreenHeight();
 
   const { editing, profiles, currentProfile } = (shared.state = AppStore.useState());
   const profile = profiles[currentProfile];
@@ -79,15 +82,25 @@ const [useColStyle, setColStyle] = DynamicHook<CSSProperties | undefined, number
 });
 
 const [useRowStyle, setRowStyle] = DynamicHook<CSSProperties | undefined, [number, number], [number]>({
-  keyGen: (s) => `[${s.join(':')}]`,
+  keyGen: (s) => `${s.join(':')}`,
   initial: () => void 0,
-  updater: (_, selector, percentage) => {
+  updater: (_, selector, height) => {
     if (!shared.state.editing) {
       shared.action.startEdit();
     }
+    const { currentProfile, profiles } = shared.state;
+    const { cellGap, cellHeaderHeight, rows } = profiles[currentProfile];
 
-    shared.editStatus.row = selector[0];
-    shared.action.resizeRow(selector, percentage);
+    const colIndex = selector[0];
+    const siblingCount = rows[colIndex].length;
+
+    const totalCellGap = cellGap * (siblingCount - 1);
+    const totalHeaderHeight = cellHeaderHeight * siblingCount;
+    const maxHeight = shared.screenHeight + totalCellGap + totalHeaderHeight;
+    const amount = (height / maxHeight) * 100;
+
+    shared.editStatus.row = colIndex;
+    shared.action.resizeRow(selector, amount);
   },
 });
 
