@@ -5,11 +5,14 @@ import AppStore from '../../../store/app';
 import { NativeClassName } from '../../../style/appStyle';
 import { useDrawerStyle } from '../../../style/useStyleModule';
 import DragHandle from '../../atoms/DragHandle';
+import { SelectGap, SelectHeaderType, SelectProfile } from '../../atoms/Select';
 
 type DrawerProps = {};
 
 const Drawer: FC<DrawerProps> = () => {
   const { commitEdit } = AppStore.useActions();
+  const { currentProfile, profiles } = AppStore.useState();
+  const profile = profiles[currentProfile];
   const pointer = usePointer();
 
   const [drawerStyle, updateDrawerStyle] = useDrawerStyle('drawer');
@@ -20,7 +23,11 @@ const Drawer: FC<DrawerProps> = () => {
 
   return (
     <div className={NativeClassName.html.drawer} style={drawerStyle}>
-      <div className={'compose'} />
+      <div className={'compose'}>
+        <SelectProfile />
+        <SelectHeaderType type={profile.headerType} />
+        <SelectGap defaultGap={profile.cellGap} />
+      </div>
       <DragHandle type="col" start={startDrawer} />
     </div>
   );
