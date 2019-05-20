@@ -3,6 +3,7 @@ import warning from 'warning';
 import { __DEV__ } from '../utils/env';
 
 export type AppState = {
+  fetched: boolean;
   currentProfile: number;
   profiles: AppProfile[];
   editing: AppProfile | null;
@@ -41,6 +42,7 @@ export const HEADER_HEIGHT_MAP = {
 
 const [useModule, Actions, getState] = createModule(Symbol('app'))
   .withActions({
+    fetch: (profiles: AppProfile[] | null) => ({ payload: { profiles } }),
     newProfile: null,
     deleteProfile: null,
     selectProfile: (index: number) => ({ payload: { index } }),
@@ -62,7 +64,7 @@ const [useModule, Actions, getState] = createModule(Symbol('app'))
   })
   .withState<AppState>();
 
-const emptyProfile = (): AppProfile => ({
+export const EmptyAppProfile = (): AppProfile => ({
   name: 'New Profile',
   drawerWidth: INITIAL_DRAWER_WIDTH,
   cellGap: DEFAULT_CELL_GAP,
@@ -70,7 +72,7 @@ const emptyProfile = (): AppProfile => ({
   columns: [INITIAL_COLUMN_WIDTH],
   rows: [[...INITIAL_ROWS]],
 });
-const reducer = useModule.reducer({ currentProfile: 0, profiles: [emptyProfile()], editing: null });
+const reducer = useModule.reducer({ fetched: false, currentProfile: 0, profiles: [EmptyAppProfile()], editing: null });
 
 const AppStore = {
   useModule,
@@ -79,10 +81,27 @@ const AppStore = {
 };
 
 /**
+ * @name fetch
+ */
+reducer.on(Actions.fetch, (state, { profiles }) => {
+  if (state.fetched) {
+    if (__DEV__) {
+      warning(false, '[fetch] State has already fetched.');
+    }
+    return;
+  }
+
+  state.fetched = true;
+  if (profiles && profiles.length) {
+    state.profiles = profiles;
+  }
+});
+
+/**
  * @name newProfile
  */
 reducer.on(Actions.newProfile, (state) => {
-  state.profiles.push(emptyProfile());
+  state.profiles.push(EmptyAppProfile());
 
   state.currentProfile = state.profiles.length - 1;
 });
