@@ -55,7 +55,7 @@ const useStyleModule = (styleElement: HTMLStyleElement) => {
 
   useEffect(() => {
     JssInjection(styleElement, AppStyle(profile));
-  }, [profile, profile.rows.reduce((acc, { length }) => acc + length, 0)]);
+  }, [profile]);
 
   useEffect(() => {
     if (!editing) {
