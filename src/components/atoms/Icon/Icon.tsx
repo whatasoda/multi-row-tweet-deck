@@ -9,8 +9,9 @@ type IconProps = {
 
 const ICON_CLASS_MAP = {
   plus: ['icon-plus', 'icon-medium'],
+  close: ['icon-close', 'icon-medium'],
 };
 
-const Icon: FC<IconProps> = ({ type }) => <i className={useClassName([], ICON_CLASS_MAP[type])} />;
+const Icon: FC<IconProps> = ({ type }) => <i className={useClassName([], ['icon', ...ICON_CLASS_MAP[type]])} />;
 
 export default Icon;

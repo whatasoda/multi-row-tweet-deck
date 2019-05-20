@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, Fragment } from 'react';
 import useProfile from '../../hooks/useProfile';
 import { NativeClassName } from '../../style/appStyle';
-import Column from '../molecules/Column';
+import { CreateCol } from '../atoms/Buttons';
+import Cell from '../molecules/Cell';
 
 type CellListProps = {};
 
@@ -11,8 +12,13 @@ const CellList: FC<CellListProps> = () => {
     <div className={NativeClassName.html.columnsContainer + ' scroll-h'}>
       <div className={NativeClassName.html.columns + ' horizontal-flow-container'}>
         {profile.rows.map((rowList, col) => (
-          <Column key={col} col={col} rows={rowList} />
+          <Fragment key={col}>
+            {rowList.map((_, i, { length: rLength }) => (
+              <Cell key={`${col}:${i}`} col={col} row={i} isLastRow={i === rLength - 1} />
+            ))}
+          </Fragment>
         ))}
+        <CreateCol />
       </div>
     </div>
   );

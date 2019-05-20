@@ -49,10 +49,9 @@ const [useModule, Actions, getState] = createModule(Symbol('app'))
     setHeaderType: (type: AppProfile['headerType']) => ({ payload: { type } }),
     setCellGap: (amount: number) => ({ payload: { amount } }),
 
-    newCol: (selector: number, width: number | null = null) => ({ payload: { selector, width } }),
-    newRow: (selector: CellSelector, height: number | null = null) => ({ payload: { selector, height } }),
-    deleteCol: (selector: number) => ({ payload: { selector } }),
-    deleteRow: (selector: CellSelector) => ({ payload: { selector } }),
+    newCol: null,
+    newRow: (selector: CellSelector) => ({ payload: { selector } }),
+    deleteCell: (selector: CellSelector) => ({ payload: { selector } }),
 
     startEdit: null,
     commitEdit: null,
@@ -157,12 +156,11 @@ reducer.on(Actions.setCellGap, ({ currentProfile, profiles }, { amount }) => {
 /**
  * @name newCol
  */
-reducer.on(Actions.newCol, ({ currentProfile, profiles }, { selector, width }) => {
+reducer.on(Actions.newCol, ({ currentProfile, profiles }) => {
   const profile = profiles[currentProfile];
 
-  if (width === null) {
-    width = selector === 0 ? INITIAL_COLUMN_WIDTH : profile.columns[selector - 1];
-  }
+  const selector = profile.columns.length;
+  const width = profile.columns[selector - 1];
 
   profile.columns.splice(selector, 0, width);
   profile.rows.splice(selector, 0, [100]);
@@ -171,7 +169,7 @@ reducer.on(Actions.newCol, ({ currentProfile, profiles }, { selector, width }) =
 /**
  * @name newRow
  */
-reducer.on(Actions.newRow, ({ currentProfile, profiles }, { selector: [sCol, sRow], height }) => {
+reducer.on(Actions.newRow, ({ currentProfile, profiles }, { selector: [sCol, sRow] }) => {
   const profile = profiles[currentProfile];
 
   const col = profile.rows[sCol];
@@ -183,55 +181,40 @@ reducer.on(Actions.newRow, ({ currentProfile, profiles }, { selector: [sCol, sRo
   }
 
   const sSinblingRow = Math.min(col.length - 1, sRow);
-  if (height === null) {
-    height = col[sSinblingRow] / 2;
-  } else {
-    height = Math.min(col[sSinblingRow], height);
-  }
+  const height = col[sSinblingRow] / 2;
 
   col[sSinblingRow] -= height;
   col.splice(sRow, 0, height);
 });
 
 /**
- * @name deleteCol
+ * @name deleteCell
  */
-reducer.on(Actions.deleteCol, ({ currentProfile, profiles }, { selector }) => {
-  const profile = profiles[currentProfile];
-
-  if (!(selector in profile.columns)) {
-    if (__DEV__) {
-      warning(false, '[deleteCol] Invalid selector: no column exists at index %s.', selector);
-    }
-    return;
-  }
-
-  profile.columns.splice(selector, 1);
-  profile.rows.splice(selector, 1);
-});
-
-/**
- * @name deleteRow
- */
-reducer.on(Actions.deleteRow, ({ currentProfile, profiles }, { selector: [sCol, sRow] }) => {
+reducer.on(Actions.deleteCell, ({ currentProfile, profiles }, { selector: [sCol, sRow] }) => {
   const profile = profiles[currentProfile];
 
   const col = profile.rows[sCol];
   if (!col) {
     if (__DEV__) {
-      warning(false, '[deleteRow] Invalid selector: no column exists at index %s.', sCol);
+      warning(false, '[deleteCell] Invalid selector: no column exists at index %s.', sCol);
     }
     return;
   }
 
   if (!(sRow in col)) {
     if (__DEV__) {
-      warning(false, '[deleteRow] Invalid selector: no row exists at index %s.', sRow);
+      warning(false, '[deleteCell] Invalid selector: no row exists at index %s.', sRow);
     }
     return;
   }
 
-  col.splice(sRow, 1);
+  const [height] = col.splice(sRow, 1);
+  if (col.length) {
+    col[Math.max(sRow - 1, 0)] += height;
+  } else {
+    profile.columns.splice(sCol, 1);
+    profile.rows.splice(sCol, 1);
+  }
 });
 
 /**
