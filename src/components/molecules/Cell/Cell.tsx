@@ -35,6 +35,7 @@ const Cell: FC<CellProps> = ({ col, row, isLastRow }) => {
 
   return (
     <div className={useClassName([], [NativeClassName.html.column])} style={{ ...rowStyle, ...colStyle }}>
+      <div className={useClassName([], ['column-header'])} />
       <div className={useClassName(['handle-container'])}>
         {!isLastRow && <DragHandle start={startRow} type="row" />}
         <DragHandle start={startCol} type="col" />
