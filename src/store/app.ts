@@ -42,7 +42,7 @@ export const HEADER_HEIGHT_MAP = {
 const [useModule, Actions, getState] = createModule(Symbol('app'))
   .withActions({
     newProfile: null,
-    deleteProfile: (index: number | null = null) => ({ payload: { index } }),
+    deleteProfile: null,
     selectProfile: (index: number) => ({ payload: { index } }),
     setProfileName: (name: string) => ({ payload: { name } }),
 
@@ -90,19 +90,11 @@ reducer.on(Actions.newProfile, (state) => {
 /**
  * @name deleteProfile
  */
-reducer.on(Actions.deleteProfile, (state, { index }) => {
-  if (index === null) {
-    index = state.currentProfile;
-  }
-
-  if (!(index in state.profiles)) {
-    if (__DEV__) {
-      warning(false, '[deleteProfile] Invalid index: no profile exists at index %s', index);
-    }
+reducer.on(Actions.deleteProfile, (state) => {
+  if (state.profiles.length === 1) {
     return;
   }
-
-  state.profiles.splice(index, 1);
+  state.profiles.splice(state.currentProfile, 1);
 });
 
 /**
