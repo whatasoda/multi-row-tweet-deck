@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import ContextScope from '../libs/contextScope';
 
-type PointerTerminal = {
+export type PointerTerminal = {
   start: (initial: MouseEvent) => void;
   end: () => void;
   movement: () => [number, number] | null;
