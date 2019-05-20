@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import AppContent from './components/organisms/AppContent';
+import Repository from './store/Repository';
 import useStyleModule from './style/useStyleModule';
 
 type AppProps = {
@@ -19,7 +20,12 @@ const App: FC<AppProps> = ({ styleElement }) => {
     });
   }, []);
 
-  return <>{active && <AppContent />}</>;
+  return (
+    <>
+      {active && <AppContent />}
+      <Repository />
+    </>
+  );
 };
 
 export default App;
