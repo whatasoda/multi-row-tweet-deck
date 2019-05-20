@@ -1,13 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
-import CellList from './components/organisms/CellList';
+import AppContent from './components/organisms/AppContent';
 import useStyleModule from './style/useStyleModule';
 
 type AppProps = {
   styleElement: HTMLStyleElement;
-  onActivityChange?: (active: boolean) => void;
 };
 
-const App: FC<AppProps> = ({ styleElement, onActivityChange }) => {
+const App: FC<AppProps> = ({ styleElement }) => {
   useStyleModule(styleElement);
   const [active, setActivity] = useState(false);
 
@@ -20,13 +19,7 @@ const App: FC<AppProps> = ({ styleElement, onActivityChange }) => {
     });
   }, []);
 
-  useEffect(() => {
-    if (onActivityChange) {
-      onActivityChange(active);
-    }
-  }, [active, onActivityChange]);
-
-  return <>{active && <CellList />}</>;
+  return <>{active && <AppContent />}</>;
 };
 
 export default App;

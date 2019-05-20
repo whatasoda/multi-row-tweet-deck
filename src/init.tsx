@@ -3,7 +3,9 @@ import { render } from 'react-dom';
 import { DefaultTypelessProvider } from 'typeless';
 import App from './App';
 import ContextScope from './libs/contextScope';
-import { NativeClassName } from './style/appStyle';
+import { ROOT_CLASS_NAME } from './style/appStyle';
+
+const { IntegratedProvider } = ContextScope;
 
 const target = document.getElementsByClassName('application');
 const waitForTDInit = () => {
@@ -16,16 +18,14 @@ const waitForTDInit = () => {
 
 const init = () => {
   const application = target[0];
+  const root = document.documentElement;
+  const body = document.body;
   const multiRowApp = document.createElement('div');
   const multiRowDynamicStyle = document.createElement('style');
   const multiRowStaticStyle = document.createElement('link');
-  const { IntegratedProvider } = ContextScope;
 
-  multiRowApp.className = NativeClassName.html.appContent;
-  multiRowApp.style.transform = 'translateX(400px)';
-  multiRowApp.style.marginRight = '400px';
-
-  const onChange = (active: boolean) => (multiRowApp.style.zIndex = active ? '1' : '');
+  root.classList.add(ROOT_CLASS_NAME);
+  body.classList.add(ROOT_CLASS_NAME);
 
   multiRowStaticStyle.rel = 'stylesheet';
   multiRowStaticStyle.href = chrome.runtime.getURL('style.css');
@@ -36,7 +36,7 @@ const init = () => {
   render(
     <DefaultTypelessProvider>
       <IntegratedProvider>
-        <App styleElement={multiRowDynamicStyle} onActivityChange={onChange} />
+        <App styleElement={multiRowDynamicStyle} />
       </IntegratedProvider>
     </DefaultTypelessProvider>,
     multiRowApp,
