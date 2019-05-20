@@ -12,7 +12,7 @@ export type AppProfile = {
   name: string;
   drawerWidth: number;
   cellGap: number;
-  cellHeaderHeight: number;
+  headerType: keyof typeof HEADER_HEIGHT_MAP;
   columns: number[];
   rows: number[][];
 };
@@ -22,11 +22,22 @@ type CellSelector = [number, number];
 const INITIAL_DRAWER_WIDTH = 300;
 const INITIAL_COLUMN_WIDTH = 300;
 const INITIAL_ROWS = [50, 50];
+
 const DEFAULT_CELL_GAP = 4;
-const DEFAULT_CELL_HEADER_HEIGHT = 35;
+const MIN_CELL_GAP = 0;
+const MAX_CELL_GAP = 10;
 
 const MIN_COLUMN_WIDTH = 50;
 const MAX_COLUMN_WIDTH = 1024;
+
+const MIN_DRAWER_WIDTH = 230;
+const MAX_DRAWER_WIDTH = 800;
+
+export const HEADER_HEIGHT_MAP = {
+  default: 50,
+  medium: 40,
+  small: 30,
+};
 
 const [useModule, Actions, getState] = createModule(Symbol('app'))
   .withActions({
@@ -34,6 +45,9 @@ const [useModule, Actions, getState] = createModule(Symbol('app'))
     deleteProfile: (index: number | null = null) => ({ payload: { index } }),
     selectProfile: (index: number) => ({ payload: { index } }),
     setProfileName: (name: string) => ({ payload: { name } }),
+
+    setHeaderType: (type: AppProfile['headerType']) => ({ payload: { type } }),
+    setCellGap: (amount: number) => ({ payload: { amount } }),
 
     newCol: (selector: number, width: number | null = null) => ({ payload: { selector, width } }),
     newRow: (selector: CellSelector, height: number | null = null) => ({ payload: { selector, height } }),
@@ -45,6 +59,7 @@ const [useModule, Actions, getState] = createModule(Symbol('app'))
     discardEdit: null,
     resizeCol: (selector: number, amount: number) => ({ payload: { selector, amount } }),
     resizeRow: (selector: CellSelector, amount: number) => ({ payload: { selector, amount } }),
+    resizeDrawer: (amount: number) => ({ payload: { amount } }),
   })
   .withState<AppState>();
 
@@ -52,7 +67,7 @@ const emptyProfile = (): AppProfile => ({
   name: 'New Profile',
   drawerWidth: INITIAL_DRAWER_WIDTH,
   cellGap: DEFAULT_CELL_GAP,
-  cellHeaderHeight: DEFAULT_CELL_HEADER_HEIGHT,
+  headerType: 'medium',
   columns: [INITIAL_COLUMN_WIDTH],
   rows: [[...INITIAL_ROWS]],
 });
@@ -112,6 +127,31 @@ reducer.on(Actions.setProfileName, ({ currentProfile, profiles }, { name }) => {
   const profile = profiles[currentProfile];
 
   profile.name = name;
+});
+
+/**
+ * @name setHeaderType
+ */
+reducer.on(Actions.setHeaderType, ({ currentProfile, profiles }, { type }) => {
+  const profile = profiles[currentProfile];
+
+  if (!(type in HEADER_HEIGHT_MAP)) {
+    if (__DEV__) {
+      warning(false, '[setHeaderType] Invalid header type: %s', type);
+    }
+    return;
+  }
+
+  profile.headerType = type;
+});
+
+/**
+ * @name setCellGap
+ */
+reducer.on(Actions.setCellGap, ({ currentProfile, profiles }, { amount }) => {
+  const profile = profiles[currentProfile];
+
+  profile.cellGap = Math.min(Math.max(amount, MIN_CELL_GAP), MAX_CELL_GAP);
 });
 
 /**
@@ -318,6 +358,21 @@ reducer.on(Actions.resizeRow, ({ currentProfile, profiles, editing }, { selector
       break;
     }
   }
+});
+
+/**
+ * @name resizeDrawer
+ */
+reducer.on(Actions.resizeDrawer, ({ currentProfile, profiles, editing }, { amount }) => {
+  if (!editing) {
+    if (__DEV__) {
+      warning(false, '[resizeDrawer] Invalid oparation: editing did not start.');
+    }
+    return;
+  }
+
+  const profile = profiles[currentProfile];
+  editing.drawerWidth = Math.min(Math.max(profile.drawerWidth + amount, MIN_DRAWER_WIDTH), MAX_DRAWER_WIDTH);
 });
 
 export default AppStore;
