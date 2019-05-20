@@ -68,12 +68,28 @@ export default (): Configuration => {
         },
         {
           test: /\.scss$/,
+          exclude: /global\.scss$/,
           use: [
             MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
                 modules: true,
+                sourceMap: __DEV__,
+                importLoaders: 1,
+              },
+            },
+            'sass-loader',
+          ],
+        },
+        {
+          test: /global\.scss$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                modules: 'global',
                 sourceMap: __DEV__,
                 importLoaders: 1,
               },

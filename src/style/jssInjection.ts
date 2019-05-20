@@ -3,7 +3,8 @@ import jssCamelCase from 'jss-plugin-camel-case';
 import jssGlobal from 'jss-plugin-global';
 import jssNested from 'jss-plugin-nested';
 import { CSSProperties } from 'react';
-import { AppStyle, NativeClassName } from './appStyle';
+import { AppStyle, NativeClassName, ROOT_SELECTOR_CSS } from './appStyle';
+import './global.scss';
 
 jss.use(jssNested(), jssGlobal(), jssCamelCase());
 
@@ -32,12 +33,11 @@ const JssInjection = (styleElement: HTMLStyleElement, { cellCols, cellRows, cell
   sheet = jss.createStyleSheet(
     {
       '@global': {
-        'html.dark .column': column,
+        [`${ROOT_SELECTOR_CSS} .column`]: column,
         ...styleEntries.reduce<Record<string, CSSProperties>>(
           (acc, [key, style]) =>
             Object.assign(acc, {
-              [`html.dark ${NativeClassName.css[key]}`]: style,
-              [`html ${NativeClassName.css[key]}`]: style,
+              [`${ROOT_SELECTOR_CSS} ${NativeClassName.css[key]}`]: style,
             }),
           {},
         ),
