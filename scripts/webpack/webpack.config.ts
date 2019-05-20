@@ -1,3 +1,4 @@
+import CopyPlugin from 'copy-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
@@ -14,9 +15,10 @@ export default (): Configuration => {
   });
 
   const ENTRY_ROOT = path.resolve(__dirname, '../../entries');
+  const ASSET_ROOT = path.resolve(__dirname, '../../assets');
 
   return {
-    devtool: 'source-map',
+    devtool: __DEV__ ? 'source-map' : 'nosources-source-map',
     entry: {
       content: path.resolve(ENTRY_ROOT, 'content.ts'),
       background: path.resolve(ENTRY_ROOT, 'background.ts'),
@@ -42,7 +44,15 @@ export default (): Configuration => {
       new MiniCssExtractPlugin({
         filename: 'style.css',
       }),
-    ],
+      !__DEV__ &&
+        new CopyPlugin([
+          {
+            from: path.resolve(ASSET_ROOT, 'icons/'),
+            ignore: ['*.ai', '*.svg'],
+            to: 'icons',
+          },
+        ]),
+    ].filter(Boolean as any),
     module: {
       rules: [
         {
