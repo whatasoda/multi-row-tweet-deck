@@ -13,10 +13,11 @@ const JssInjection = (styleElement: HTMLStyleElement, { cellCols, cellRows, cell
   let cellCount = 0;
   const column = cellCols.reduce<Record<string, CSSProperties>>(
     (acc, style, i) => {
-      const isLastCol = cellCols.length - 1 === i;
+      const isLastCol = i === cellCols.length - 1;
       const col = cellRows[i];
       const prefix = isLastCol ? `${col.length}n + ` : '';
-      Object.assign(acc, { [`&:nth-child(n + ${cellCount})`]: style });
+
+      Object.assign(acc, { [`&:nth-child(n + ${cellCount + 1})`]: style });
       col.forEach((style) =>
         Object.assign(acc, {
           [`&:nth-child(${prefix}${++cellCount})`]: style,
