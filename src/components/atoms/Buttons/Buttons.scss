@@ -1,0 +1,38 @@
+:global(html.multi-row body.multi-row) {
+  .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+  }
+  
+  .create-col {
+    height: 100%;
+    width: 50px;
+    border: 0;
+    &:not(:hover) {
+      background: none;
+    }
+  }
+  
+  .create-row {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 90px;
+    padding-top: 40px;
+    &:hover {
+      background: #aaa4;
+    }
+  }
+  
+  .delete-cell {
+    &-container {
+      z-index: 1;
+    }
+  }
+  
+}
