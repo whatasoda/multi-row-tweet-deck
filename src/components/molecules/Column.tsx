@@ -8,8 +8,8 @@ type ColumnProps = {
 
 const Column: FC<ColumnProps> = ({ col, rows }) => (
   <>
-    {rows.map((_, i) => (
-      <Cell key={`${col}:${i}`} col={col} row={i} />
+    {rows.map((_, i, { length }) => (
+      <Cell key={`${col}:${i}`} col={col} row={i} isLastRow={i === length - 1} />
     ))}
   </>
 );

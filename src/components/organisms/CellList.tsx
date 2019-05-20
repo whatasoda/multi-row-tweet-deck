@@ -7,10 +7,9 @@ type CellListProps = {};
 
 const CellList: FC<CellListProps> = () => {
   const profile = useProfile();
-
   return (
-    <div className={NativeClassName.html.columnsContainer + 'scroll-h'}>
-      <div className={NativeClassName.html.columns + 'horizontal-flow-container'}>
+    <div className={NativeClassName.html.columnsContainer + ' scroll-h'}>
+      <div className={NativeClassName.html.columns + ' horizontal-flow-container'}>
         {profile.rows.map((rowList, col) => (
           <Column key={col} col={col} rows={rowList} />
         ))}
