@@ -6,7 +6,7 @@ type SelectGapProps = {
   defaultGap: number;
 };
 
-const GAP_LIST = [0, 2, 4, 6, 8, 10];
+const GAP_LIST = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const SelectGap: FC<SelectGapProps> = memo(({ defaultGap }) => {
   const { setCellGap } = AppStore.useActions();
@@ -21,12 +21,14 @@ const SelectGap: FC<SelectGapProps> = memo(({ defaultGap }) => {
   return (
     <div className={useSelectClass(['container'])}>
       <label className={useSelectClass([], ['fixed-width-label', 'txt-uppercase'])}>GAP</label>
-      {entries.map(([gap, handle]) => (
-        <label key={gap} className={useSelectClass([], ['fixed-width-label', 'radio'])}>
-          <input type="radio" name="gap" value={gap} onChange={handle} defaultChecked={gap === defaultGap} />
-          {gap}
-        </label>
-      ))}
+      <div className={useSelectClass(['radio-container'])}>
+        {entries.map(([gap, handle]) => (
+          <label key={gap} className={useSelectClass([], ['fixed-width-label', 'radio'])}>
+            <input type="radio" name="gap" value={gap} onChange={handle} defaultChecked={gap === defaultGap} />
+            {gap}
+          </label>
+        ))}
+      </div>
     </div>
   );
 });
