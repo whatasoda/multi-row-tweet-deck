@@ -31,7 +31,12 @@ const SelectProfile: FC<SelectProfileProps> = () => {
     <div className={useSelectClass(['container'])}>
       <label className={useSelectClass([], ['txt-uppercase'])}>profile</label>
       <div className={useSelectClass(['item'])}>
-        <select name="profile" value={currentProfile} onChange={handleSelect}>
+        <select
+          className={useSelectClass([], ['light-on-dark'])}
+          name="profile"
+          value={currentProfile}
+          onChange={handleSelect}
+        >
           {profiles.map(({ name }, i) => (
             <option key={i} value={i}>
               {name}
@@ -40,7 +45,14 @@ const SelectProfile: FC<SelectProfileProps> = () => {
         </select>
       </div>
       <div className={useSelectClass(['item'])}>
-        <input key={currentProfile} type="text" name="profileName" defaultValue={profile.name} onChange={handleText} />
+        <input
+          className={useSelectClass([], ['light-on-dark'])}
+          key={currentProfile}
+          type="text"
+          name="profileName"
+          defaultValue={profile.name}
+          onChange={handleText}
+        />
       </div>
       <div className={useSelectClass(['item'])}>
         <a href="#" onClick={newProfile}>
