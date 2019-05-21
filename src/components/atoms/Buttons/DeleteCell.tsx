@@ -12,12 +12,10 @@ const DeleteCell: FC<DeleteCellProps> = ({ col, row }) => {
   const { deleteCell } = AppStore.useActions();
   const handle = useCallback(() => deleteCell([col, row]), [col, row]);
   return (
-    <div className={useButtonClass(['delete-cell-container'], ['column-header'])}>
-      <div className={useButtonClass(['delete-cell-box'], ['column-header-links'])}>
-        <a href="#" className={useButtonClass(['delete-cell-button'], ['column-header-link'])} onClick={handle}>
-          <Icon type="close" />
-        </a>
-      </div>
+    <div className={useButtonClass(['delete-cell-box'], ['column-header-links'])}>
+      <a href="#" className={useButtonClass(['delete-cell-button'], ['column-header-link'])} onClick={handle}>
+        <Icon type="close" />
+      </a>
     </div>
   );
 };
