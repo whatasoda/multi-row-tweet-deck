@@ -80,7 +80,7 @@ const setSelection = async (currentProfile: number) => {
 
 const Repository: FC = memo(() => {
   const { fetch, selectProfile } = AppStore.useActions();
-  const { profiles, currentProfile } = AppStore.useState();
+  const { fetched, profiles, currentProfile } = AppStore.useState();
 
   useEffect(() => {
     migrate().then(fetch);
@@ -88,8 +88,10 @@ const Repository: FC = memo(() => {
   }, []);
 
   useEffect(() => {
-    save({ profiles });
-  }, profiles);
+    if (fetched) {
+      save({ profiles });
+    }
+  }, [profiles]);
 
   useEffect(() => {
     setSelection(currentProfile);
