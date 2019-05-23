@@ -25,7 +25,7 @@ const SelectGap: FC<SelectGapProps> = memo(({ defaultGap }) => {
         {entries.map(([gap, handle]) => (
           <label key={gap} className={useSelectClass([], ['fixed-width-label', 'radio'])}>
             <input type="radio" name="gap" value={gap} onChange={handle} defaultChecked={gap === defaultGap} />
-            {gap}
+            {gap} px
           </label>
         ))}
       </div>
