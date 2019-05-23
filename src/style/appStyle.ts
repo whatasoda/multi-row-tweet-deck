@@ -1,5 +1,6 @@
 import { CSSProperties } from 'react';
 import { AppProfile, HEADER_HEIGHT_MAP } from '../store/app';
+import NativeEnvironments from './NativeEnvironments';
 
 export type AppStyle = {
   appContent: CSSProperties;
@@ -47,12 +48,9 @@ export const NativeClassName = {
   ),
 };
 
-const DEFAULT_DRAWER_WIDTH = 400;
-const DEFAULT_COLUMN_HEADER_HEIGHT = 50;
-
 const AppStyle: CreateAppStyle = (profile) => {
   const { drawerWidth, headerType, cellGap } = profile;
-  const drawerDiff = DEFAULT_DRAWER_WIDTH - drawerWidth;
+  const drawerDiff = NativeEnvironments.drawerWidth - drawerWidth;
   const hHeight = HEADER_HEIGHT_MAP[headerType];
 
   const cellCols = profile.columns.map<CSSProperties>((width) => ({
@@ -66,7 +64,7 @@ const AppStyle: CreateAppStyle = (profile) => {
     }));
   });
 
-  const headerTransform = `translateY(${(hHeight - DEFAULT_COLUMN_HEADER_HEIGHT) / 2}px)`;
+  const headerTransform = `translateY(${(hHeight - NativeEnvironments.columnHeaderHeight) / 2}px)`;
 
   return {
     appContent: {
