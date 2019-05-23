@@ -4,20 +4,23 @@ import { DefaultTypelessProvider } from 'typeless';
 import App from './App';
 import ContextScope from './libs/contextScope';
 import { ROOT_CLASS_NAME } from './style/appStyle';
+import { initNativeEnvironment } from './style/NativeEnvironments';
 
 const { IntegratedProvider } = ContextScope;
 
-const target = document.getElementsByClassName('application');
-const waitForTDInit = () => {
-  if (target.length) {
-    init();
+const collections = {
+  application: document.getElementsByClassName('application') as HTMLCollectionOf<HTMLElement>,
+  appContent: document.getElementsByClassName('app-content') as HTMLCollectionOf<HTMLElement>,
+};
+const waitForElement = <T extends HTMLElement>(collection: HTMLCollectionOf<T>, cb: (elem: T) => void) => {
+  if (collection.length) {
+    cb(collection[0]);
   } else {
-    setTimeout(waitForTDInit, 100);
+    setTimeout(() => waitForElement(collection, cb), 100);
   }
 };
 
-const init = () => {
-  const application = target[0];
+const initMultiRowApp = (application: HTMLElement) => {
   const root = document.documentElement;
   const body = document.body;
   const multiRowApp = document.createElement('div');
@@ -43,6 +46,9 @@ const init = () => {
   );
 };
 
-const initialize = () => waitForTDInit();
+const initialize = () => {
+  waitForElement(collections.application, initMultiRowApp);
+  waitForElement(collections.appContent, initNativeEnvironment);
+};
 
 export default initialize;
