@@ -5,20 +5,36 @@ const NativeEnvironments = {
   columnHeaderHeight: 50,
 };
 
+const Detected = {
+  drawerWidth: false,
+};
+
 const initNativeEnvironment = (appContent: HTMLElement) => {
-  const drawerObserver = new MutationObserver(() => {
+  let drawerObserver: null | MutationObserver = null;
+
+  const detectDrawer = () => {
     const width = parseFloat(appContent.style.marginRight || '');
 
     if (!isNaN(width) && width > 0) {
-      drawerObserver.disconnect();
       NativeEnvironments.drawerWidth = width;
+      Detected.drawerWidth = true;
+
+      if (drawerObserver) {
+        drawerObserver.disconnect();
+      }
+
       if (useStyleModule.forceUpdate) {
         useStyleModule.forceUpdate();
       }
     }
-  });
+  };
 
-  drawerObserver.observe(appContent, { attributes: true });
+  detectDrawer();
+
+  if (!Detected.drawerWidth) {
+    drawerObserver = new MutationObserver(detectDrawer);
+    drawerObserver.observe(appContent, { attributes: true });
+  }
 };
 
 export { initNativeEnvironment };
