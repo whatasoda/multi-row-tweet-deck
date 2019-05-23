@@ -3,11 +3,11 @@ html.multi-row {
     .column-drag-handle {
       visibility: hidden;
     }
-    
+
     .app-content:not(.is-open) {
       margin-left: 0;
     }
-    
+
     .app-columns {
       display: flex;
       flex-direction: column;
@@ -15,23 +15,32 @@ html.multi-row {
       justify-content: space-between;
       align-content: flex-start;
     }
-    
+
     .column {
       flex-shrink: 0;
       flex-grow: 0;
     }
-    
+
     .wide {
-      .compose-account:nth-child(6n) {
+      .compose-account:nth-child(n) {
         margin-right: 16px;
       }
+
       .is-minigrid {
-        .compose-account:nth-child(6n) {
+        .compose-account:nth-child(n) {
           margin-right: 9px;
         }
       }
     }
+
+    .compose-account:nth-child(n) {
+      margin-right: 16px;
+    }
+    
+    .is-minigrid {
+      .compose-account:nth-child(n) {
+        margin-right: 9px;
+      }
+    }
   }
-  
-  
 }
