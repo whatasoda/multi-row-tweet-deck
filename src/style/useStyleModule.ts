@@ -1,11 +1,11 @@
-import { CSSProperties, useEffect } from 'react';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
 import useScreenHeight from '../hooks/useScreenHeight';
 import DynamicHook from '../libs/dynamicHook';
 import AppStore, { AppState, HEADER_HEIGHT_MAP } from '../store/app';
 import AppStyle from './appStyle';
 import JssInjection from './jssInjection';
 
-const shared = {
+const internal = {
   action: {} as ReturnType<typeof AppStore.useActions>,
   state: {} as AppState,
   editStatus: {
@@ -16,20 +16,25 @@ const shared = {
   screenHeight: -1,
 };
 
+let forceUpdateCount = 0;
+
 const useStyleModule = (styleElement: HTMLStyleElement) => {
   AppStore.useModule();
-  shared.action = AppStore.useActions();
-  shared.screenHeight = useScreenHeight();
+  internal.action = AppStore.useActions();
+  internal.screenHeight = useScreenHeight();
 
-  const { editing, profiles, currentProfile } = (shared.state = AppStore.useState());
+  const { editing, profiles, currentProfile } = (internal.state = AppStore.useState());
   const profile = profiles[currentProfile];
+
+  const [, setUpdateCount] = useState(forceUpdateCount);
+  useStyleModule.forceUpdate = useCallback(() => setUpdateCount(++forceUpdateCount), [setUpdateCount]);
 
   useEffect(() => {
     if (editing) {
       return;
     }
 
-    const { editStatus } = shared;
+    const { editStatus } = internal;
     if (editStatus.col) {
       profile.columns.forEach((_, i) => setColStyle(i, void 0));
     }
@@ -55,14 +60,14 @@ const useStyleModule = (styleElement: HTMLStyleElement) => {
 
   useEffect(() => {
     JssInjection(styleElement, AppStyle(profile));
-  }, [profile]);
+  }, [profile, forceUpdateCount]);
 
   useEffect(() => {
     if (!editing) {
       return;
     }
 
-    const { editStatus } = shared;
+    const { editStatus } = internal;
     if (editStatus.col) {
       const appStyle = AppStyle(editing);
       appStyle.cellCols.forEach((style, i) => setColStyle(i, style));
@@ -81,16 +86,17 @@ const useStyleModule = (styleElement: HTMLStyleElement) => {
     }
   });
 };
+useStyleModule.forceUpdate = null as null | (() => void);
 
 const [useColStyle, setColStyle] = DynamicHook<CSSProperties | undefined, number, [number]>({
   keyGen: (s) => `${s}`,
   initial: () => void 0,
   updater: (_, col, width) => {
-    if (!shared.state.editing) {
-      shared.action.startEdit();
+    if (!internal.state.editing) {
+      internal.action.startEdit();
     }
-    shared.editStatus.col = true;
-    shared.action.resizeCol(col, width);
+    internal.editStatus.col = true;
+    internal.action.resizeCol(col, width);
   },
 });
 
@@ -98,10 +104,10 @@ const [useRowStyle, setRowStyle] = DynamicHook<CSSProperties | undefined, [numbe
   keyGen: (s) => `${s.join(':')}`,
   initial: () => void 0,
   updater: (_, selector, height) => {
-    if (!shared.state.editing) {
-      shared.action.startEdit();
+    if (!internal.state.editing) {
+      internal.action.startEdit();
     }
-    const { currentProfile, profiles } = shared.state;
+    const { currentProfile, profiles } = internal.state;
     const { cellGap, headerType, rows } = profiles[currentProfile];
     const headerHeight = HEADER_HEIGHT_MAP[headerType];
 
@@ -110,11 +116,11 @@ const [useRowStyle, setRowStyle] = DynamicHook<CSSProperties | undefined, [numbe
 
     const totalCellGap = cellGap * (siblingCount - 1);
     const totalHeaderHeight = headerHeight * siblingCount;
-    const maxHeight = shared.screenHeight + totalCellGap + totalHeaderHeight;
+    const maxHeight = internal.screenHeight + totalCellGap + totalHeaderHeight;
     const amount = (height / maxHeight) * 100;
 
-    shared.editStatus.row = colIndex;
-    shared.action.resizeRow(selector, amount);
+    internal.editStatus.row = colIndex;
+    internal.action.resizeRow(selector, amount);
   },
 });
 
@@ -122,12 +128,12 @@ const [useDrawerStyle, setDrawerStyle] = DynamicHook<CSSProperties | undefined, 
   keyGen: (type) => type,
   initial: () => void 0,
   updater: (_0, _1, width) => {
-    if (!shared.state.editing) {
-      shared.action.startEdit();
+    if (!internal.state.editing) {
+      internal.action.startEdit();
     }
 
-    shared.editStatus.drawer = true;
-    shared.action.resizeDrawer(width);
+    internal.editStatus.drawer = true;
+    internal.action.resizeDrawer(width);
   },
 });
 
