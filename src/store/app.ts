@@ -113,7 +113,9 @@ reducer.on(Actions.deleteProfile, (state) => {
   if (state.profiles.length === 1) {
     return;
   }
+
   state.profiles.splice(state.currentProfile, 1);
+  state.currentProfile = Math.max(0, state.currentProfile - 1);
 });
 
 /**
