@@ -4,13 +4,9 @@
     "rootDir": "./",
     "typeRoots": [
       "node_modules/@types",
-      "src/types",
+      "src/shared/types",
     ]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
