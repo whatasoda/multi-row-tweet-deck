@@ -1,13 +1,3 @@
-interface StorageInfrastructure<T extends object> {
-  get: {
-    <K extends keyof T>(key: K | K[]): Promise<Partial<Pick<T, K>>>;
-    <U extends Partial<T>>(keys: U & Partial<T>): Promise<Partial<T> & U>;
-    (keys: null): Promise<Partial<T>>;
-  };
-  set: (next: Partial<T>) => Promise<void>;
-  remove: (keys: keyof T | (keyof T)[]) => Promise<void>;
-}
-
 interface LegacyMultiRowProfile {
   name: string;
   drawerWidth: number;
@@ -56,4 +46,20 @@ interface StorageRepository {
 
   getSelectedProfileId(): Promise<string | null>;
   setSelectedProfileId(id: string | null): Promise<void>;
+}
+
+interface StorageInfrastructure {
+  readonly sync: StorageInfrastructureArea<StorageSync>;
+  readonly local: StorageInfrastructureArea<StorageLocal>;
+}
+
+interface StorageInfrastructureArea<T extends object> {
+  readonly get: {
+    <K extends keyof T>(key: K | K[]): Promise<Partial<Pick<T, K>>>;
+    <U extends Partial<T>>(keys: U & Partial<T>): Promise<Partial<T> & U>;
+    (keys: null): Promise<Partial<T>>;
+    (keys: keyof T | (keyof T)[] | Partial<T> | null): any;
+  };
+  readonly set: (next: Partial<T>) => Promise<void>;
+  readonly remove: (keys: keyof T | (keyof T)[]) => Promise<void>;
 }
