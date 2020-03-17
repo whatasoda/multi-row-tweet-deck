@@ -40,8 +40,15 @@ interface StorageRepository {
   getLegacySelectedProfileId(): Promise<number | undefined>;
   cleanLegacyProfiles(): Promise<void>;
 
+  getWholeStorage(): Promise<readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]>;
+  mergeStorage(target: readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]): Promise<void>;
+
+  cleanup(): Promise<void>;
+
+  getProfileList(): Promise<ProfileWithMetaData[]>;
+
   getProfile(id: string): Promise<ProfileWithMetaData | undefined>;
-  setProfile(profile: ProfileWithMetaData): Promise<void>;
+  setProfile(profile: MultiRowProfile): Promise<void>;
   deleteProfile(id: string): Promise<void>;
 
   getSelectedProfileId(): Promise<string | null>;
