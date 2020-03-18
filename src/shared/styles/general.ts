@@ -1,7 +1,6 @@
 import { HEADER_HEIGHT } from '../constants';
-import { css } from 'styled-components';
 
-export interface GeneralStyles extends Partial<Record<OneOfTDClassName, Style>> {}
+export interface GeneralStyles extends Partial<Record<OneOfTDClassName, CSSObject>> {}
 
 export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla: VanillaTweetDeck): GeneralStyles => {
   const drawerDiff = vanilla.drawerWidth - drawer.width;
@@ -10,28 +9,28 @@ export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla
   const headerTransform = `translateY(${(headerHeight - vanilla.headerHeight) / 2}px)`;
 
   return {
-    appContent: css`
-      margin-left: ${-drawerDiff}px;
-      &:not(.is-open) {
-        margin-left: 0;
-      }
-    `,
-    drawer: css`
-      width: ${drawer.width}px;
-      left: ${-drawer.width}px;
-    `,
-    // columnsContainer: css``,
-    // columns: css``,
-    columnHeader: css`
-      height: ${headerHeight}px;
-      max-height: ${headerHeight}px;
-      line-height: ${headerHeight}px;
-    `,
-    columnHeaderTitle: css`
-      transform: ${headerTransform};
-    `,
-    columnTitleBackIcon: css`
-      transform: ${headerTransform};
-    `,
+    appContent: {
+      marginLeft: `${-drawerDiff}px`,
+      '&:not(.is-open)': {
+        marginLeft: 0,
+      },
+    },
+    drawer: {
+      width: `${drawer.width}px`,
+      left: `${-drawer.width}px`,
+    },
+    // columnsContainer: {},
+    // columns: {},
+    columnHeader: {
+      height: `${headerHeight}px`,
+      maxHeight: `${headerHeight}px`,
+      lineHeight: `${headerHeight}px`,
+    },
+    columnHeaderTitle: {
+      transform: headerTransform,
+    },
+    columnTitleBackIcon: {
+      transform: headerTransform,
+    },
   };
 };
