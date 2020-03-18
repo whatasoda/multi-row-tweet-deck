@@ -29,8 +29,15 @@ type HandlersOf<T extends MessageTypeEntry[]> = {
 };
 
 type SendMessage = (extensionId: string, message: any, responseCallback: (response: any) => void) => void;
+interface LastError {
+  message?: string;
+}
+interface Runtime {
+  readonly sendMessage: SendMessage;
+  readonly lastError: LastError | undefined;
+}
 type MessageSenderOf<T extends MessageTypeEntry[]> = <U extends T[number][0]>(
-  sender: SendMessage,
+  runtime: Runtime,
   extensionId: string,
   type: U,
 ) => (...args: PickEntry<T, U>[1]) => Promise<PickEntry<T, U>[2]>;
@@ -38,8 +45,23 @@ type MessageSenderOf<T extends MessageTypeEntry[]> = <U extends T[number][0]>(
 export type OneOfExtensionMessageType = OneOfMessageTypeOf<Entries>;
 export type OneOfExtensionMessage = OneOfMessageOf<Entries>;
 export type ExtensionMessageHandlers = HandlersOf<Entries>;
-export const createExtensionMessageSender = ((sender, extensionId, type) => {
+export const createExtensionMessageSender = ((runtime, extensionId, type) => {
   return (value) => {
-    return new Promise((resolve) => sender(extensionId, { type, value }, ({ payload }) => resolve(payload)));
+    return new Promise((resolve, reject) => {
+      return runtime.sendMessage(extensionId, { type, value }, (response) => {
+        if (runtime.lastError) {
+          reject(runtime.lastError);
+        } else {
+          const { payload } = response;
+          return resolve(payload);
+        }
+      });
+    });
   };
 }) as MessageSenderOf<Entries>;
+
+export const getRuntime = (): Runtime | null => {
+  if (typeof chrome !== 'undefined') return chrome.runtime;
+  if (typeof browser !== 'undefined') return browser.runtime;
+  return null;
+};
