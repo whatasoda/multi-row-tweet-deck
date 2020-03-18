@@ -47,9 +47,10 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
     await local.remove(['currentProfile', 'v3']);
   };
 
-  const getProfileList = async () => {
+  const getProfileList = async (sortRule: OneOfProfileSortRule = 'dateRecentUse') => {
     const { v3 } = await sync.get(SYNC_DEFAULT);
-    return Object.values(v3.profiles);
+
+    return Object.values(v3.profiles).sort(({ [sortRule]: a }, { [sortRule]: b }) => (a < b ? 1 : -1));
   };
 
   const getProfile = async (id: string) => {

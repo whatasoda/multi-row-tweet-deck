@@ -35,6 +35,8 @@ interface ProfileWithMetaData {
   legacyId: number;
 }
 
+type OneOfProfileSortRule = Exclude<keyof ProfileWithMetaData, 'profile' | 'legacyId'>;
+
 interface StorageRepository {
   getLegacyProfiles(): Promise<LegacyMultiRowProfile[] | undefined>;
   getLegacySelectedProfileId(): Promise<number | undefined>;
@@ -45,7 +47,7 @@ interface StorageRepository {
 
   cleanup(): Promise<void>;
 
-  getProfileList(): Promise<ProfileWithMetaData[]>;
+  getProfileList(sortRule?: OneOfProfileSortRule): Promise<ProfileWithMetaData[]>;
 
   getProfile(id: string): Promise<ProfileWithMetaData | undefined>;
   setProfile(profile: MultiRowProfile): Promise<void>;
