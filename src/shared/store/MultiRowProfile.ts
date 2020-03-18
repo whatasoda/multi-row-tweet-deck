@@ -12,8 +12,8 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   setHeader: (header: Partial<MultiRowProfile['header']>) => ({ payload: header }),
   setCells: (cells: Partial<Omit<MultiRowProfile['header'], 'columns' | 'colmunOrder'>>) => ({ payload: cells }),
 
-  createColumn: (init: ColumnInit, insert?: number) => ({ payload: { id: uuid(), init, insert } }),
-  createRow: (columnId: string, init: RowInit, insert?: number) => ({
+  createColumn: (init: ColumnProfileInit, insert?: number) => ({ payload: { id: uuid(), init, insert } }),
+  createRow: (columnId: string, init: RowProfileInit, insert?: number) => ({
     payload: { id: uuid(), columnId, init, insert },
   }),
 
@@ -87,7 +87,7 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
 
     next = clamp(next, 0, max);
     const row = rows[id];
-    const unnormalized: Record<string, Row> = { ...rows, [id]: { ...row, height: next } };
+    const unnormalized: Record<string, RowProfile> = { ...rows, [id]: { ...row, height: next } };
 
     let change = next - row.height;
     const targets = rowOrder.slice(0, order).reverse();
@@ -131,7 +131,7 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
 
     next = clamp(next, 0, max);
     const row = rows[id];
-    const unnormalized: Record<string, Row> = { ...rows, [id]: { ...row, height: next } };
+    const unnormalized: Record<string, RowProfile> = { ...rows, [id]: { ...row, height: next } };
 
     let change = next - row.height;
     const targets = rowOrder.slice(order + 1);
@@ -164,7 +164,7 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
   },
 });
 
-const newColumn = (id: string, init: ColumnInit): Column => {
+const newColumn = (id: string, init: ColumnProfileInit): ColumnProfile => {
   const rowId = uuid();
   const row = newRow(rowId, id, { height: 100 });
   const rows = { [rowId]: row };
@@ -173,6 +173,6 @@ const newColumn = (id: string, init: ColumnInit): Column => {
   return { id, rows, rowOrder, ...init };
 };
 
-const newRow = (id: string, columnId: string, init: RowInit): Row => {
+const newRow = (id: string, columnId: string, init: RowProfileInit): RowProfile => {
   return { columnId, id, ...init };
 };

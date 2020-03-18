@@ -16,24 +16,24 @@ interface MultiRowProfile {
   };
   cells: {
     gap: number;
-    columns: Record<string, Column>;
+    columns: Record<string, ColumnProfile>;
     columnOrder: string[];
   };
 }
 
-interface Column extends ColumnInit {
+interface ColumnProfile extends ColumnProfileInit {
   readonly id: string;
-  rows: Record<string, Row>;
+  rows: Record<string, RowProfile>;
   rowOrder: string[];
 }
-interface ColumnInit {
+interface ColumnProfileInit {
   width: number;
 }
 
-interface Row extends RowInit {
+interface RowProfile extends RowProfileInit {
   readonly columnId: string;
   readonly id: string;
 }
-interface RowInit {
+interface RowProfileInit {
   height: number;
 }
