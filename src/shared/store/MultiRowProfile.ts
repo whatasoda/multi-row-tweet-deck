@@ -18,8 +18,9 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   }),
 
   tweakColumnWidth: (id: string, next: number) => ({ payload: { id, next } }),
-  tweakRowTop: (columnId: string, id: string, next: number) => ({ payload: { columnId, id, next } }),
-  tweakRowBottom: (columnId: string, id: string, next: number) => ({ payload: { columnId, id, next } }),
+  tweakRowHeightByBoundary: (columnId: string, id: string, nextBoundary: number) => ({
+    payload: { columnId, id, nextBoundary },
+  }),
 });
 
 export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfile>({
@@ -75,88 +76,37 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
       },
     };
   },
-  tweakRowTop: (state, { payload: { columnId, id, next } }) => {
-    const prevCells = state.cells;
-    const column = prevCells.columns[columnId];
+
+  tweakRowHeightByBoundary: (state, { payload: { columnId, id: upper, nextBoundary: next } }) => {
+    const column = state.cells.columns[columnId];
     const { rows, rowOrder } = column;
 
-    const order = rowOrder.indexOf(id);
-    if (order < 1) return state;
+    const idx = rowOrder.indexOf(upper);
+    if (idx === -1 || idx >= rowOrder.length - 1) return state;
+    const lower = rowOrder[idx + 1];
 
-    const max = rowOrder.slice(order + 1).reduce((acc, id) => acc - rows[id].height, 100);
+    const backwardTargets = rowOrder.slice(0, idx + 1).map((id) => rows[id]);
+    const forwardTargets = rowOrder.slice(idx + 1).map((id) => rows[id]);
 
-    next = clamp(next, 0, max);
-    const row = rows[id];
-    const unnormalized: Record<string, RowProfile> = { ...rows, [id]: { ...row, height: next } };
+    next = clamp(next, 0, 100);
+    const curr = backwardTargets.reduce((acc, { height }) => acc + height, 0);
 
-    let change = next - row.height;
-    const targets = rowOrder.slice(0, order).reverse();
-    const normalized = targets.reduce((acc, id) => {
-      const row = rows[id];
-      if (change === 0) return acc;
-      if (change <= row.height /* || change < 0 */) {
-        acc[id] = { ...row, height: row.height - change };
-        change = 0;
-      } else {
-        acc[id] = { ...row, height: 0 };
-        change -= row.height;
-      }
-      return acc;
-    }, unnormalized);
+    if (next === curr) return state;
+
+    const nextRows = tweakHelper(
+      next - curr,
+      ...(next > curr ? ([upper, rows, forwardTargets] as const) : ([lower, rows, backwardTargets.reverse()] as const)),
+    );
 
     return {
       ...state,
       cells: {
-        ...prevCells,
+        ...state.cells,
         columns: {
-          ...prevCells.columns,
+          ...state.cells.columns,
           [columnId]: {
             ...column,
-            rows: normalized,
-          },
-        },
-      },
-    };
-  },
-
-  tweakRowBottom: (state, { payload: { columnId, id, next } }) => {
-    const prevCells = state.cells;
-    const column = prevCells.columns[columnId];
-    const { rows, rowOrder } = column;
-
-    const order = rowOrder.indexOf(id);
-    if (order === -1 || order >= rowOrder.length - 1) return state;
-
-    const max = rowOrder.slice(0, order).reduce((acc, id) => acc - rows[id].height, 100);
-
-    next = clamp(next, 0, max);
-    const row = rows[id];
-    const unnormalized: Record<string, RowProfile> = { ...rows, [id]: { ...row, height: next } };
-
-    let change = next - row.height;
-    const targets = rowOrder.slice(order + 1);
-    const normalized = targets.reduce((acc, id) => {
-      const row = rows[id];
-      if (change === 0) return acc;
-      if (change <= row.height /* || change < 0 */) {
-        acc[id] = { ...row, height: row.height - change };
-        change = 0;
-      } else {
-        acc[id] = { ...row, height: 0 };
-        change -= row.height;
-      }
-      return acc;
-    }, unnormalized);
-
-    return {
-      ...state,
-      cells: {
-        ...prevCells,
-        columns: {
-          ...prevCells.columns,
-          [columnId]: {
-            ...column,
-            rows: normalized,
+            rows: nextRows,
           },
         },
       },
@@ -175,4 +125,23 @@ const newColumn = (id: string, init: ColumnProfileInit): ColumnProfile => {
 
 const newRow = (id: string, columnId: string, init: RowProfileInit): RowProfile => {
   return { columnId, id, ...init };
+};
+
+const tweakHelper = (rawChange: number, originId: string, rows: Record<string, RowProfile>, targets: RowProfile[]) => {
+  let change = Math.abs(rawChange);
+  const origin = rows[originId];
+  const next = origin.height + change;
+  const unnormalized: Record<string, RowProfile> = { ...rows, [originId]: { ...origin, height: next } };
+
+  return targets.reduce((acc, row) => {
+    if (change === 0) return acc;
+    if (change <= row.height) {
+      acc[row.id] = { ...row, height: row.height - change };
+      change = 0;
+    } else {
+      acc[row.id] = { ...row, height: 0 };
+      change -= row.height;
+    }
+    return acc;
+  }, unnormalized);
 };
