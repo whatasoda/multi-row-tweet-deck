@@ -3,7 +3,7 @@ import { ActionsRecord, ActionCreatorOf, ReducerOf } from './storeModule';
 
 type ContextInjection<A extends ActionsRecord, S> = [
   React.Context<S> | undefined,
-  (React.Context<ActionCreatorOf<A>> | undefined)?
+  (React.Context<ActionCreatorOf<A>> | undefined)?,
 ];
 
 export const createStoreHook = <A extends ActionsRecord, S>(
@@ -18,9 +18,9 @@ export const createStoreHook = <A extends ActionsRecord, S>(
 
   const useState = () => useContext(stateContext);
   const useDispatcher = () => useContext(dispatcherContext);
-  const initialize = (initialState: S): React.FC => {
-    return function Provider({ children }) {
-      const [state, dispatch] = useReducer(reducer, initialState);
+  const initialize = (defaultInitialState: S): React.FC<{ initialState?: S }> => {
+    return function Provider({ initialState, children }) {
+      const [state, dispatch] = useReducer(reducer, initialState || defaultInitialState);
       const dispatcher = useCallback<ActionCreatorOf<A>>((type, ...args) => {
         const action = createAction(type, ...args);
         dispatch(action);
