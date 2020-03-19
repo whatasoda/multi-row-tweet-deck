@@ -39,7 +39,7 @@ export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: 
           <Button Height={columnHeader.height} onClick={() => setMode('split')}>
             <Icon size="80%" icon="page-break" color={TwitterColor.green} />
           </Button>
-          <Button Height={columnHeader.height}>
+          <Button Height={columnHeader.height} onClick={() => dispatch('removeRow', row.columnId, row.id)}>
             <Icon size="80%" icon="bin" color={TwitterColor.red} />
           </Button>
         </Header>

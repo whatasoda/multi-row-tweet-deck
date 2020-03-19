@@ -16,6 +16,7 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   splitRow: (columnId: string, targetId: string, dominance: number) => ({
     payload: { newId: uuid(), columnId, targetId, dominance },
   }),
+  removeRow: (columnId: string, id: string) => ({ payload: { columnId, id } }),
 
   tweakColumnWidth: (id: string, next: number) => ({ payload: { id, next } }),
   tweakRowHeightByBoundary: (columnId: string, id: string, nextBoundary: number) => ({
@@ -66,9 +67,53 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
       ...state,
       cells: {
         ...state.cells,
-        columns: { ...state.cells.columns, [columnId]: column },
+        columns: {
+          ...state.cells.columns,
+          [columnId]: column,
+        },
       },
     };
+  },
+  removeRow: (state, { payload: { columnId, id } }) => {
+    const { cells } = state;
+    const column = cells.columns[columnId];
+    const idx = column.rowOrder.indexOf(id);
+    if (idx === -1) return state;
+
+    const rowOrder = [...column.rowOrder.slice(0, idx), ...column.rowOrder.slice(idx + 1)];
+
+    if (rowOrder.length) {
+      const rows = { ...column.rows };
+      const heir = rows[rowOrder[Math.max(0, idx - 1)]];
+      rows[heir.id] = { ...heir, height: heir.height + rows[id].height };
+      delete rows[id];
+      return {
+        ...state,
+        cells: {
+          ...cells,
+          columns: {
+            ...cells.columns,
+            [columnId]: { ...column, rows, rowOrder },
+          },
+        },
+      };
+    } else {
+      // no rows in the column, so remove column too
+      const idx = cells.columnOrder.indexOf(columnId);
+      const columnOrder =
+        idx === -1 ? cells.columnOrder : [...cells.columnOrder.slice(0, idx), ...cells.columnOrder.slice(idx + 1)];
+      const columns = { ...cells.columns };
+      delete columns[columnId];
+
+      return {
+        ...state,
+        cells: {
+          ...cells,
+          columnOrder,
+          columns,
+        },
+      };
+    }
   },
 
   tweakColumnWidth: (state, { payload: { id, next } }) => {
