@@ -15,8 +15,8 @@ interface SplitterProps {
 }
 
 const KEYS = {
-  vertical: { offset: 'offsetY', base: 'clientHeight', handlePosition: 'top' },
-  horizontal: { offset: 'offsetX', base: 'clientWidth', handlePosition: 'left' },
+  vertical: { offset: 'offsetY', childOffset: 'offsetTop', base: 'clientHeight', handlePosition: 'top' },
+  horizontal: { offset: 'offsetX', childOffset: 'offsetLeft', base: 'clientWidth', handlePosition: 'left' },
 } as const;
 
 export const Splitter = ({ active, className, type, onCanceled, onSplit }: SplitterProps) => {
@@ -52,7 +52,7 @@ export const Splitter = ({ active, className, type, onCanceled, onSplit }: Split
       if (!(srcElement instanceof HTMLElement)) return;
       if (wrapper !== srcElement && wrapper !== srcElement.parentElement) return;
 
-      const px = offset + (wrapper === srcElement ? 0 : srcElement.offsetTop);
+      const px = offset + (wrapper === srcElement ? 0 : srcElement[keys.childOffset]);
       const pct = (px / wrapper[keys.base]) * 100;
       nextValue = { pct, px };
       needsUpdate = true;
@@ -93,6 +93,7 @@ const Wrapper = styled.div`
 
 const Handle = styled.div<Pick<SplitterProps, 'type'>>`
   border-top: 2px dashed ${({ theme: { color } }) => color.TwitterColor.green}99;
+  border-left: 2px dashed ${({ theme: { color } }) => color.TwitterColor.green}99;
   position: absolute;
   ${({ type }) => handleStyles[type]}
 `;
