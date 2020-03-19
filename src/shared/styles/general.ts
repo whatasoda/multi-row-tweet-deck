@@ -1,14 +1,14 @@
 import { HEADER_HEIGHT } from '../constants';
 
-export interface GeneralStyles extends Partial<Record<OneOfTDClassName, CSSObject>> {}
+export interface GeneralStyles extends Readonly<ReturnType<typeof createGeneralStyles>> {}
 
-export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla: VanillaTweetDeck): GeneralStyles => {
+export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla: VanillaTweetDeck) => {
   const drawerDiff = vanilla.drawerWidth - drawer.width;
   const headerHeight = HEADER_HEIGHT[header.height];
 
   const headerTransform = `translateY(${(headerHeight - vanilla.headerHeight) / 2}px)`;
 
-  return {
+  return helper({
     appContent: {
       marginLeft: `${-drawerDiff}px`,
       '&:not(.is-open)': {
@@ -32,5 +32,8 @@ export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla
     columnTitleBackIcon: {
       transform: headerTransform,
     },
-  };
+  });
 };
+
+type Expected = Partial<Record<OneOfTDClassName, CSSObject>>;
+const helper = <T extends Expected>(styles: T & Expected): T => styles;
