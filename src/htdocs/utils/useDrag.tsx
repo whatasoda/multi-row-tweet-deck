@@ -9,18 +9,17 @@ export interface DragData {
 
 export type DragHandler = (data: DragData) => void;
 type DragHandlerRef = React.MutableRefObject<DragHandler>;
+type DragElementProps = Readonly<Required<Pick<React.HTMLAttributes<HTMLElement>, 'onMouseDown'>>>;
 
-export const useDrag = (handleUpdate: DragHandler) => {
+export const useDrag = (handleUpdate: DragHandler): DragElementProps => {
   const registry = useContext(useDrag.context);
   const handlerRef = useRef(handleUpdate);
   handlerRef.current = handleUpdate;
 
-  const [start] = useMemo(() => {
+  return useMemo(() => {
     const start = (): void => void registry.add(handlerRef);
-    return [start];
+    return { onMouseDown: start };
   }, []);
-
-  return start;
 };
 useDrag.context = createContext<Set<DragHandlerRef>>(null as any);
 
@@ -34,15 +33,17 @@ export const DragProvider: React.FC<{ mode: 'animationFrame' | 'mousemove' }> = 
     let startY = 0;
     let prevX = 0;
     let prevY = 0;
-    const update = (mode: DragData['mode'], currX: number, currY: number) => {
+    let currX = 0;
+    let currY = 0;
+    const update = (mode: DragData['mode'], x: number, y: number) => {
       const data: DragData = {
         mode,
         start: [startX, startY],
-        curr: [currX, currY],
-        mvmt: [currX - prevX, currY - prevY],
+        curr: [x, y],
+        mvmt: [x - prevX, y - prevY],
       };
-      prevX = currX;
-      prevY = currY;
+      prevX = x;
+      prevY = y;
 
       registry.forEach(({ current }) => current(data));
     };
@@ -50,8 +51,9 @@ export const DragProvider: React.FC<{ mode: 'animationFrame' | 'mousemove' }> = 
     const handleMouseDown = ({ clientX, clientY }: WindowEventMap['mousedown']) => {
       active = Boolean(registry.size);
       if (!active) return;
-      startX = prevX = clientX;
-      startY = prevY = clientY;
+      startX = currX = prevX = clientX;
+      startY = currY = prevY = clientY;
+
       update('start', clientX, clientY);
     };
     const handleMouseUp = ({ clientX, clientY }: WindowEventMap['mouseup']) => {
@@ -62,8 +64,6 @@ export const DragProvider: React.FC<{ mode: 'animationFrame' | 'mousemove' }> = 
       registry.clear();
     };
 
-    let currX = 0;
-    let currY = 0;
     const handleMouseMove = ({ clientX, clientY }: WindowEventMap['mousemove']) => {
       if (!active) return;
       currX = clientX;
@@ -73,6 +73,7 @@ export const DragProvider: React.FC<{ mode: 'animationFrame' | 'mousemove' }> = 
     const handleAnimationFrame = () => {
       if (unmount) return;
       requestAnimationFrame(handleAnimationFrame);
+      if (!active) return;
       update('move', currX, currY);
     };
 

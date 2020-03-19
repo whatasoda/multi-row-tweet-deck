@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled, { css, StyledComponent } from 'styled-components';
 
 interface Props extends WrapperProps {
+  hidden?: boolean;
   className?: string;
   onMouseDown?: JSX.IntrinsicElements['div']['onMouseDown'];
 }
@@ -11,7 +12,7 @@ interface WrapperProps {
 }
 
 const createHandle = (StyledHandle: typeof Handle, StyledWrapper: StyledComponent<'div', {}, WrapperProps>) => {
-  return ({ className, onMouseDown, Size }: Props) => {
+  return ({ className, onMouseDown, Size, hidden }: Props) => {
     const [active, setActive] = useState(false);
 
     useEffect(() => {
@@ -23,12 +24,14 @@ const createHandle = (StyledHandle: typeof Handle, StyledWrapper: StyledComponen
 
     return (
       <StyledWrapper Size={Size}>
-        <StyledHandle
-          className={className}
-          draggable={false}
-          Active={active}
-          onMouseDown={(event) => void (setActive(true), onMouseDown?.(event))}
-        />
+        {!hidden && (
+          <StyledHandle
+            className={className}
+            draggable={false}
+            Active={active}
+            onMouseDown={(event) => void (setActive(true), onMouseDown?.(event))}
+          />
+        )}
       </StyledWrapper>
     );
   };

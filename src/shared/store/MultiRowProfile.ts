@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { createStoreModule } from '../utils/storeModule';
 import { clamp } from '../utils/math';
 
-const MIN_COLUMN_WIDTH = 30;
+const MIN_COLUMN_WIDTH = 100;
 
 export const [createMultiRowProfileAction, createMultiRowProfileReducer] = createStoreModule({
   switchProfile: (profile: MultiRowProfile) => ({ payload: profile }),
@@ -13,8 +13,8 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   setCells: (cells: Partial<Omit<MultiRowProfile['header'], 'columns' | 'colmunOrder'>>) => ({ payload: cells }),
 
   createColumn: (init: ColumnProfileInit, insert?: number) => ({ payload: { id: uuid(), init, insert } }),
-  createRow: (columnId: string, init: RowProfileInit, insert?: number) => ({
-    payload: { id: uuid(), columnId, init, insert },
+  splitRow: (columnId: string, targetId: string, dominance: number) => ({
+    payload: { newId: uuid(), columnId, targetId, dominance },
   }),
 
   tweakColumnWidth: (id: string, next: number) => ({ payload: { id, next } }),
@@ -44,16 +44,21 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
 
     return { ...state, cells };
   },
-  createRow: (state, { payload: { id, columnId, init, insert = Infinity } }) => {
-    const row = newRow(id, columnId, init);
+  splitRow: (state, { payload: { newId, columnId, targetId, dominance } }) => {
     const prevColumn = state.cells.columns[columnId];
     const { rows, rowOrder } = prevColumn;
-    insert = Math.min(insert, rowOrder.length);
-    // TOOD: split existing row
+    const targetRow = rows[targetId];
+    const targetIdx = rowOrder.indexOf(targetId);
+    if (targetIdx === -1) return state;
+
+    dominance = clamp(dominance, 0, 100) / 100;
+    const insert = targetIdx + 1;
+    const row = newRow(newId, columnId, { height: targetRow.height * dominance });
+    const targetNext: RowProfile = { ...targetRow, height: targetRow.height * (1 - dominance) };
 
     const column = {
       ...prevColumn,
-      rows: { ...rows, [row.id]: row },
+      rows: { ...rows, [row.id]: row, [targetId]: targetNext },
       rowOrder: [...rowOrder.slice(0, insert), row.id, ...rowOrder.slice(insert)],
     };
 
@@ -120,11 +125,11 @@ const newColumn = (id: string, init: ColumnProfileInit): ColumnProfile => {
   const rows = { [rowId]: row };
   const rowOrder = [row.id];
 
-  return { id, rows, rowOrder, ...init };
+  return { ...init, id, rows, rowOrder };
 };
 
 const newRow = (id: string, columnId: string, init: RowProfileInit): RowProfile => {
-  return { columnId, id, ...init };
+  return { ...init, columnId, id };
 };
 
 const tweakHelper = (rawChange: number, originId: string, rows: Record<string, RowProfile>, targets: RowProfile[]) => {

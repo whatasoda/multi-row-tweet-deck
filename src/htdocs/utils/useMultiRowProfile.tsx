@@ -12,10 +12,10 @@ const createInitialState = (displayName: string): MultiRowProfile => {
   const id = uuid();
 
   const gap = 3;
-  const base = [
-    [300, [20, 30, 50]],
+  const base: [number, number[]][] = [
+    [300, [10, 20, 50, 20]],
     [500, [50, 30, 20]],
-  ] as const;
+  ];
 
   const cells = base.reduce<MultiRowProfile['cells']>(
     (acc, [width, rows]) => {
@@ -44,7 +44,7 @@ const createInitialState = (displayName: string): MultiRowProfile => {
       width: 300,
     },
     header: {
-      height: 'medium',
+      height: 'small',
     },
   };
 };
