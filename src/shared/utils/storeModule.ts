@@ -1,14 +1,14 @@
 export type ActionsRecord = Record<string, (...args: any[]) => { payload: any } | null>;
 export type OneOfTypeOf<A extends ActionsRecord> = Extract<keyof A, string>;
 export type OneOfActionOf<A extends ActionsRecord> = {
-  [T in OneOfTypeOf<A>]: { type: T } & ReturnType<A[T]>
+  [T in OneOfTypeOf<A>]: { type: T } & ReturnType<A[T]>;
 }[OneOfTypeOf<A>];
 export type ActionCreatorOf<A extends ActionsRecord> = <T extends Extract<keyof A, string>>(
   type: T,
   ...args: Parameters<A[T]>
 ) => OneOfActionOf<A>;
 export type ReducerMapOf<A extends ActionsRecord, S> = {
-  [T in OneOfTypeOf<A>]: (state: S, action: ReturnType<A[T]>) => S
+  [T in OneOfTypeOf<A>]: (state: S, action: ReturnType<A[T]>) => S;
 };
 export type ReducerOf<A extends ActionsRecord, S> = (state: S, action: OneOfActionOf<A>) => S;
 export type ReducerCreator<A extends ActionsRecord> = <S>(reducers: ReducerMapOf<A, S>) => ReducerOf<A, S>;

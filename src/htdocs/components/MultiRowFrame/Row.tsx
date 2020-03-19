@@ -84,12 +84,11 @@ const Button = styled.button<{ Height: string }>`
   padding: 0 4px 4px;
   box-sizing: border-box;
   width: ${({ Height }) => Height};
-  appearance: none;
-  writing-mode: unset;
-  background: none;
-  border: none;
-  box-shadow: none;
-  cursor: pointer;
+  border-radius: 4px;
+  &:hover {
+    opacity: 0.7;
+    background-color: #9999;
+  }
 `;
 
 const StyledSplitter = styled(Splitter)<{ headerHeight: string }>`

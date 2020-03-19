@@ -3,6 +3,7 @@ import { createGeneralStyles } from '../../../shared/styles/general';
 import { createCellStyles } from '../../../shared/styles/cell';
 import styled from 'styled-components';
 import { Column } from './Column';
+import { ColumnCreator } from './ColumnCreator';
 
 interface MultiRowFrameProps {
   profile: MultiRowProfile;
@@ -23,6 +24,7 @@ export const MultiRowFrame = ({ profile }: MultiRowFrameProps) => {
         {profile.cells.columnOrder.map((id) => (
           <Column key={id} column={columns[id]} cellStyles={cellStyles} generalStyles={generalStyles} />
         ))}
+        <ColumnCreator />
       </Wrapper>
     </Scroll>
   );

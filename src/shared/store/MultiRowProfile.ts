@@ -12,7 +12,9 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   setHeader: (header: Partial<MultiRowProfile['header']>) => ({ payload: header }),
   setCells: (cells: Partial<Omit<MultiRowProfile['header'], 'columns' | 'colmunOrder'>>) => ({ payload: cells }),
 
-  createColumn: (init: ColumnProfileInit, insert?: number) => ({ payload: { id: uuid(), init, insert } }),
+  createColumn: (init: ColumnProfileInit, insert?: number) => ({
+    payload: { id: uuid(), init, insert, rowId: uuid() },
+  }),
   splitRow: (columnId: string, targetId: string, dominance: number) => ({
     payload: { newId: uuid(), columnId, targetId, dominance },
   }),
@@ -32,18 +34,20 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
   setHeader: (state, { payload }) => ({ ...state, header: { ...state.header, ...payload } }),
   setCells: (state, { payload }) => ({ ...state, cells: { ...state.cells, ...payload } }),
 
-  createColumn: (state, { payload: { id, init, insert = Infinity } }) => {
-    const column = newColumn(id, init);
+  createColumn: (state, { payload: { id, init, insert = Infinity, rowId } }) => {
     const { columns, columnOrder } = state.cells;
+    init.width = Math.max(init.width, MIN_COLUMN_WIDTH);
+    const column = newColumn(id, init, rowId);
 
     insert = Math.min(insert, columnOrder.length);
-    const cells = {
-      ...state.cells,
-      columns: { ...columns, [column.id]: column },
-      colmunOrder: [...columnOrder.slice(0, insert), column.id, ...columnOrder.slice(insert)],
+    return {
+      ...state,
+      cells: {
+        ...state.cells,
+        columns: { ...columns, [column.id]: column },
+        columnOrder: [...columnOrder.slice(0, insert), column.id, ...columnOrder.slice(insert)],
+      },
     };
-
-    return { ...state, cells };
   },
   splitRow: (state, { payload: { newId, columnId, targetId, dominance } }) => {
     const prevColumn = state.cells.columns[columnId];
@@ -54,12 +58,12 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
 
     dominance = clamp(dominance, 0, 100) / 100;
     const insert = targetIdx + 1;
-    const row = newRow(newId, columnId, { height: targetRow.height * dominance });
-    const targetNext: RowProfile = { ...targetRow, height: targetRow.height * (1 - dominance) };
+    const splitted: RowProfile = { ...targetRow, height: targetRow.height * dominance };
+    const row = newRow(newId, columnId, { height: targetRow.height * (1 - dominance) });
 
     const column = {
       ...prevColumn,
-      rows: { ...rows, [row.id]: row, [targetId]: targetNext },
+      rows: { ...rows, [row.id]: row, [targetId]: splitted },
       rowOrder: [...rowOrder.slice(0, insert), row.id, ...rowOrder.slice(insert)],
     };
 
@@ -164,8 +168,7 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
   },
 });
 
-const newColumn = (id: string, init: ColumnProfileInit): ColumnProfile => {
-  const rowId = uuid();
+const newColumn = (id: string, init: ColumnProfileInit, rowId: string): ColumnProfile => {
   const row = newRow(rowId, id, { height: 100 });
   const rows = { [rowId]: row };
   const rowOrder = [row.id];
