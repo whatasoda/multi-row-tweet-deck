@@ -1,6 +1,7 @@
 export type OneOfTDClassName = keyof typeof TDClassNameInput;
 const TDClassNameInput = {
-  appContent: ['app-content', 'is-open'],
+  appContentOpened: ['app-content', 'is-open'],
+  appContentClosed: ['app-content'],
   drawer: ['drawer'],
   columnsContainer: ['app-columns-container'],
   columns: ['app-columns'],

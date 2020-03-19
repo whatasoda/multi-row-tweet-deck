@@ -1,50 +1,51 @@
-import React, { useMemo } from 'react';
-import { createGeneralStyles } from '../../../shared/styles/general';
-import { createCellStyles } from '../../../shared/styles/cell';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Column } from './Column';
-import { ColumnCreator } from './ColumnCreator';
+import { NavBar } from './NavBar';
+import { Cells } from './Cells';
+import { DrawerRoot } from './Drawer';
 
 interface MultiRowFrameProps {
   profile: MultiRowProfile;
 }
 
 export const MultiRowFrame = ({ profile }: MultiRowFrameProps) => {
-  const [cellStyles, generalStyles] = useMemo(() => {
-    const cellStyles = createCellStyles(profile);
-    const generalStyles = createGeneralStyles(profile, { drawerWidth: 300, headerHeight: 20 });
-    return [cellStyles, generalStyles];
-  }, [profile]);
-
-  const { columns } = profile.cells;
-
+  const [drawerOpened, setDrawerOpened] = useState(true);
   return (
-    <Scroll>
-      <Wrapper>
-        {profile.cells.columnOrder.map((id) => (
-          <Column key={id} column={columns[id]} cellStyles={cellStyles} generalStyles={generalStyles} />
-        ))}
-        <ColumnCreator />
-      </Wrapper>
-    </Scroll>
+    <Wrapper>
+      <CustomNavBar drawerOpened={drawerOpened} setDrawerOpened={setDrawerOpened} />
+      <CustomDrawerRoot
+        profile={profile}
+        open={drawerOpened ? 'options' : false}
+        items={{
+          options() {
+            return <></>;
+          },
+        }}
+      >
+        <Cells profile={profile} />
+      </CustomDrawerRoot>
+    </Wrapper>
   );
 };
 
-const Scroll = styled.div`
-  height: 100%;
-  overflow-y: hidden;
-  overflow-x: auto;
-  background-color: ${({ theme: { color } }) => color.cellsBackground};
+const Wrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100vh;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  height: 100%;
-  padding: 0 0 0 6px;
-  margin-right: 300px;
-  /* min-width: 100%; */
-  user-select: none;
+const CustomNavBar = styled(NavBar)`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+`;
+
+const CustomDrawerRoot = styled(DrawerRoot)`
+  position: absolute;
+  left: 60px;
+  top: 0;
+  bottom: 0;
+  right: 0;
 `;

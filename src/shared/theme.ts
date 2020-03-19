@@ -6,8 +6,10 @@ declare module 'styled-components' {
 
 interface ColorTheme {
   TwitterColor: typeof TwitterColor;
+  navBackground: string;
   cellBackground: string;
   cellsBackground: string;
+  primaryButtonPushed: string;
   border: string;
 }
 
@@ -20,6 +22,9 @@ export const TwitterColor = {
   darkGray: '#8899a6',
   darkerGray: '#657786',
   darkBlack: '#38444d',
+  lightestMidnightGray: '#2b7bb9',
+  lightMidnightGray: '#3d5466',
+  midnightGray: '#1c2938',
   midnightDarkGray: '#15202b',
   deepBlack: '#14171a',
   midnightDarkestGray: '#10171e',
@@ -34,14 +39,18 @@ export const TwitterColor = {
 
 export const darkThmee: ColorTheme = {
   TwitterColor,
+  navBackground: TwitterColor.midnightGray,
   cellBackground: TwitterColor.midnightDarkGray,
   cellsBackground: TwitterColor.midnightDarkestGray,
+  primaryButtonPushed: TwitterColor.lightMidnightGray,
   border: TwitterColor.deepBlack,
 };
 
 export const lightTheme: ColorTheme = {
   TwitterColor,
+  navBackground: TwitterColor.midnightGray,
   cellBackground: TwitterColor.white,
   cellsBackground: TwitterColor.lighterGray,
+  primaryButtonPushed: TwitterColor.lightestMidnightGray,
   border: TwitterColor.lighterGray,
 };

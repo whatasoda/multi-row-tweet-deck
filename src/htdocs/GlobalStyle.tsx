@@ -10,10 +10,9 @@ export const GlobalStyle = createGlobalStyle`
   }
   button {
     appearance: none;
-    writing-mode: unset;
     background: none;
     border: none;
-    box-shadow: none;
+    outline: none;
     cursor: pointer;
   }
 `;

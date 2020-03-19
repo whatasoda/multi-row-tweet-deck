@@ -28,7 +28,7 @@ export const ColumnCreator = () => {
 
 const Wrapper = styled.div`
   height: 100%;
-  width: 100vw;
+  width: 100%;
   display: flex;
 `;
 

@@ -9,11 +9,11 @@ export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla
   const headerTransform = `translateY(${(headerHeight - vanilla.headerHeight) / 2}px)`;
 
   return helper({
-    appContent: {
+    appContentOpened: {
       marginLeft: `${-drawerDiff}px`,
-      '&:not(.is-open)': {
-        marginLeft: 0,
-      },
+    },
+    appContentClosed: {
+      marginLeft: 0,
     },
     drawer: {
       width: `${drawer.width}px`,
