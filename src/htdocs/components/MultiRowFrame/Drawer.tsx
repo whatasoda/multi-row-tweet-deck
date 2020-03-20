@@ -1,52 +1,50 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { createGeneralStyles } from '../../../shared/styles/general';
 import { TwitterColor } from '../../../shared/theme';
+import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
+import { useDrag } from '../../utils/useDrag';
+import { DragHandleHorizontal } from './DragHandle';
 
 const drawerWidth = 270;
 const VANILLA: VanillaTweetDeck = { drawerWidth, headerHeight: 40 };
 
-interface DrawerWrapperProps<P extends object, T extends DrawerItemMap> {
-  open: Extract<keyof T, string> | false;
+interface WrapperWithDrawerProps {
+  opened: boolean;
+  drawer: React.ReactElement | null;
   profile: MultiRowProfile;
-  props: P;
   className?: string;
+  children?: React.ReactElement | null;
 }
-interface DrawerItemMap extends Record<string, object> {}
 
-const Dummy: React.ComponentType = () => <></>;
+export const WrapperWithDrawer = ({ opened, profile, drawer, className, children }: WrapperWithDrawerProps) => {
+  const dispatch = useMultiRowProfileDispatch();
+  const drawerWidthRef = useRef(profile.drawer.width);
+  const handleDrawerWidth = useDrag(({ mode, start: [start], curr: [curr] }) => {
+    if (mode === 'start') drawerWidthRef.current = profile.drawer.width;
+    dispatch('setDrawer', { width: drawerWidthRef.current - start + curr });
+  });
 
-export const createDrawerWrapper = <P extends object, T extends DrawerItemMap>(
-  propsFactory: (props: P) => T,
-  components: {
-    [K in keyof T]: React.ComponentType<T[K]>;
-  },
-): React.FC<DrawerWrapperProps<P, T>> => {
-  return ({ open, props, profile, className, children }) => {
-    const { drawer, appContentClosed, appContentOpened } = useMemo(() => {
-      return createGeneralStyles(profile, VANILLA);
-    }, [profile]);
+  const style = useMemo(() => {
+    return createGeneralStyles(profile, VANILLA);
+  }, [profile]);
 
-    const [isOpen, Component, p] = open
-      ? [true, components[open] as React.ComponentType, propsFactory(props)[open]]
-      : [false, Dummy, {}];
-
-    return (
-      <Wrapper Opened={isOpen} style={isOpen ? appContentOpened : appContentClosed} className={className}>
-        <Drawer style={drawer}>{Component && <Component {...p} />}</Drawer>
-        {children}
-      </Wrapper>
-    );
-  };
+  return (
+    <Wrapper className={className} Opened={opened} style={opened ? style.appContentOpened : style.appContentClosed}>
+      <Drawer style={style.drawer}>{opened ? drawer : null}</Drawer>
+      <DragHandleHorizontal Size="6px" hidden={!opened} {...handleDrawerWidth} />
+      {children}
+    </Wrapper>
+  );
 };
 
 const styleOpened = css`
   transform: translateX(${drawerWidth}px);
   margin-right: ${drawerWidth}px;
-  transition: 200ms transform, margin-right;
 `;
 
 const Wrapper = styled.div<{ Opened: boolean }>`
+  transition: 200ms transform, margin-right;
   ${({ Opened }) => Opened && styleOpened}
 `;
 

@@ -49,7 +49,7 @@ const wrapperCommonStyle = css`
 
 const Handle = styled.div<{ Active: boolean }>`
   ${({ Active }) => (Active ? hoverStyle : '')}
-  background-color: #999;
+  background-color: ${({ theme: { color } }) => color.primaryText};
   border-radius: 7px;
   padding: ${padSize}px;
   background-clip: content-box;

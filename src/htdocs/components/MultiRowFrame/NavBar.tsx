@@ -3,22 +3,29 @@ import styled from 'styled-components';
 import { Icon } from '../../../shared/components/Icon';
 import { TwitterColor } from '../../../shared/theme';
 
+export type OneOfDrawerType = 'options' | 'unset';
+
 interface NavBarProps {
   className?: string;
-  drawerOpened: boolean;
-  setDrawerOpened: (isOpened: boolean) => void;
+  type: OneOfDrawerType;
+  setDrawerType: (type: OneOfDrawerType) => void;
 }
 
-export const NavBar = ({ className, drawerOpened, setDrawerOpened }: NavBarProps) => {
-  const icon = <Icon icon="cog" size="18px" color={TwitterColor.white} />;
+export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) => {
+  const icons: [OneOfDrawerType, React.ReactElement][] = [
+    ['options', <Icon icon="cog" size="18px" color={TwitterColor.white} />],
+  ];
+
   return (
     <Wrapper className={className}>
       <ButtonWrapper>
-        {drawerOpened ? (
-          <OptionButtonClose onClick={() => setDrawerOpened(false)} children={icon} />
-        ) : (
-          <OptionButtonOpen onClick={() => setDrawerOpened(true)} children={icon} />
-        )}
+        {icons.map(([type, icon]) => {
+          const [Component, handleClick] =
+            curr === type
+              ? ([ButtonClose, () => setDrawerType('unset')] as const)
+              : ([ButtonOpen, () => setDrawerType(type)] as const);
+          return <Component key={type} onClick={handleClick} children={icon} />;
+        })}
       </ButtonWrapper>
     </Wrapper>
   );
@@ -36,7 +43,7 @@ const ButtonWrapper = styled.div`
   margin-right: -12px;
 `;
 
-const OptionButtonBase = styled.button`
+const ButtonBase = styled.button`
   height: 36px;
   box-sizing: border-box;
   margin: 8px 0 10px;
@@ -44,7 +51,7 @@ const OptionButtonBase = styled.button`
   padding-left: 9px;
 `;
 
-const OptionButtonOpen = styled(OptionButtonBase)`
+const ButtonOpen = styled(ButtonBase)`
   width: 36px;
   border-radius: 45px;
   background-color: ${TwitterColor.blue};
@@ -53,7 +60,7 @@ const OptionButtonOpen = styled(OptionButtonBase)`
   }
 `;
 
-const OptionButtonClose = styled(OptionButtonBase)`
+const ButtonClose = styled(ButtonBase)`
   width: 48px;
   border-radius: 45px 0 0 45px;
   background-color: ${({ theme: { color } }) => color.primaryButtonPushed};

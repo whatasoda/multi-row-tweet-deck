@@ -1,42 +1,32 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { NavBar } from './NavBar';
+import { NavBar, OneOfDrawerType } from './NavBar';
 import { Cells } from './Cells';
-import { createDrawerWrapper } from './Drawer';
-import { DragHandleHorizontal } from './DragHandle';
-import { useDrag } from '../../utils/useDrag';
-import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
 import { Options } from './Options';
+import { WrapperWithDrawer } from './Drawer';
 
 interface MultiRowFrameProps {
   profile: MultiRowProfile;
 }
 
 export const MultiRowFrame = ({ profile }: MultiRowFrameProps) => {
-  const [drawerOpened, setDrawerOpened] = useState(true);
-  const drawerWidthRef = useRef(profile.drawer.width);
-  const dispatch = useMultiRowProfileDispatch();
-  const handleDrawerWidth = useDrag(({ mode, start: [start], curr: [curr] }) => {
-    if (mode === 'start') drawerWidthRef.current = profile.drawer.width;
-    dispatch('setDrawer', { width: drawerWidthRef.current - start + curr });
-  });
+  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('options');
 
   return (
     <Wrapper>
-      <CustomNavBar drawerOpened={drawerOpened} setDrawerOpened={setDrawerOpened} />
-      <StyledDrawerWrapper profile={profile} open={drawerOpened ? 'options' : false} props={{ profile }}>
-        <DragHandleHorizontal Size="6px" hidden={!drawerOpened} {...handleDrawerWidth} />
+      <CustomNavBar type={drawerType} setDrawerType={setDrawerType} />
+      <StyledWrapperWithDrawer
+        opened={drawerType !== 'unset'}
+        profile={profile}
+        drawer={drawerType === 'options' ? <Options profile={profile} /> : null}
+      >
         <CustomCells profile={profile} />
-      </StyledDrawerWrapper>
+      </StyledWrapperWithDrawer>
     </Wrapper>
   );
 };
 
-const DrawerWrapper = createDrawerWrapper(({ profile }: { profile: MultiRowProfile }) => ({ options: { profile } }), {
-  options: Options,
-});
-
-const StyledDrawerWrapper = styled(DrawerWrapper)`
+const StyledWrapperWithDrawer = styled(WrapperWithDrawer)`
   position: absolute;
   left: 60px;
   top: 0;
