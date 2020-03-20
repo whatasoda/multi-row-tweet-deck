@@ -82,31 +82,76 @@ export const MultiRowFrame = (props: MultiRowFrameProps) => {
 
 const MultiRowFrameComponent = ({ repository }: MultiRowFrameProps & { repository: StorageRepository }) => {
   const dispatch = useMultiRowProfileDispatch();
-  const profile = useMultiRowProfile();
 
+  const profile = useMultiRowProfile();
+  const savedProfileRef = useRef(profile);
   const profileRef = useRef(profile);
   profileRef.current = profile;
 
-  const [saveProfile] = useMemo(() => {
-    const saveProfile = async () => {
-      await repository.setProfile(profile);
+  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('options');
+  const [profileList, setProfileList] = useState<ProfileWithMetaData[]>([]);
+
+  const [updateProfileList, saveProfile, discardChanges, switchProfile, deleteCurrentProfile] = useMemo(() => {
+    const updateProfileList = async (rule: OneOfProfileSortRule) => {
+      setProfileList(await repository.getProfileList(rule));
     };
 
-    const discardChanges = async () => {
-      const payload = await repository.getProfile(profile.id);
+    const saveProfile = async () => {
+      const { current } = profileRef;
+      if (savedProfileRef.current === current) return;
+      await repository.setProfile(current);
+      savedProfileRef.current = current;
+      updateProfileList('dateRecentUse');
+    };
+
+    const discardChanges = () => {
+      const { current } = profileRef;
+      if (savedProfileRef.current === current) return;
+      dispatch('switchProfile', savedProfileRef.current);
+    };
+
+    const switchProfile = async (id: string) => {
+      const { current } = profileRef;
+      if (savedProfileRef.current !== current) {
+        const shouldDiscard = confirm(`未保存の 「${current.displayName}」 への変更は破棄されます。よろしいですか？`);
+        if (!shouldDiscard) return;
+      }
+
+      const payload = await repository.getProfile(id);
       if (payload) {
-        dispatch('switchProfile', payload.profile);
-      } else {
-        // TODO: add new action to reset or use template profile
+        const { profile } = payload;
+        savedProfileRef.current = profile;
+        dispatch('switchProfile', profile);
       }
     };
 
-    return [saveProfile, discardChanges];
-  }, []);
+    const deleteCurrentProfile = async () => {
+      const { current } = profileRef;
+      if (confirm(`この操作は取り消せません。本当に「${current.displayName}」を削除しますか？`)) {
+        await repository.deleteProfile(current.id);
+      }
+    };
 
-  saveProfile;
+    return [updateProfileList, saveProfile, discardChanges, switchProfile, deleteCurrentProfile];
+  }, [repository]);
 
-  return <Component profile={profile} />;
+  return useMemo(
+    () => (
+      <Component
+        {...{
+          drawerType,
+          setDrawerType,
+          profileList,
+          updateProfileList,
+          saveProfile,
+          discardChanges,
+          switchProfile,
+          deleteCurrentProfile,
+        }}
+      />
+    ),
+    [repository, profileList],
+  );
 };
 
 // TODO: split them to 'fragments' directory
