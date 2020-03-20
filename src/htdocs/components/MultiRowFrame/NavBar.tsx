@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { Icon } from '../../../shared/components/Icon';
 import { TwitterColor } from '../../../shared/theme';
 
-export type OneOfDrawerType = 'options' | 'unset';
-
 interface NavBarProps {
   className?: string;
   type: OneOfDrawerType;

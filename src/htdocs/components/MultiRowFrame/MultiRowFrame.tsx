@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { NavBar, OneOfDrawerType } from './NavBar';
+import { NavBar } from './NavBar';
 import { Cells } from './Cells';
 import { Options } from './Options';
 import { WrapperWithDrawer } from './Drawer';
 
 interface MultiRowFrameProps {
-  profile: MultiRowProfile;
+  drawerType: OneOfDrawerType;
+  setDrawerType: (type: OneOfDrawerType) => void;
+  saveProfile: () => Promise<void>;
+  discardChanges: () => void;
+  profileList: ProfileWithMetaData[];
+  updateProfileList: (rule: OneOfProfileSortRule) => Promise<void>;
+  switchProfile: (id: string) => Promise<void>;
+  deleteCurrentProfile: () => Promise<void>;
 }
 
-export const MultiRowFrame = ({ profile }: MultiRowFrameProps) => {
-  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('options');
-
-  return (
-    <Wrapper>
-      <CustomNavBar type={drawerType} setDrawerType={setDrawerType} />
-      <StyledWrapperWithDrawer
-        opened={drawerType !== 'unset'}
-        profile={profile}
-        drawer={drawerType === 'options' ? <Options profile={profile} /> : null}
-      >
-        <CustomCells profile={profile} />
-      </StyledWrapperWithDrawer>
-    </Wrapper>
-  );
-};
+export const MultiRowFrame = ({ drawerType, setDrawerType, saveProfile, discardChanges }: MultiRowFrameProps) => (
+  <Wrapper>
+    <CustomNavBar type={drawerType} setDrawerType={setDrawerType} />
+    <StyledWrapperWithDrawer
+      opened={drawerType !== 'unset'}
+      drawer={drawerType === 'options' ? <Options {...{ saveProfile, discardChanges }} /> : null}
+    >
+      <CustomCells />
+    </StyledWrapperWithDrawer>
+  </Wrapper>
+);
 
 const StyledWrapperWithDrawer = styled(WrapperWithDrawer)`
   position: absolute;

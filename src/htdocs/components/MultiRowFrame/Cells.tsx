@@ -4,13 +4,14 @@ import { createCellStyles } from '../../../shared/styles/cell';
 import styled from 'styled-components';
 import { Column } from './Column';
 import { ColumnCreator } from './ColumnCreator';
+import { useMultiRowProfile } from '../../utils/useMultiRowProfile';
 
 interface CellsProps {
-  profile: MultiRowProfile;
   className?: string;
 }
 
-export const Cells = ({ profile, className }: CellsProps) => {
+export const Cells = ({ className }: CellsProps) => {
+  const profile = useMultiRowProfile();
   const [cellStyles, generalStyles] = useMemo(() => {
     const cellStyles = createCellStyles(profile);
     const generalStyles = createGeneralStyles(profile, { drawerWidth: 300, headerHeight: 20 });
