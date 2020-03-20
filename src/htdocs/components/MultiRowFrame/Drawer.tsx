@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import styled, { css } from 'styled-components';
 import { createGeneralStyles } from '../../../shared/styles/general';
+import { TwitterColor } from '../../../shared/theme';
 
 const drawerWidth = 270;
 const VANILLA: VanillaTweetDeck = { drawerWidth, headerHeight: 40 };
@@ -51,6 +52,7 @@ const Wrapper = styled.div<{ Opened: boolean }>`
 
 const Drawer = styled.div`
   background-color: ${({ theme: { color } }) => color.primaryButtonPushed};
+  color: ${TwitterColor.white};
   position: absolute;
   top: 0;
   height: 100%;

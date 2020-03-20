@@ -3,7 +3,7 @@ import React from 'react';
 import IcomoonReact from 'icomoon-react';
 import { selection } from './selection';
 
-type OneOfIcon = typeof selection['icons'][number]['properties']['name'];
+export type OneOfIcon = typeof selection['icons'][number]['properties']['name'];
 
 interface IconProps {
   icon: OneOfIcon;

@@ -49,6 +49,7 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100vh;
   user-select: none;
+  overflow: hidden;
   color: ${({ theme: { color } }) => color.primaryText};
 `;
 

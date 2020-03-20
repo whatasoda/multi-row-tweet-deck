@@ -51,7 +51,7 @@ export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: 
           onSplit={(value) => (setMode('unset'), dispatch('splitRow', row.columnId, row.id, value.pct))}
         />
       </Wrapper>
-      {isLastRow ? null : <DragHandleVertical Size={'0'} hidden={mode === 'split'} {...handleVertical} />}
+      {isLastRow ? null : <DragHandleVertical Size="0" hidden={mode === 'split'} {...handleVertical} />}
     </>
   );
 };

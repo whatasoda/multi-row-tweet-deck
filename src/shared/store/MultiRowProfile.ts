@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { createStoreModule } from '../utils/storeModule';
 import { clamp } from '../utils/math';
-import { MIN_DRAWER_WIDTH, MIN_COLUMN_WIDTH } from '../constants';
+import { MIN_DRAWER_WIDTH, MIN_COLUMN_WIDTH, MAX_GAP_SIZE } from '../constants';
 
 export const [createMultiRowProfileAction, createMultiRowProfileReducer] = createStoreModule({
   switchProfile: (profile: MultiRowProfile) => ({ payload: profile }),
@@ -9,7 +9,7 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
   setDisplayName: (displayName: string) => ({ payload: displayName }),
   setDrawer: (drawer: Partial<MultiRowProfile['drawer']>) => ({ payload: drawer }),
   setHeader: (header: Partial<MultiRowProfile['header']>) => ({ payload: header }),
-  setCells: (cells: Partial<Omit<MultiRowProfile['header'], 'columns' | 'colmunOrder'>>) => ({ payload: cells }),
+  setCells: (cells: Partial<Omit<MultiRowProfile['cells'], 'columns' | 'columnOrder'>>) => ({ payload: cells }),
 
   createColumn: (init: ColumnProfileInit, insert?: number) => ({
     payload: { id: uuid(), init, insert, rowId: uuid() },
@@ -34,11 +34,18 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
     drawer: {
       ...state.drawer,
       ...payload,
-      width: Math.max(payload.width || state.drawer.width, MIN_DRAWER_WIDTH),
+      width: Math.max(payload.width ?? state.drawer.width, MIN_DRAWER_WIDTH),
     },
   }),
   setHeader: (state, { payload }) => ({ ...state, header: { ...state.header, ...payload } }),
-  setCells: (state, { payload }) => ({ ...state, cells: { ...state.cells, ...payload } }),
+  setCells: (state, { payload }) => ({
+    ...state,
+    cells: {
+      ...state.cells,
+      ...payload,
+      gap: clamp(payload.gap ?? state.cells.gap, 0, MAX_GAP_SIZE),
+    },
+  }),
 
   createColumn: (state, { payload: { id, init, insert = Infinity, rowId } }) => {
     const { columns, columnOrder } = state.cells;
