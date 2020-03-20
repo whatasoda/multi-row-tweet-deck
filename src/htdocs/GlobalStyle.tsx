@@ -5,6 +5,9 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+  html {
+    background-color: ${({ theme: { color } }) => color.cellsBackground};
+  }
   html, body, #app {
     height: 100%;
   }

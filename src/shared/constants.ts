@@ -4,6 +4,9 @@ export const HEADER_HEIGHT = {
   small: 30,
 };
 
+export const MIN_COLUMN_WIDTH = 100;
+export const MIN_DRAWER_WIDTH = 220;
+
 export const ROOT_CLASS_NAME = 'multi-row';
 export const ROOT_SELECTOR = 'html.multi-row body.multi-row';
 export const EXTENSION_ID = process.env.EXTENSION_ID!;

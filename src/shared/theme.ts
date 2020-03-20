@@ -10,6 +10,8 @@ interface ColorTheme {
   cellBackground: string;
   cellsBackground: string;
   primaryButtonPushed: string;
+  primaryText: string;
+  subText: string;
   border: string;
 }
 
@@ -43,6 +45,8 @@ export const darkThmee: ColorTheme = {
   cellBackground: TwitterColor.midnightDarkGray,
   cellsBackground: TwitterColor.midnightDarkestGray,
   primaryButtonPushed: TwitterColor.lightMidnightGray,
+  primaryText: TwitterColor.white,
+  subText: TwitterColor.darkGray,
   border: TwitterColor.deepBlack,
 };
 
@@ -52,5 +56,7 @@ export const lightTheme: ColorTheme = {
   cellBackground: TwitterColor.white,
   cellsBackground: TwitterColor.lighterGray,
   primaryButtonPushed: TwitterColor.lightestMidnightGray,
+  primaryText: TwitterColor.darkBlack,
+  subText: TwitterColor.darkGray,
   border: TwitterColor.lighterGray,
 };

@@ -1,8 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { createStoreModule } from '../utils/storeModule';
 import { clamp } from '../utils/math';
-
-const MIN_COLUMN_WIDTH = 100;
+import { MIN_DRAWER_WIDTH, MIN_COLUMN_WIDTH } from '../constants';
 
 export const [createMultiRowProfileAction, createMultiRowProfileReducer] = createStoreModule({
   switchProfile: (profile: MultiRowProfile) => ({ payload: profile }),
@@ -30,7 +29,14 @@ export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfi
   switchProfile: (_, { payload }) => ({ ...payload }),
 
   setDisplayName: (state, { payload }) => ({ ...state, displayName: payload }),
-  setDrawer: (state, { payload }) => ({ ...state, drawer: { ...state.drawer, ...payload } }),
+  setDrawer: (state, { payload }) => ({
+    ...state,
+    drawer: {
+      ...state.drawer,
+      ...payload,
+      width: Math.max(payload.width || state.drawer.width, MIN_DRAWER_WIDTH),
+    },
+  }),
   setHeader: (state, { payload }) => ({ ...state, header: { ...state.header, ...payload } }),
   setCells: (state, { payload }) => ({ ...state, cells: { ...state.cells, ...payload } }),
 

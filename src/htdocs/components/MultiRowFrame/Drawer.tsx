@@ -2,33 +2,47 @@ import React, { useMemo } from 'react';
 import styled, { css } from 'styled-components';
 import { createGeneralStyles } from '../../../shared/styles/general';
 
-interface DrawerRootProps {
-  open: string | false;
-  items: Record<string, () => JSX.Element>;
+const drawerWidth = 270;
+const VANILLA: VanillaTweetDeck = { drawerWidth, headerHeight: 40 };
+
+interface DrawerWrapperProps<P extends object, T extends DrawerItemMap> {
+  open: Extract<keyof T, string> | false;
   profile: MultiRowProfile;
+  props: P;
   className?: string;
 }
+interface DrawerItemMap extends Record<string, object> {}
 
-const drawerWidth = 270;
+const Dummy: React.ComponentType = () => <></>;
 
-export const DrawerRoot: React.FC<DrawerRootProps> = ({ open, items, profile, className, children }) => {
-  const isOpen = open !== false && open in items;
-  const { drawer, appContentClosed, appContentOpened } = useMemo(() => {
-    return createGeneralStyles(profile, { drawerWidth, headerHeight: 40 });
-  }, [profile]);
+export const createDrawerWrapper = <P extends object, T extends DrawerItemMap>(
+  propsFactory: (props: P) => T,
+  components: {
+    [K in keyof T]: React.ComponentType<T[K]>;
+  },
+): React.FC<DrawerWrapperProps<P, T>> => {
+  return ({ open, props, profile, className, children }) => {
+    const { drawer, appContentClosed, appContentOpened } = useMemo(() => {
+      return createGeneralStyles(profile, VANILLA);
+    }, [profile]);
 
-  return (
-    <Wrapper Opened={isOpen} style={isOpen ? appContentOpened : appContentClosed} className={className}>
-      <Drawer style={drawer}>{isOpen && items[open as string]()}</Drawer>
-      {children}
-    </Wrapper>
-  );
+    const [isOpen, Component, p] = open
+      ? [true, components[open] as React.ComponentType, propsFactory(props)[open]]
+      : [false, Dummy, {}];
+
+    return (
+      <Wrapper Opened={isOpen} style={isOpen ? appContentOpened : appContentClosed} className={className}>
+        <Drawer style={drawer}>{Component && <Component {...p} />}</Drawer>
+        {children}
+      </Wrapper>
+    );
+  };
 };
 
 const styleOpened = css`
-  transition-duration: 200ms;
   transform: translateX(${drawerWidth}px);
   margin-right: ${drawerWidth}px;
+  transition: 200ms transform, margin-right;
 `;
 
 const Wrapper = styled.div<{ Opened: boolean }>`
@@ -40,4 +54,6 @@ const Drawer = styled.div`
   position: absolute;
   top: 0;
   height: 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
 `;

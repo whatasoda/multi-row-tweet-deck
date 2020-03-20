@@ -33,10 +33,9 @@ export const Cells = ({ profile, className }: CellsProps) => {
 
 const Wrapper = styled.div`
   height: 100%;
-  width: 100%;
+  width: calc(100% - 6px);
   overflow-y: hidden;
   overflow-x: auto;
-  background-color: ${({ theme: { color } }) => color.cellsBackground};
 `;
 
 const Scroll = styled.div`
@@ -47,7 +46,5 @@ const Scroll = styled.div`
   height: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 0 0 6px;
   margin-right: 300px;
-  user-select: none;
 `;
