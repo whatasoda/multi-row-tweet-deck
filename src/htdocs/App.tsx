@@ -5,7 +5,7 @@ import { DragProvider } from './utils/useDrag';
 import { GlobalStyle } from './GlobalStyle';
 
 export const App = () => (
-  <CustomThemeProvider defaultTheme="dark">
+  <CustomThemeProvider defaultTheme="light">
     <>
       <GlobalStyle />
       <DragProvider mode="animationFrame">

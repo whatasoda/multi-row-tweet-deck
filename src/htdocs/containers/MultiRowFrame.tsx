@@ -1,35 +1,59 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
-import { useMultiRowProfile, useMultiRowProfileDispatch, MultiRowProfileProvider } from '../utils/useMultiRowProfile';
-import { createRepository } from '../../shared/storage/repository';
 import styled from 'styled-components';
+import { createRepository } from '../../shared/storage/repository';
 import { getStorageInfrastructure } from '../../shared/storage/infrastructure';
+import { EXTENSION_ID, WEB_EVENT, MAX_PROFILE_COUNT } from '../../shared/constants';
 import { createExtensionMessageSender, getRuntime } from '../../shared/messages';
-import { EXTENSION_ID, WEB_EVENT } from '../../shared/constants';
+import { useMultiRowProfile, useMultiRowProfileDispatch, MultiRowProfileProvider } from '../utils/useMultiRowProfile';
 import { MultiRowFrame as Component } from '../components/MultiRowFrame';
+import { createProfile, createDefaultProfile } from '../../shared/store/MultiRowProfile';
+
+const INITIAL_SORT_RULE: OneOfProfileSortRule = 'dateRecentUse';
 
 type RepositoryValue =
-  | { loading: true; error: null; repository: null; initialProfile: null }
-  | { loading: false; error: Error; repository: null; initialProfile: null }
-  | { loading: false; error: null; repository: StorageRepository; initialProfile: MultiRowProfile | null };
+  | { loading: true; error: null; repository: null; defaultValue: null }
+  | { loading: false; error: Error; repository: null; defaultValue: null }
+  | { loading: false; error: null; repository: StorageRepository; defaultValue: DefaultValues };
 
-interface MultiRowFrameProps {}
+interface DefaultValues {
+  profile: MultiRowProfile | null;
+  profiles: ProfileWithMetaData[];
+  selectedId: string | null;
+}
 
-export const MultiRowFrame = (props: MultiRowFrameProps) => {
+interface MultiRowFrameOutboundProps {}
+interface MultiRowFrameInboundProps extends MultiRowFrameOutboundProps {
+  repository: StorageRepository;
+  profiles: ProfileWithMetaData[];
+  defaultSelectedId: string | null;
+}
+
+export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
   const [repositoryValue, setRepositoryValue] = useState<RepositoryValue>({
     loading: true,
     error: null,
     repository: null,
-    initialProfile: null,
+    defaultValue: null,
   });
 
   useEffect(() => {
+    const success = async (repository: StorageRepository) => {
+      const profiles = await repository.getProfileList(INITIAL_SORT_RULE);
+      const { profile = null } = profiles[0] || {};
+      const selectedId = await repository.getSelectedProfileId();
+      setRepositoryValue({
+        loading: false,
+        error: null,
+        repository,
+        defaultValue: { profile, selectedId, profiles },
+      });
+    };
+
     const runtime = getRuntime();
     if (!runtime) {
-      return void (async () => {
-        const repository = createRepository(await getStorageInfrastructure('page'));
-        const { profile = null } = (await repository.getProfileList('dateRecentUse'))[0] || {};
-        setRepositoryValue({ loading: false, error: null, repository, initialProfile: profile });
-      })();
+      return void getStorageInfrastructure('page')
+        .then(createRepository)
+        .then(success);
     }
 
     let connected = false;
@@ -43,17 +67,13 @@ export const MultiRowFrame = (props: MultiRowFrameProps) => {
         connected = true;
         await remote.mergeStorage(await page.getWholeStorage());
         await page.cleanup();
-
-        const { profile = null } = (await remote.getProfileList('dateRecentUse'))[0] || {};
-        setRepositoryValue({ loading: false, error: null, repository: remote, initialProfile: profile });
+        await success(remote);
 
         window.removeEventListener(WEB_EVENT.connect, tryConnect);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e.message);
-      } // eslint-disable-line no-empty
-      const { profile = null } = (await page.getProfileList('dateRecentUse'))[0] || {};
-      setRepositoryValue({ loading: false, error: null, repository: page, initialProfile: profile });
+        console.log(e.message); // eslint-disable-line no-console
+        await success(page);
+      }
     };
 
     (async () => {
@@ -73,84 +93,160 @@ export const MultiRowFrame = (props: MultiRowFrameProps) => {
   if (repositoryValue.loading) return <Loading>Loading...</Loading>;
   if (repositoryValue.error) return <ShowError>{repositoryValue.error.message}</ShowError>;
 
+  const { profile, selectedId, profiles } = repositoryValue.defaultValue;
   return (
-    <MultiRowProfileProvider initialState={repositoryValue.initialProfile || undefined}>
-      <MultiRowFrameComponent {...props} repository={repositoryValue.repository} />
+    <MultiRowProfileProvider initialState={profile || undefined}>
+      <MultiRowFrameComponent
+        {...props}
+        repository={repositoryValue.repository}
+        defaultSelectedId={selectedId}
+        profiles={profiles}
+      />
     </MultiRowProfileProvider>
   );
 };
 
-const MultiRowFrameComponent = ({ repository }: MultiRowFrameProps & { repository: StorageRepository }) => {
+const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
   const dispatch = useMultiRowProfileDispatch();
 
   const profile = useMultiRowProfile();
+  const editingProfileRef = useRef(profile);
+  editingProfileRef.current = profile;
+
   const savedProfileRef = useRef(profile);
-  const profileRef = useRef(profile);
-  profileRef.current = profile;
 
-  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('options');
-  const [profileList, setProfileList] = useState<ProfileWithMetaData[]>([]);
+  const [sortRule, setSortRule] = useState<OneOfProfileSortRule>(INITIAL_SORT_RULE);
+  const sortRuleRef = useRef(sortRule);
+  useEffect(() => {
+    if (sortRuleRef.current === sortRule) return; // prevent initial call
+    sortRuleRef.current = sortRule;
+    reloadProfileList();
+  }, [sortRule]);
 
-  const [updateProfileList, saveProfile, discardChanges, switchProfile, deleteCurrentProfile] = useMemo(() => {
-    const updateProfileList = async (rule: OneOfProfileSortRule) => {
-      setProfileList(await repository.getProfileList(rule));
+  const [profileList, setProfileList] = useState<ProfileWithMetaData[]>(profiles);
+  const profileCountRef = useRef(profileList.length);
+  profileCountRef.current = profileList.length;
+
+  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('profileList');
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(defaultSelectedId);
+
+  const methods = useMemo(() => {
+    const reloadProfileList = async () => {
+      setProfileList(await repository.getProfileList(sortRuleRef.current));
     };
 
     const saveProfile = async () => {
-      const { current } = profileRef;
+      const { current } = editingProfileRef;
       if (savedProfileRef.current === current) return;
       await repository.setProfile(current);
       savedProfileRef.current = current;
-      updateProfileList('dateRecentUse');
+      reloadProfileList();
     };
 
     const discardChanges = () => {
-      const { current } = profileRef;
+      const { current } = editingProfileRef;
       if (savedProfileRef.current === current) return;
       dispatch('switchProfile', savedProfileRef.current);
     };
 
     const switchProfile = async (id: string) => {
-      const { current } = profileRef;
-      if (savedProfileRef.current !== current) {
-        const shouldDiscard = confirm(`未保存の 「${current.displayName}」 への変更は破棄されます。よろしいですか？`);
+      const { current } = editingProfileRef;
+      if (current.id === id) {
+        return;
+      } else if (savedProfileRef.current !== current) {
+        const shouldDiscard = confirm(`「${current.displayName}」 への未保存の変更は破棄されます。よろしいですか？`);
         if (!shouldDiscard) return;
       }
 
       const payload = await repository.getProfile(id);
       if (payload) {
-        const { profile } = payload;
-        savedProfileRef.current = profile;
-        dispatch('switchProfile', profile);
+        const { profile: selectedProfile } = payload;
+        savedProfileRef.current = selectedProfile;
+        dispatch('switchProfile', selectedProfile);
       }
     };
 
     const deleteCurrentProfile = async () => {
-      const { current } = profileRef;
+      const { current } = editingProfileRef;
       if (confirm(`この操作は取り消せません。本当に「${current.displayName}」を削除しますか？`)) {
         await repository.deleteProfile(current.id);
+        let profiles = await repository.getProfileList(sortRuleRef.current);
+
+        if (!profiles.length) {
+          await repository.setProfile(createDefaultProfile());
+          profiles = await repository.getProfileList(sortRuleRef.current);
+        }
+
+        const { profile: next } = profiles[0];
+        savedProfileRef.current = next;
+        dispatch('switchProfile', next);
+        setProfileList(profiles);
       }
     };
 
-    return [updateProfileList, saveProfile, discardChanges, switchProfile, deleteCurrentProfile];
+    const createNewProfile = async () => {
+      const { current } = editingProfileRef;
+      if (profileCountRef.current >= MAX_PROFILE_COUNT) {
+        return alert(`保存できるプロフィールは${MAX_PROFILE_COUNT}個までです。`);
+      } else if (savedProfileRef.current !== current) {
+        const ok = confirm(`「${current.displayName}」 への未保存の変更を破棄して新しいプロファイルを作成しますか？`);
+        if (!ok) return;
+      }
+      const newProfile = createProfile('New Profile', []);
+      await repository.setProfile(newProfile);
+      await reloadProfileList();
+      savedProfileRef.current = newProfile;
+      dispatch('switchProfile', newProfile);
+    };
+
+    const selectCurrentProfile = async () => {
+      const { current } = editingProfileRef;
+      await repository.setSelectedProfileId(current.id);
+      setSelectedProfileId(current.id);
+    };
+
+    return [
+      reloadProfileList,
+      saveProfile,
+      discardChanges,
+      switchProfile,
+      deleteCurrentProfile,
+      createNewProfile,
+      selectCurrentProfile,
+    ] as const;
   }, [repository]);
+
+  const [
+    reloadProfileList,
+    saveProfile,
+    discardChanges,
+    switchProfile,
+    deleteCurrentProfile,
+    createNewProfile,
+    selectCurrentProfile,
+  ] = methods;
 
   return useMemo(
     () => (
       <Component
         {...{
           drawerType,
-          setDrawerType,
           profileList,
-          updateProfileList,
+          selectedProfileId,
+          sortRule,
+          setDrawerType,
+          reloadProfileList,
           saveProfile,
           discardChanges,
           switchProfile,
           deleteCurrentProfile,
+          createNewProfile,
+          selectCurrentProfile,
+          setSortRule,
         }}
       />
     ),
-    [repository, profileList],
+    [repository, drawerType, profileList, selectedProfileId, sortRule],
   );
 };
 

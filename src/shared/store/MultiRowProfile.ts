@@ -26,7 +26,7 @@ export const [createMultiRowProfileAction, createMultiRowProfileReducer] = creat
 });
 
 export const MultiRowProfileReducer = createMultiRowProfileReducer<MultiRowProfile>({
-  switchProfile: (_, { payload }) => ({ ...payload }),
+  switchProfile: (_, { payload }) => payload,
 
   setDisplayName: (state, { payload }) => ({ ...state, displayName: payload }),
   setDrawer: (state, { payload }) => ({
@@ -210,4 +210,47 @@ const tweakHelper = (rawChange: number, originId: string, rows: Record<string, R
     }
     return acc;
   }, unnormalized);
+};
+
+export const createProfile = (displayName: string, base: [number, number[]][]): MultiRowProfile => {
+  const id = uuid();
+  const gap = 3;
+
+  const cells = base.reduce<MultiRowProfile['cells']>(
+    (acc, [width, rows]) => {
+      const columnId = uuid();
+      acc.columnOrder.push(columnId);
+      acc.columns[columnId] = rows.reduce<ColumnProfile>(
+        (acc, height) => {
+          const rowId = uuid();
+          acc.rowOrder.push(rowId);
+          acc.rows[rowId] = { columnId, id: rowId, height };
+          return acc;
+        },
+        { id: columnId, width, rows: {}, rowOrder: [] },
+      );
+
+      return acc;
+    },
+    { gap, columnOrder: [], columns: {} },
+  );
+
+  return {
+    id,
+    displayName,
+    cells,
+    drawer: {
+      width: 300,
+    },
+    header: {
+      height: 'small',
+    },
+  };
+};
+
+export const createDefaultProfile = () => {
+  return createProfile('Default Profile', [
+    [300, [10, 20, 50, 20]],
+    [500, [50, 30, 20]],
+  ]);
 };

@@ -22,6 +22,31 @@ export const selection = {
     {
       icon: {
         paths: [
+          'M1024 384h-384l143.53-143.53c-72.53-72.526-168.96-112.47-271.53-112.47s-199 39.944-271.53 112.47c-72.526 72.53-112.47 168.96-112.47 271.53s39.944 199 112.47 271.53c72.53 72.526 168.96 112.47 271.53 112.47s199-39.944 271.528-112.472c6.056-6.054 11.86-12.292 17.456-18.668l96.32 84.282c-93.846 107.166-231.664 174.858-385.304 174.858-282.77 0-512-229.23-512-512s229.23-512 512-512c141.386 0 269.368 57.326 362.016 149.984l149.984-149.984v384z',
+        ],
+        attrs: [],
+        isMulticolor: false,
+        isMulticolor2: false,
+        tags: ['spinner', 'loading', 'loading-wheel', 'refresh', 'repeat', 'busy', 'wait', 'arrow'],
+        defaultCode: 59780,
+        grid: 16,
+      },
+      attrs: [],
+      properties: {
+        ligatures: 'spinner11, loading12',
+        name: 'spinner',
+        id: 132,
+        order: 17,
+        prevSize: 32,
+        code: 59780,
+      },
+      setIdx: 0,
+      setId: 0,
+      iconIdx: 132,
+    },
+    {
+      icon: {
+        paths: [
           'M933.79 610.25c-53.726-93.054-21.416-212.304 72.152-266.488l-100.626-174.292c-28.75 16.854-62.176 26.518-97.846 26.518-107.536 0-194.708-87.746-194.708-195.99h-201.258c0.266 33.41-8.074 67.282-25.958 98.252-53.724 93.056-173.156 124.702-266.862 70.758l-100.624 174.292c28.97 16.472 54.050 40.588 71.886 71.478 53.638 92.908 21.512 211.92-71.708 266.224l100.626 174.292c28.65-16.696 61.916-26.254 97.4-26.254 107.196 0 194.144 87.192 194.7 194.958h201.254c-0.086-33.074 8.272-66.57 25.966-97.218 53.636-92.906 172.776-124.594 266.414-71.012l100.626-174.29c-28.78-16.466-53.692-40.498-71.434-71.228zM512 719.332c-114.508 0-207.336-92.824-207.336-207.334 0-114.508 92.826-207.334 207.336-207.334 114.508 0 207.332 92.826 207.332 207.334-0.002 114.51-92.824 207.334-207.332 207.334z',
         ],
         attrs: [],
@@ -36,31 +61,6 @@ export const selection = {
       setIdx: 0,
       setId: 0,
       iconIdx: 148,
-    },
-    {
-      icon: {
-        paths: [
-          'M256 192l-128-128h-64v64l128 128zM320 0h64v128h-64zM576 320h128v64h-128zM640 128v-64h-64l-128 128 64 64zM0 320h128v64h-128zM320 576h64v128h-64zM64 576v64h64l128-128-64-64zM1010 882l-636.118-636.118c-18.668-18.668-49.214-18.668-67.882 0l-60.118 60.118c-18.668 18.668-18.668 49.214 0 67.882l636.118 636.118c18.668 18.668 49.214 18.668 67.882 0l60.118-60.118c18.668-18.668 18.668-49.214 0-67.882zM480 544l-192-192 64-64 192 192-64 64z',
-        ],
-        attrs: [],
-        isMulticolor: false,
-        isMulticolor2: false,
-        tags: ['magic-wand', 'wizard'],
-        defaultCode: 59799,
-        grid: 16,
-      },
-      attrs: [],
-      properties: {
-        ligatures: 'magic-wand, wizard',
-        name: 'magic-wand',
-        id: 151,
-        order: 13,
-        prevSize: 32,
-        code: 59799,
-      },
-      setIdx: 0,
-      setId: 0,
-      iconIdx: 151,
     },
     {
       icon: {
@@ -80,6 +80,24 @@ export const selection = {
       setIdx: 0,
       setId: 0,
       iconIdx: 172,
+    },
+    {
+      icon: {
+        paths: [
+          'M1024 397.050l-353.78-51.408-158.22-320.582-158.216 320.582-353.784 51.408 256 249.538-60.432 352.352 316.432-166.358 316.432 166.358-60.434-352.352 256.002-249.538z',
+        ],
+        attrs: [],
+        isMulticolor: false,
+        isMulticolor2: false,
+        tags: ['star-full', 'rate', 'star', 'favorite', 'bookmark'],
+        defaultCode: 59865,
+        grid: 16,
+      },
+      attrs: [],
+      properties: { ligatures: 'star-full, rate3', name: 'star', id: 217, order: 15, prevSize: 32, code: 59865 },
+      setIdx: 0,
+      setId: 0,
+      iconIdx: 217,
     },
     {
       icon: {
@@ -150,6 +168,25 @@ export const selection = {
       setIdx: 0,
       setId: 0,
       iconIdx: 272,
+    },
+    {
+      icon: {
+        paths: [
+          'M1024 512c0-282.77-229.23-512-512-512s-512 229.23-512 512 229.23 512 512 512 512-229.23 512-512zM96 512c0-229.75 186.25-416 416-416s416 186.25 416 416-186.25 416-416 416-416-186.25-416-416z',
+          'M317.256 354.744l-90.512 90.512 285.256 285.254 285.254-285.256-90.508-90.508-194.746 194.744z',
+        ],
+        attrs: [],
+        isMulticolor: false,
+        isMulticolor2: false,
+        tags: ['circle-down', 'down', 'circle-bottom', 'arrow'],
+        defaultCode: 59971,
+        grid: 16,
+      },
+      attrs: [],
+      properties: { ligatures: 'circle-down, down3', name: 'down', id: 323, order: 16, prevSize: 32, code: 59971 },
+      setIdx: 0,
+      setId: 0,
+      iconIdx: 323,
     },
     {
       icon: {
@@ -241,9 +278,11 @@ export const selection = {
     showSVGs: true,
     fontPref: {
       prefix: 'icon-',
-      metadata: { fontFamily: 'icomoon' },
+      metadata: { fontFamily: 'icomoon', majorVersion: 1, minorVersion: 0 },
       metrics: { emSize: 1024, baseline: 6.25, whitespace: 50 },
       embed: false,
+      showMetrics: false,
+      showMetadata: false,
     },
     imagePref: { prefix: 'icon-', png: true, useClassSelector: true, color: 0, bgColor: 16777215 },
     historySize: 50,

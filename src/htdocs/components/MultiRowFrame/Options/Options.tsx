@@ -5,6 +5,7 @@ import { TwitterColor } from '../../../../shared/theme';
 import { ProfileNameOption } from './ProfileName';
 import { HeaderOption } from './Header';
 import { CellGapOption } from './CellGap';
+import { Section, Title, SectionBottom } from '../Section';
 
 interface OptionsProps {
   saveProfile: () => Promise<void>;
@@ -25,7 +26,7 @@ export const Options = ({ discardChanges, saveProfile }: OptionsProps) => (
       <Title>Cell Gap</Title>
       <CellGapOption />
     </Section>
-    <BottomSection>
+    <SectionBottom>
       <Title>Save or Discard</Title>
       <SaveButton onClick={saveProfile}>
         <Icon icon="checkmark" size="30px" color={TwitterColor.green} />
@@ -33,30 +34,9 @@ export const Options = ({ discardChanges, saveProfile }: OptionsProps) => (
       <SaveButton onClick={discardChanges}>
         <Icon icon="cross" size="30px" color={TwitterColor.red} />
       </SaveButton>
-    </BottomSection>
+    </SectionBottom>
   </>
 );
-
-const Section = styled.div`
-  padding: 10px 0;
-  width: 100%;
-`;
-
-const Title = styled.div`
-  font-weight: 900;
-  padding: 0 0 4px 4px;
-  text-align: left;
-  margin-bottom: 14px;
-  border-bottom: 2px solid currentColor;
-`;
-
-const BottomSection = styled.div`
-  position: absolute;
-  bottom: 14px;
-  left: 0;
-  right: 0;
-  text-align: center;
-`;
 
 const SaveButton = styled.button`
   padding: 4px 26px;

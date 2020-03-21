@@ -1,4 +1,7 @@
-const date = () => new Date().toISOString();
+const date = (type: 'now' | 'zero' = 'now') => {
+  if (type === 'zero') return new Date(0).toISOString();
+  return new Date().toISOString();
+};
 
 const SYNC_DEFAULT: StorageSync = { v3: { profiles: {} } };
 const LOCAL_DEFAULT: StorageLocal = { v3: { selectedProfile: null } };
@@ -60,11 +63,16 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
   const setProfile = async (profile: MultiRowProfile) => {
     const { v3: curr } = await sync.get(SYNC_DEFAULT);
     const { id } = profile;
+    const existing = curr.profiles[id];
     const next: ProfileWithMetaData = {
       ...curr.profiles[id],
       profile,
       dateUpdated: date(),
     };
+    if (!existing) {
+      next.dateCreated = date();
+      next.dateRecentUse = date('zero');
+    }
     await sync.set({ v3: { ...curr, profiles: { ...curr.profiles, [id]: next } } });
   };
   const deleteProfile = async (id: string) => {

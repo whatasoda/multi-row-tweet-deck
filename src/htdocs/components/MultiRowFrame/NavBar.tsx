@@ -11,6 +11,7 @@ interface NavBarProps {
 
 export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) => {
   const icons: [OneOfDrawerType, React.ReactElement][] = [
+    ['profileList', <Icon icon="stack" size="18px" color={TwitterColor.white} />],
     ['options', <Icon icon="cog" size="18px" color={TwitterColor.white} />],
   ];
 

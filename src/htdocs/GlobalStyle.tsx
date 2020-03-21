@@ -12,10 +12,18 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
   }
   button {
+    font-size: inherit;
     appearance: none;
     background: none;
     border: none;
     outline: none;
     cursor: pointer;
+    color: inherit;
+  }
+  select {
+    appearance: none;
+    border: unset;
+    border-radius: unset;
+    outline: none;
   }
 `;

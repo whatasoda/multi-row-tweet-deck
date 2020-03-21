@@ -4,24 +4,62 @@ import { NavBar } from './NavBar';
 import { Cells } from './Cells';
 import { Options } from './Options';
 import { WrapperWithDrawer } from './Drawer';
+import { ProfileList } from './ProfileList';
 
 interface MultiRowFrameProps {
   drawerType: OneOfDrawerType;
+  selectedProfileId: string | null;
+  profileList: ProfileWithMetaData[];
+  sortRule: OneOfProfileSortRule;
   setDrawerType: (type: OneOfDrawerType) => void;
   saveProfile: () => Promise<void>;
   discardChanges: () => void;
-  profileList: ProfileWithMetaData[];
-  updateProfileList: (rule: OneOfProfileSortRule) => Promise<void>;
+  reloadProfileList: () => Promise<void>;
   switchProfile: (id: string) => Promise<void>;
   deleteCurrentProfile: () => Promise<void>;
+  createNewProfile: () => Promise<void>;
+  selectCurrentProfile: () => Promise<void>;
+  setSortRule: (rule: OneOfProfileSortRule) => void;
 }
 
-export const MultiRowFrame = ({ drawerType, setDrawerType, saveProfile, discardChanges }: MultiRowFrameProps) => (
+export const MultiRowFrame = ({
+  drawerType: type,
+  selectedProfileId,
+  profileList,
+  sortRule,
+  setDrawerType,
+  saveProfile,
+  discardChanges,
+  reloadProfileList,
+  switchProfile,
+  deleteCurrentProfile,
+  createNewProfile,
+  selectCurrentProfile,
+  setSortRule,
+}: MultiRowFrameProps) => (
   <Wrapper>
-    <CustomNavBar type={drawerType} setDrawerType={setDrawerType} />
+    <CustomNavBar type={type} setDrawerType={setDrawerType} />
     <StyledWrapperWithDrawer
-      opened={drawerType !== 'unset'}
-      drawer={drawerType === 'options' ? <Options {...{ saveProfile, discardChanges }} /> : null}
+      opened={type !== 'unset'}
+      drawer={
+        type === 'options' ? (
+          <Options {...{ saveProfile, discardChanges }} />
+        ) : type === 'profileList' ? (
+          <ProfileList
+            {...{
+              profileList,
+              selectedProfileId,
+              sortRule,
+              selectCurrentProfile,
+              reloadProfileList,
+              switchProfile,
+              deleteCurrentProfile,
+              createNewProfile,
+              setSortRule,
+            }}
+          />
+        ) : null
+      }
     >
       <CustomCells />
     </StyledWrapperWithDrawer>
