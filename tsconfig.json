@@ -2,6 +2,8 @@
   "extends": "@whatasoda/tsconfig",
   "compilerOptions": {
     "rootDir": "./",
+    "module": "ESNext",
+    "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types",
       "src/shared/types",
