@@ -5,12 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev:htdocs": "webpack-dev-server --mode development --config scripts/webpack/htdocs/dev.config.js",
-    "build:htdocs": "webpack --mode production --config scripts/webpack/htdocs/prod.config.js",
-    "dev": "webpack --watch --mode development --config scripts/webpack/webpack.config.ts",
-    "build": "npm run build:pre-clean && npm run build:main && npm run build:post-clean",
-    "build:pre-clean": "rimraf dist",
-    "build:main": "NODE_ENV=production webpack --mode production --config scripts/webpack/webpack.config.ts",
-    "build:post-clean": "rimraf \"dist/**/*.map\" dist/json.js"
+    "build:htdocs": "webpack --mode production --config scripts/webpack/htdocs/prod.config.js"
   },
   "repository": {
     "type": "git",
