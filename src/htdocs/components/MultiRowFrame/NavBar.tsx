@@ -11,8 +11,8 @@ interface NavBarProps {
 
 export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) => {
   const icons: [OneOfDrawerType, React.ReactElement][] = [
-    ['profileList', <Icon icon="stack" size="18px" color={TwitterColor.white} />],
-    ['options', <Icon icon="cog" size="18px" color={TwitterColor.white} />],
+    ['profileList', <Icon icon="stack" />],
+    ['options', <Icon icon="cog" />],
   ];
 
   return (
@@ -40,10 +40,13 @@ const Wrapper = styled.header`
 
 const ButtonWrapper = styled.div`
   margin-right: -12px;
+  color: ${TwitterColor.white};
 `;
 
 const ButtonBase = styled.button`
   height: 36px;
+  font-size: 18px;
+  line-height: 0;
   box-sizing: border-box;
   margin: 8px 0 10px;
   text-align: left;

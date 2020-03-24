@@ -48,7 +48,7 @@ export const ProfileList = ({
               </option>
             ))}
           </Select>
-          <DownIcon icon="down" size="20px" color={TwitterColor.darkGray} />
+          <DownIcon icon="down" />
         </SelectWrapper>
         <ScrollWrapper>
           <ScrollBox>
@@ -65,9 +65,7 @@ export const ProfileList = ({
                 >
                   <ProfileInnerWrapper>
                     <Name>{displayName}</Name>
-                    <Checkmark>
-                      {selected ? <Icon icon="star" size="16px" color={TwitterColor.yellow} /> : null}
-                    </Checkmark>
+                    <Checkmark>{selected ? <Icon icon="star" /> : null}</Checkmark>
                   </ProfileInnerWrapper>
                 </ProfileItem>
               );
@@ -76,20 +74,12 @@ export const ProfileList = ({
         </ScrollWrapper>
         <ButtonWrapperRoot>
           <ButtonWrapperLeft>
-            <Button onClick={reloadProfileList}>
-              <Icon icon="spinner" size="16px" color={TwitterColor.white} />
-            </Button>
+            <Icon.Button icon="spinner" onClick={reloadProfileList} />
           </ButtonWrapperLeft>
           <ButtonWrapperRight>
-            <Button onClick={createNewProfile}>
-              <Icon icon="plus" size="16px" color={TwitterColor.white} />
-            </Button>
-            <Button onClick={deleteCurrentProfile}>
-              <Icon icon="minus" size="16px" color={TwitterColor.white} />
-            </Button>
-            <Button onClick={selectCurrentProfile}>
-              <Icon icon="star" size="16px" color={TwitterColor.white} />
-            </Button>
+            <Icon.Button icon="plus" onClick={createNewProfile} />
+            <Icon.Button icon="minus" onClick={deleteCurrentProfile} />
+            <Icon.Button icon="star" onClick={selectCurrentProfile} />
           </ButtonWrapperRight>
         </ButtonWrapperRoot>
         <p>
@@ -134,6 +124,7 @@ const DownIcon = styled(Icon)`
   top: 0;
   bottom: 0;
   margin: auto 0;
+  color: ${TwitterColor.darkGray};
 `;
 
 const ScrollWrapper = styled.div`
@@ -197,11 +188,13 @@ const Checkmark = styled.span`
   display: block;
   width: 24px;
   grid-column: 2 / 3;
+  color: ${TwitterColor.yellow};
 `;
 
 const ButtonWrapperRoot = styled.div`
   display: flex;
   justify-content: space-between;
+  padding: 4px 0;
 `;
 
 const ButtonWrapperLeft = styled.div`
@@ -214,19 +207,19 @@ const ButtonWrapperRight = styled.div`
   justify-content: flex-end;
 `;
 
-const Button = styled.button`
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  padding: 4px;
-  margin: 2px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  line-height: 0;
-  &:hover {
-    background-color: #eee9;
-  }
-  &:active {
-    background-color: #0000;
-  }
-`;
+// const Button = styled.button`
+//   flex: 0 0 auto;
+//   width: 24px;
+//   height: 24px;
+//   padding: 4px;
+//   margin: 2px;
+//   box-sizing: border-box;
+//   border-radius: 4px;
+//   line-height: 0;
+//   &:hover {
+//     background-color: #eee9;
+//   }
+//   &:active {
+//     background-color: #0000;
+//   }
+// `;

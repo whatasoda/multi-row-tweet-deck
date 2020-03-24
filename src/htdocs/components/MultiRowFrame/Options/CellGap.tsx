@@ -17,13 +17,9 @@ export const CellGapOption = () => {
         <SampleCell style={{ width: `calc(50% - ${g})`, height: `calc(30% - ${g})` }} />
       </SampleWrapper>
       <Setter>
-        <Button onClick={() => dispatch('setCells', { gap: gap - 1 })}>
-          <Icon icon="minus" size="22px" />
-        </Button>
+        <Icon.Button icon="minus" onClick={() => dispatch('setCells', { gap: gap - 1 })} />
         <span>{gap}</span>
-        <Button onClick={() => dispatch('setCells', { gap: gap + 1 })}>
-          <Icon icon="plus" size="20px" />
-        </Button>
+        <Icon.Button icon="plus" onClick={() => dispatch('setCells', { gap: gap + 1 })} />
       </Setter>
     </>
   );
@@ -58,23 +54,23 @@ const Setter = styled.div`
   justify-content: space-between;
 `;
 
-const Button = styled.button`
-  border-radius: 4px;
-  background-color: ${({ theme: { color } }) => color.cellBackground};
-  padding: 6px;
-  height: 34px;
-  width: 34px;
-  box-sizing: border-box;
-  text-align: center;
-  &:hover {
-    background-color: ${({ theme: { color } }) => color.cellsBackground};
-  }
-  &:active {
-    svg {
-      fill: ${({ theme: { color } }) => color.primaryButtonPushed};
-    }
-  }
-  svg {
-    fill: ${({ theme: { color } }) => color.primaryText};
-  }
-`;
+// const Button = styled.button`
+//   border-radius: 4px;
+//   background-color: ${({ theme: { color } }) => color.cellBackground};
+//   padding: 6px;
+//   height: 34px;
+//   width: 34px;
+//   box-sizing: border-box;
+//   text-align: center;
+//   &:hover {
+//     background-color: ${({ theme: { color } }) => color.cellsBackground};
+//   }
+//   &:active {
+//     svg {
+//       fill: ${({ theme: { color } }) => color.primaryButtonPushed};
+//     }
+//   }
+//   svg {
+//     fill: ${({ theme: { color } }) => color.primaryText};
+//   }
+// `;

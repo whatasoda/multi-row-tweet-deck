@@ -36,12 +36,12 @@ export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: 
     <>
       <Wrapper style={rowStyle}>
         <Header style={columnHeader}>
-          <Button Height={columnHeader.height} onClick={() => setMode('split')}>
-            <Icon size="80%" icon="page-break" color={TwitterColor.green} />
-          </Button>
-          <Button Height={columnHeader.height} onClick={() => dispatch('removeRow', row.columnId, row.id)}>
-            <Icon size="80%" icon="bin" color={TwitterColor.red} />
-          </Button>
+          <Icon.Button icon="page-break" color={TwitterColor.green} onClick={() => setMode('split')} />
+          <Icon.Button
+            icon="bin"
+            color={TwitterColor.red}
+            onClick={() => dispatch('removeRow', row.columnId, row.id)}
+          />
         </Header>
         <StyledSplitter
           type="vertical"
@@ -76,19 +76,8 @@ const Header = styled.header`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  align-items: center;
   padding-right: 4px;
-`;
-
-const Button = styled.button<{ Height: string }>`
-  height: inherit;
-  padding: 0 4px 4px;
-  box-sizing: border-box;
-  width: ${({ Height }) => Height};
-  border-radius: 4px;
-  &:hover {
-    opacity: 0.7;
-    background-color: #9999;
-  }
 `;
 
 const StyledSplitter = styled(Splitter)<{ headerHeight: string }>`

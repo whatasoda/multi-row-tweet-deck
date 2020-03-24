@@ -11,11 +11,7 @@ export const ColumnCreator = () => {
 
   return (
     <Wrapper>
-      {mode === 'unset' && (
-        <AreaButton onClick={() => setMode('create')}>
-          <StyledIcon icon="page-break" size="6vh" color={TwitterColor.green} />
-        </AreaButton>
-      )}
+      {mode === 'unset' && <AreaButton icon="page-break" onClick={() => setMode('create')} />}
       <StyledSplitter
         active={mode === 'create'}
         type="horizontal"
@@ -32,21 +28,14 @@ const Wrapper = styled.div`
   display: flex;
 `;
 
-const AreaButton = styled.button`
-  display: inline-block;
+const AreaButton = styled(Icon.Button)`
   height: 100%;
   width: calc(6vh + 80px);
-  text-align: left;
-  padding: 0 40px;
-  border-radius: 4px;
-  &:hover {
-    opacity: 0.7;
-    background-color: #9999;
+  font-size: 6vh;
+  color: ${TwitterColor.green};
+  & > svg {
+    transform: rotateZ(90deg);
   }
-`;
-
-const StyledIcon = styled(Icon)`
-  transform: rotateZ(90deg);
 `;
 
 const StyledSplitter = styled(Splitter)`
