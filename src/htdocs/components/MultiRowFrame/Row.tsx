@@ -32,6 +32,7 @@ export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, i
 
   const rowStyle = cellStyles.cells[row.columnId][1][row.id];
   const { columnHeader } = generalStyles;
+  const { columnId, id } = row;
 
   return (
     <>
@@ -43,11 +44,7 @@ export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, i
         {showHandle && (
           <ButtonWrapper>
             <Icon.Button icon="page-break" color={TwitterColor.green} onClick={() => setMode('split')} />
-            <Icon.Button
-              icon="bin"
-              color={TwitterColor.red}
-              onClick={() => dispatch('removeRow', row.columnId, row.id)}
-            />
+            <Icon.Button icon="bin" color={TwitterColor.red} onClick={() => dispatch('removeRow', columnId, id)} />
           </ButtonWrapper>
         )}
         <StyledSplitter
@@ -55,7 +52,7 @@ export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, i
           active={mode === 'split'}
           headerHeight={columnHeader.height}
           onCanceled={() => setMode('unset')}
-          onSplit={(value) => (setMode('unset'), dispatch('splitRow', row.columnId, row.id, value.pct))}
+          onSplit={(value) => (setMode('unset'), dispatch('splitRow', columnId, id, value.pct))}
         />
       </Wrapper>
       {isLastRow ? null : <DragHandleVertical Size="0" hidden={mode === 'split' || !showHandle} {...handleVertical} />}

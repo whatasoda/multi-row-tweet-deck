@@ -4,3 +4,8 @@ type CSSObject = import('styled-components').CSSObject;
 
 type OneOfDrawerType = 'options' | 'profileList' | 'unset';
 type OneOfProfileSelectionMode = 'edit' | 'use';
+
+declare module '*.png' {
+  const _path: string;
+  export default _path;
+}

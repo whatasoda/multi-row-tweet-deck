@@ -16,7 +16,7 @@ interface ColorTheme {
 }
 
 export const TwitterColor = {
-  white: '#fff',
+  white: '#ffffff',
   lightestGray: '#f5f8fa',
   lighterGray: '#e1e8ed',
   lightGray: '#ccd6dd',
@@ -30,7 +30,7 @@ export const TwitterColor = {
   midnightDarkGray: '#15202b',
   deepBlack: '#14171a',
   midnightDarkestGray: '#10171e',
-  black: '#000',
+  black: '#000000',
   blue: '#1da1f2',
   deepBlue: '#005fd1',
   red: '#e0245e',

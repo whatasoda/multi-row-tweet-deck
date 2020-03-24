@@ -27,6 +27,10 @@ module.exports = (options = defaultOptions) => {
             },
           ],
         },
+        {
+          test: /\.(png)$/,
+          use: ['file-loader'],
+        },
       ],
     },
     plugins: [
