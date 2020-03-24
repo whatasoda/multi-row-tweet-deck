@@ -2,7 +2,12 @@ import { HEADER_HEIGHT } from '../constants';
 
 export interface GeneralStyles extends Readonly<ReturnType<typeof createGeneralStyles>> {}
 
-export const createGeneralStyles = ({ drawer, header }: MultiRowProfile, vanilla: VanillaTweetDeck) => {
+export const DEFAULT_VANILLA = { drawerWidth: 270, headerHeight: 40 };
+
+export const createGeneralStyles = (
+  { drawer, header }: Pick<MultiRowProfile, 'drawer' | 'header'>,
+  vanilla: VanillaTweetDeck = DEFAULT_VANILLA,
+) => {
   const drawerDiff = vanilla.drawerWidth - drawer.width;
   const headerHeight = HEADER_HEIGHT[header.height];
 

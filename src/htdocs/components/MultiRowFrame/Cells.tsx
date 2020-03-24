@@ -1,6 +1,4 @@
-import React, { useMemo } from 'react';
-import { createGeneralStyles } from '../../../shared/styles/general';
-import { createCellStyles } from '../../../shared/styles/cell';
+import React from 'react';
 import styled from 'styled-components';
 import { Column } from './Column';
 import { ColumnCreator } from './ColumnCreator';
@@ -12,26 +10,12 @@ interface CellsProps {
 }
 
 export const Cells = ({ showHandle, className }: CellsProps) => {
-  const profile = useMultiRowProfile();
-  const [cellStyles, generalStyles] = useMemo(() => {
-    const cellStyles = createCellStyles(profile);
-    const generalStyles = createGeneralStyles(profile, { drawerWidth: 300, headerHeight: 20 });
-    return [cellStyles, generalStyles];
-  }, [profile]);
-
-  const { columns } = profile.cells;
-
+  const columnOrder = useMultiRowProfile(({ cells }) => cells.columnOrder);
   return (
     <Wrapper className={className}>
       <Scroll>
-        {profile.cells.columnOrder.map((id) => (
-          <Column
-            key={id}
-            showHandle={showHandle}
-            column={columns[id]}
-            cellStyles={cellStyles}
-            generalStyles={generalStyles}
-          />
+        {columnOrder.map((id) => (
+          <Column key={id} id={id} showHandle={showHandle} />
         ))}
         <ColumnCreator showHandle={showHandle} />
       </Scroll>

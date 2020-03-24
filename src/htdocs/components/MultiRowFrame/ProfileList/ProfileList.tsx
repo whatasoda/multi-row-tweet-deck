@@ -35,60 +35,58 @@ export const ProfileList = ({
   reloadProfileList,
   setSortRule,
 }: ProfileListProps) => {
-  const curr = useMultiRowProfile();
+  const curr = useMultiRowProfile(({ id }) => id);
   return (
-    <>
-      <Section>
-        <Title>Profile List</Title>
-        <SelectWrapper>
-          <Select defaultValue={sortRule} onChange={(evt) => setSortRule(evt.target.value as OneOfProfileSortRule)}>
-            {rules.map((rule) => (
-              <option key={rule} value={rule}>
-                {ruleText[rule]}
-              </option>
-            ))}
-          </Select>
-          <DownIcon icon="down" />
-        </SelectWrapper>
-        <ScrollWrapper>
-          <ScrollBox>
-            {profileList.map(({ profile: { id, displayName } }) => {
-              const picked = id === curr.id;
-              const selected = id === selectedProfileId;
-              return (
-                <ProfileItem
-                  key={id}
-                  title={displayName}
-                  Picked={picked}
-                  Selected={selected}
-                  onClick={() => switchProfile(id)}
-                >
-                  <ProfileInnerWrapper>
-                    <Name>{displayName}</Name>
-                    <Checkmark>{selected ? <Icon icon="star" /> : null}</Checkmark>
-                  </ProfileInnerWrapper>
-                </ProfileItem>
-              );
-            })}
-          </ScrollBox>
-        </ScrollWrapper>
-        <ButtonWrapperRoot>
-          <ButtonWrapperLeft>
-            <Icon.Button icon="spinner" onClick={reloadProfileList} />
-          </ButtonWrapperLeft>
-          <ButtonWrapperRight>
-            <Icon.Button icon="plus" onClick={createNewProfile} />
-            <Icon.Button icon="minus" onClick={deleteCurrentProfile} />
-            <Icon.Button icon="star" onClick={selectCurrentProfile} />
-          </ButtonWrapperRight>
-        </ButtonWrapperRoot>
-        <p>
-          編集したいプロファイルを選択してください。
-          <br />
-          ★がついているプロファイルがTweetDeckに反映されます。
-        </p>
-      </Section>
-    </>
+    <Section>
+      <Title>Profile List</Title>
+      <SelectWrapper>
+        <Select defaultValue={sortRule} onChange={(evt) => setSortRule(evt.target.value as OneOfProfileSortRule)}>
+          {rules.map((rule) => (
+            <option key={rule} value={rule}>
+              {ruleText[rule]}
+            </option>
+          ))}
+        </Select>
+        <DownIcon icon="down" />
+      </SelectWrapper>
+      <ScrollWrapper>
+        <ScrollBox>
+          {profileList.map(({ profile: { id, displayName } }) => {
+            const picked = id === curr;
+            const selected = id === selectedProfileId;
+            return (
+              <ProfileItem
+                key={id}
+                title={displayName}
+                Picked={picked}
+                Selected={selected}
+                onClick={() => switchProfile(id)}
+              >
+                <ProfileInnerWrapper>
+                  <Name>{displayName}</Name>
+                  <Checkmark>{selected ? <Icon icon="star" /> : null}</Checkmark>
+                </ProfileInnerWrapper>
+              </ProfileItem>
+            );
+          })}
+        </ScrollBox>
+      </ScrollWrapper>
+      <ButtonWrapperRoot>
+        <ButtonWrapperLeft>
+          <Icon.Button icon="spinner" onClick={reloadProfileList} />
+        </ButtonWrapperLeft>
+        <ButtonWrapperRight>
+          <Icon.Button icon="plus" onClick={createNewProfile} />
+          <Icon.Button icon="minus" onClick={deleteCurrentProfile} />
+          <Icon.Button icon="star" onClick={selectCurrentProfile} />
+        </ButtonWrapperRight>
+      </ButtonWrapperRoot>
+      <p>
+        編集したいプロファイルを選択してください。
+        <br />
+        ★がついているプロファイルがTweetDeckに反映されます。
+      </p>
+    </Section>
   );
 };
 
@@ -206,20 +204,3 @@ const ButtonWrapperRight = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
-
-// const Button = styled.button`
-//   flex: 0 0 auto;
-//   width: 24px;
-//   height: 24px;
-//   padding: 4px;
-//   margin: 2px;
-//   box-sizing: border-box;
-//   border-radius: 4px;
-//   line-height: 0;
-//   &:hover {
-//     background-color: #eee9;
-//   }
-//   &:active {
-//     background-color: #0000;
-//   }
-// `;

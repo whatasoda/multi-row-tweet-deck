@@ -1,20 +1,25 @@
-import React, { useRef } from 'react';
-import { CellStyles } from '../../../shared/styles/cell';
-import { GeneralStyles } from '../../../shared/styles/general';
-import { useDrag } from '../../utils/useDrag';
-import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
+import React, { useRef, useMemo } from 'react';
 import styled from 'styled-components';
+import shallowequal from 'shallowequal';
+import { createColumnStyle } from '../../../shared/styles/cell';
+import { useDrag } from '../../utils/useDrag';
+import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../utils/useMultiRowProfile';
 import { DragHandleHorizontal } from './DragHandle';
 import { Row } from './Row';
+import { HEADER_HEIGHT } from '../../../shared/constants';
 
 interface ColumnProps {
+  id: string;
   showHandle: boolean;
-  cellStyles: CellStyles;
-  generalStyles: GeneralStyles;
-  column: ColumnProfile;
 }
 
-export const Column = ({ showHandle, column, cellStyles, generalStyles }: ColumnProps) => {
+export const Column = ({ id, showHandle }: ColumnProps) => {
+  const selected = useMultiRowProfile(({ header, cells: { gap, columns } }) => {
+    return [columns[id], HEADER_HEIGHT[header.height], gap] as const;
+  }, shallowequal);
+  const [column, headerHeight, gap] = selected;
+  const [columStyle, rowStyles] = useMemo(() => createColumnStyle(column, headerHeight, gap), [selected]);
+
   const dispatch = useMultiRowProfileDispatch();
   const prevWidthRef = useRef(column.width);
 
@@ -23,8 +28,6 @@ export const Column = ({ showHandle, column, cellStyles, generalStyles }: Column
     dispatch('tweakColumnWidth', column.id, prevWidthRef.current + curr - start);
   });
 
-  const { marginRight: size, ...commonStyle } = cellStyles.common;
-  const [columStyle] = cellStyles.cells[column.id];
   let totalHeight = 0;
   const rows = column.rowOrder.map((id, idx) => {
     const row = column.rows[id];
@@ -35,8 +38,8 @@ export const Column = ({ showHandle, column, cellStyles, generalStyles }: Column
         key={id}
         showHandle={showHandle}
         row={column.rows[id]}
-        cellStyles={cellStyles}
-        generalStyles={generalStyles}
+        rowStyles={rowStyles}
+        headerHeight={headerHeight}
         totalHeight={totalHeight}
         isFirstRow={idx === 0}
         isLastRow={idx === column.rowOrder.length - 1}
@@ -46,8 +49,8 @@ export const Column = ({ showHandle, column, cellStyles, generalStyles }: Column
 
   return (
     <>
-      <Wrapper style={{ ...commonStyle, ...columStyle }}>{rows}</Wrapper>
-      <DragHandleHorizontal hidden={!showHandle} Size={`${size || 0}`} {...handleRight} />
+      <Wrapper style={columStyle}>{rows}</Wrapper>
+      <DragHandleHorizontal hidden={!showHandle} Size={`${gap}px`} {...handleRight} />
     </>
   );
 };
@@ -58,4 +61,5 @@ const Wrapper = styled.div`
   justify-content: space-between;
   flex-direction: column;
   position: relative;
+  flex: 0 0 auto;
 `;

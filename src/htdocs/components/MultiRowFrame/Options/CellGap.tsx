@@ -5,8 +5,7 @@ import { Icon } from '../../../../shared/components/Icon';
 
 export const CellGapOption = () => {
   const dispatch = useMultiRowProfileDispatch();
-  const profile = useMultiRowProfile();
-  const { gap } = profile.cells;
+  const gap = useMultiRowProfile(({ cells }) => cells.gap);
   const g = `${gap / 2}px`;
   return (
     <>

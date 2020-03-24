@@ -7,12 +7,12 @@ import {
 import { createSelectorHost } from '../../shared/utils/selectorHost';
 import React from 'react';
 
-const [initStoreHook, useMultiRowProfile, useMultiRowProfileDispatch] = createStoreHook(
+const [initStoreHook, useMultiRowProfileOriginal, useMultiRowProfileDispatch] = createStoreHook(
   createMultiRowProfileAction,
   MultiRowProfileReducer,
 );
 
-const [useMultiRowProfileSelector, SelectorProvider] = createSelectorHost(useMultiRowProfile);
+const [useMultiRowProfile, SelectorProvider] = createSelectorHost(useMultiRowProfileOriginal);
 const BaseProvider = initStoreHook(createDefaultProfile());
 export const MultiRowProfileProvider: typeof BaseProvider = ({ initialState, children }) => {
   return (
@@ -22,4 +22,4 @@ export const MultiRowProfileProvider: typeof BaseProvider = ({ initialState, chi
   );
 };
 
-export { useMultiRowProfile, useMultiRowProfileDispatch, useMultiRowProfileSelector };
+export { useMultiRowProfileOriginal, useMultiRowProfileDispatch, useMultiRowProfile };

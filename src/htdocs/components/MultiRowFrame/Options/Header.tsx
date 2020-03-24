@@ -1,25 +1,23 @@
 import React from 'react';
 import { HEADER_HEIGHT } from '../../../../shared/constants';
-import { useMultiRowProfile, useMultiRowProfileDispatch } from '../../../utils/useMultiRowProfile';
+import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../../utils/useMultiRowProfile';
 import styled from 'styled-components';
 
 const heightList = Object.keys(HEADER_HEIGHT).reverse() as OneOfHeaderHeight[];
 
 export const HeaderOption = () => {
   const dispatch = useMultiRowProfileDispatch();
-  const { header } = useMultiRowProfile();
+  const header = useMultiRowProfile(({ header }) => header);
 
   return (
-    <>
-      <HeaderSampleWrapper>
-        {heightList.map((height) => (
-          <HeaderSample key={height} Height={height}>
-            <Radio defaultChecked={height === header.height} onChange={() => dispatch('setHeader', { height })} />
-            {height[0].toUpperCase() + height.slice(1)}
-          </HeaderSample>
-        ))}
-      </HeaderSampleWrapper>
-    </>
+    <HeaderSampleWrapper>
+      {heightList.map((height) => (
+        <HeaderSample key={height} Height={height}>
+          <Radio defaultChecked={height === header.height} onChange={() => dispatch('setHeader', { height })} />
+          {height[0].toUpperCase() + height.slice(1)}
+        </HeaderSample>
+      ))}
+    </HeaderSampleWrapper>
   );
 };
 

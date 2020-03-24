@@ -1,43 +1,41 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { CellStyles } from '../../../shared/styles/cell';
-import { GeneralStyles } from '../../../shared/styles/general';
 import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
 import { useDrag } from '../../utils/useDrag';
 import { DragHandleVertical } from './DragHandle';
 import { Icon } from '../../../shared/components/Icon';
 import { TwitterColor } from '../../../shared/theme';
 import { Splitter } from './Splitter';
+import { RowStyle } from '../../../shared/styles/cell';
 
 interface RowProps {
   showHandle: boolean;
-  cellStyles: CellStyles;
-  generalStyles: GeneralStyles;
+  rowStyles: Record<string, RowStyle>;
+  headerHeight: number;
   row: RowProfile;
   totalHeight: number;
   isFirstRow: boolean;
   isLastRow: boolean;
 }
 
-export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, isLastRow }: RowProps) => {
+export const Row = ({ showHandle, row, rowStyles, headerHeight, totalHeight, isLastRow }: RowProps) => {
+  const { columnId, id, height } = row;
+  const rowStyle = rowStyles[id];
+
   const dispatch = useMultiRowProfileDispatch();
-  const prevHeightRef = useRef(row.height);
+  const prevHeightRef = useRef(height);
   const [mode, setMode] = useState<'unset' | 'split'>('unset');
 
   const handleVertical = useDrag(({ mode, start: [, start], curr: [, curr] }) => {
     if (mode === 'start') prevHeightRef.current = totalHeight;
     const pct = ((curr - start) / window.innerHeight) * 100;
-    dispatch('tweakRowHeightByBoundary', row.columnId, row.id, prevHeightRef.current + pct);
+    dispatch('tweakRowHeightByBoundary', columnId, id, prevHeightRef.current + pct);
   });
-
-  const rowStyle = cellStyles.cells[row.columnId][1][row.id];
-  const { columnHeader } = generalStyles;
-  const { columnId, id } = row;
 
   return (
     <>
       <Wrapper style={rowStyle}>
-        <Header style={columnHeader}>
+        <Header Height={headerHeight}>
           <HeaderIcon icon="sphere" />
           <HeaderTitle>Column</HeaderTitle>
         </Header>
@@ -50,9 +48,9 @@ export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, i
         <StyledSplitter
           type="vertical"
           active={mode === 'split'}
-          headerHeight={columnHeader.height}
+          headerHeight={`${headerHeight}px`}
           onCanceled={() => setMode('unset')}
-          onSplit={(value) => (setMode('unset'), dispatch('splitRow', columnId, id, value.pct))}
+          onSplit={({ pct }) => (setMode('unset'), dispatch('splitRow', columnId, id, pct))}
         />
       </Wrapper>
       {isLastRow ? null : <DragHandleVertical Size="0" hidden={mode === 'split' || !showHandle} {...handleVertical} />}
@@ -71,7 +69,8 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
-const Header = styled.header`
+const Header = styled.header<{ Height: number }>`
+  height: ${({ Height }) => Height}px;
   overflow: hidden;
   background-color: ${({ theme: { color } }) => color.cellBackground};
   border-bottom: 1px solid ${({ theme: { color } }) => color.border};

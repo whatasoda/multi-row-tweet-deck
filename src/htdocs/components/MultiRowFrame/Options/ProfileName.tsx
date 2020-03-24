@@ -4,7 +4,7 @@ import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../../utils/u
 
 export const ProfileNameOption = () => {
   const dispatch = useMultiRowProfileDispatch();
-  const { displayName } = useMultiRowProfile();
+  const displayName = useMultiRowProfile(({ displayName }) => displayName);
 
   return (
     <>

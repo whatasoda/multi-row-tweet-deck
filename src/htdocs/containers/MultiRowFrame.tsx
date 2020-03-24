@@ -4,7 +4,11 @@ import { createRepository } from '../../shared/storage/repository';
 import { getStorageInfrastructure } from '../../shared/storage/infrastructure';
 import { EXTENSION_ID, WEB_EVENT, MAX_PROFILE_COUNT } from '../../shared/constants';
 import { createExtensionMessageSender, getRuntime } from '../../shared/messages';
-import { useMultiRowProfile, useMultiRowProfileDispatch, MultiRowProfileProvider } from '../utils/useMultiRowProfile';
+import {
+  useMultiRowProfileOriginal,
+  useMultiRowProfileDispatch,
+  MultiRowProfileProvider,
+} from '../utils/useMultiRowProfile';
 import { MultiRowFrame as Component } from '../components/MultiRowFrame';
 import { createProfile, createDefaultProfile } from '../../shared/store/MultiRowProfile';
 
@@ -109,7 +113,7 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
 const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
   const dispatch = useMultiRowProfileDispatch();
 
-  const profile = useMultiRowProfile();
+  const profile = useMultiRowProfileOriginal();
   const editingProfileRef = useRef(profile);
   editingProfileRef.current = profile;
 
