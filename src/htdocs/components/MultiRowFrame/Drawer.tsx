@@ -1,12 +1,11 @@
 import React, { useMemo, useRef } from 'react';
 import styled, { css } from 'styled-components';
-import shallowequal from 'shallowequal';
-import { createGeneralStyles, DEFAULT_VANILLA } from '../../../shared/styles/general';
 import { TwitterColor } from '../../../shared/theme';
 import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../utils/useMultiRowProfile';
 import { useDrag } from '../../utils/useDrag';
 import { DragHandleHorizontal } from './DragHandle';
 import { MIN_DRAWER_WIDTH } from '../../../shared/constants';
+import { createDrawerStyle, vanilla } from '../../../shared/styleFactory';
 
 interface WrapperWithDrawerProps {
   opened: boolean;
@@ -17,18 +16,17 @@ interface WrapperWithDrawerProps {
 }
 
 export const WrapperWithDrawer = ({ opened, drawer, showHandle, className, children }: WrapperWithDrawerProps) => {
-  const profile = useMultiRowProfile(({ header, drawer }) => ({ header, drawer }), shallowequal);
+  const drawerProfile = useMultiRowProfile(({ drawer }) => drawer);
+  const { appContentClosed, appContentOpened, drawer: drawerStyle } = useMemo(() => {
+    return createDrawerStyle(drawerProfile);
+  }, [drawerProfile]);
 
   const dispatch = useMultiRowProfileDispatch();
-  const drawerWidthRef = useRef(profile.drawer.width);
+  const drawerWidthRef = useRef(drawerProfile.width);
   const handleDrawerWidth = useDrag(({ mode, start: [start], curr: [curr] }) => {
-    if (mode === 'start') drawerWidthRef.current = profile.drawer.width;
+    if (mode === 'start') drawerWidthRef.current = drawerProfile.width;
     dispatch('setDrawer', { width: drawerWidthRef.current - start + curr });
   });
-
-  const { appContentClosed, appContentOpened, drawer: drawerStyle } = useMemo(() => {
-    return createGeneralStyles(profile);
-  }, [profile]);
 
   return (
     <Wrapper className={className} Opened={opened} style={opened ? appContentOpened : appContentClosed}>
@@ -42,8 +40,8 @@ export const WrapperWithDrawer = ({ opened, drawer, showHandle, className, child
 };
 
 const styleOpened = css`
-  transform: translateX(${DEFAULT_VANILLA.drawerWidth}px);
-  margin-right: ${DEFAULT_VANILLA.drawerWidth}px;
+  transform: translateX(${vanilla.drawerWidth}px);
+  margin-right: ${vanilla.drawerWidth}px;
 `;
 
 const Wrapper = styled.div<{ Opened: boolean }>`

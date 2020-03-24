@@ -6,11 +6,10 @@ import { DragHandleVertical } from './DragHandle';
 import { Icon } from '../../../shared/components/Icon';
 import { TwitterColor } from '../../../shared/theme';
 import { Splitter } from './Splitter';
-import { RowStyle } from '../../../shared/styles/cell';
 
 interface RowProps {
   showHandle: boolean;
-  rowStyles: Record<string, RowStyle>;
+  height: string;
   headerHeight: number;
   row: RowProfile;
   totalHeight: number;
@@ -18,14 +17,12 @@ interface RowProps {
   isLastRow: boolean;
 }
 
-export const Row = ({ showHandle, row, rowStyles, headerHeight, totalHeight, isLastRow }: RowProps) => {
-  const { columnId, id, height } = row;
-  const rowStyle = rowStyles[id];
-
-  const dispatch = useMultiRowProfileDispatch();
-  const prevHeightRef = useRef(height);
+export const Row = ({ showHandle, row, height, headerHeight, totalHeight, isLastRow }: RowProps) => {
+  const { columnId, id } = row;
   const [mode, setMode] = useState<'unset' | 'split'>('unset');
 
+  const dispatch = useMultiRowProfileDispatch();
+  const prevHeightRef = useRef(row.height);
   const handleVertical = useDrag(({ mode, start: [, start], curr: [, curr] }) => {
     if (mode === 'start') prevHeightRef.current = totalHeight;
     const pct = ((curr - start) / window.innerHeight) * 100;
@@ -34,7 +31,7 @@ export const Row = ({ showHandle, row, rowStyles, headerHeight, totalHeight, isL
 
   return (
     <>
-      <Wrapper style={rowStyle}>
+      <Wrapper style={{ height: height }}>
         <Header Height={headerHeight}>
           <HeaderIcon icon="sphere" />
           <HeaderTitle>Column</HeaderTitle>

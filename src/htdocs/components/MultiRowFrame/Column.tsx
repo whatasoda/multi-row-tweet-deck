@@ -1,12 +1,12 @@
 import React, { useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import shallowequal from 'shallowequal';
-import { createColumnStyle } from '../../../shared/styles/cell';
 import { useDrag } from '../../utils/useDrag';
 import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../utils/useMultiRowProfile';
 import { DragHandleHorizontal } from './DragHandle';
 import { Row } from './Row';
 import { HEADER_HEIGHT } from '../../../shared/constants';
+import { createCellStylesInColumn } from '../../../shared/styleFactory';
 
 interface ColumnProps {
   id: string;
@@ -18,7 +18,7 @@ export const Column = ({ id, showHandle }: ColumnProps) => {
     return [columns[id], HEADER_HEIGHT[header.height], gap] as const;
   }, shallowequal);
   const [column, headerHeight, gap] = selected;
-  const [columStyle, rowStyles] = useMemo(() => createColumnStyle(column, headerHeight, gap), [selected]);
+  const [width, heightMap] = useMemo(() => createCellStylesInColumn(column, headerHeight, gap), [selected]);
 
   const dispatch = useMultiRowProfileDispatch();
   const prevWidthRef = useRef(column.width);
@@ -38,7 +38,7 @@ export const Column = ({ id, showHandle }: ColumnProps) => {
         key={id}
         showHandle={showHandle}
         row={column.rows[id]}
-        rowStyles={rowStyles}
+        height={heightMap[id]}
         headerHeight={headerHeight}
         totalHeight={totalHeight}
         isFirstRow={idx === 0}
@@ -49,7 +49,7 @@ export const Column = ({ id, showHandle }: ColumnProps) => {
 
   return (
     <>
-      <Wrapper style={columStyle}>{rows}</Wrapper>
+      <Wrapper style={{ width }}>{rows}</Wrapper>
       <DragHandleHorizontal hidden={!showHandle} Size={`${gap}px`} {...handleRight} />
     </>
   );
