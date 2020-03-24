@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./",
     "module": "ESNext",
+    "target": "ES6",
     "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types",

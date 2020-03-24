@@ -1,6 +1,7 @@
 const merge = require('webpack-merge');
 const webpack = require('webpack');
 const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const styledComponentsTransformer = createStyledComponentsTransformer({ minify: true });
 
@@ -39,6 +40,12 @@ module.exports = (options = defaultOptions) => {
           EXTENSION_ID: JSON.stringify('cjlaagghmikageagedknpkmapcjodnno'),
         },
       }),
+      new CleanWebpackPlugin(),
     ],
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+      },
+    },
   });
 };
