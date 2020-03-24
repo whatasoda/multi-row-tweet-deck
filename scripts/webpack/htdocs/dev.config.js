@@ -8,7 +8,7 @@ module.exports = merge(require('./base.config'), {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: 'development',
+        NODE_ENV: JSON.stringify('development'),
       },
     }),
   ],
