@@ -8,12 +8,13 @@ import { DragHandleHorizontal } from './DragHandle';
 import { Row } from './Row';
 
 interface ColumnProps {
+  showHandle: boolean;
   cellStyles: CellStyles;
   generalStyles: GeneralStyles;
   column: ColumnProfile;
 }
 
-export const Column = ({ column, cellStyles, generalStyles }: ColumnProps) => {
+export const Column = ({ showHandle, column, cellStyles, generalStyles }: ColumnProps) => {
   const dispatch = useMultiRowProfileDispatch();
   const prevWidthRef = useRef(column.width);
 
@@ -32,6 +33,7 @@ export const Column = ({ column, cellStyles, generalStyles }: ColumnProps) => {
     return (
       <Row
         key={id}
+        showHandle={showHandle}
         row={column.rows[id]}
         cellStyles={cellStyles}
         generalStyles={generalStyles}
@@ -45,7 +47,7 @@ export const Column = ({ column, cellStyles, generalStyles }: ColumnProps) => {
   return (
     <>
       <Wrapper style={{ ...commonStyle, ...columStyle }}>{rows}</Wrapper>
-      <DragHandleHorizontal Size={`${size || 0}`} {...handleRight} />
+      <DragHandleHorizontal hidden={!showHandle} Size={`${size || 0}`} {...handleRight} />
     </>
   );
 };

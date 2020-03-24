@@ -5,13 +5,17 @@ import { TwitterColor } from '../../../shared/theme';
 import { Splitter } from './Splitter';
 import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
 
-export const ColumnCreator = () => {
+interface ColumnCreatorProps {
+  showHandle: boolean;
+}
+
+export const ColumnCreator = ({ showHandle }: ColumnCreatorProps) => {
   const dispatch = useMultiRowProfileDispatch();
   const [mode, setMode] = useState<'unset' | 'create'>('unset');
 
   return (
     <Wrapper>
-      {mode === 'unset' && <AreaButton icon="page-break" onClick={() => setMode('create')} />}
+      {mode === 'unset' && showHandle && <AreaButton icon="page-break" onClick={() => setMode('create')} />}
       <StyledSplitter
         active={mode === 'create'}
         type="horizontal"

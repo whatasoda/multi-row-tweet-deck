@@ -36,35 +36,39 @@ export const MultiRowFrame = ({
   createNewProfile,
   selectCurrentProfile,
   setSortRule,
-}: MultiRowFrameProps) => (
-  <Wrapper>
-    <CustomNavBar type={type} setDrawerType={setDrawerType} />
-    <StyledWrapperWithDrawer
-      opened={type !== 'unset'}
-      drawer={
-        type === 'options' ? (
-          <Options {...{ saveProfile, discardChanges }} />
-        ) : type === 'profileList' ? (
-          <ProfileList
-            {...{
-              profileList,
-              selectedProfileId,
-              sortRule,
-              selectCurrentProfile,
-              reloadProfileList,
-              switchProfile,
-              deleteCurrentProfile,
-              createNewProfile,
-              setSortRule,
-            }}
-          />
-        ) : null
-      }
-    >
-      <CustomCells />
-    </StyledWrapperWithDrawer>
-  </Wrapper>
-);
+}: MultiRowFrameProps) => {
+  const showHandle = type == 'options';
+  return (
+    <Wrapper>
+      <CustomNavBar type={type} setDrawerType={setDrawerType} />
+      <StyledWrapperWithDrawer
+        opened={type !== 'unset'}
+        showHandle={showHandle}
+        drawer={
+          type === 'options' ? (
+            <Options {...{ saveProfile, discardChanges }} />
+          ) : type === 'profileList' ? (
+            <ProfileList
+              {...{
+                profileList,
+                selectedProfileId,
+                sortRule,
+                selectCurrentProfile,
+                reloadProfileList,
+                switchProfile,
+                deleteCurrentProfile,
+                createNewProfile,
+                setSortRule,
+              }}
+            />
+          ) : null
+        }
+      >
+        <CustomCells showHandle={showHandle} />
+      </StyledWrapperWithDrawer>
+    </Wrapper>
+  );
+};
 
 const StyledWrapperWithDrawer = styled(WrapperWithDrawer)`
   position: absolute;

@@ -10,6 +10,7 @@ import { TwitterColor } from '../../../shared/theme';
 import { Splitter } from './Splitter';
 
 interface RowProps {
+  showHandle: boolean;
   cellStyles: CellStyles;
   generalStyles: GeneralStyles;
   row: RowProfile;
@@ -18,7 +19,7 @@ interface RowProps {
   isLastRow: boolean;
 }
 
-export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: RowProps) => {
+export const Row = ({ showHandle, row, cellStyles, generalStyles, totalHeight, isLastRow }: RowProps) => {
   const dispatch = useMultiRowProfileDispatch();
   const prevHeightRef = useRef(row.height);
   const [mode, setMode] = useState<'unset' | 'split'>('unset');
@@ -36,13 +37,19 @@ export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: 
     <>
       <Wrapper style={rowStyle}>
         <Header style={columnHeader}>
-          <Icon.Button icon="page-break" color={TwitterColor.green} onClick={() => setMode('split')} />
-          <Icon.Button
-            icon="bin"
-            color={TwitterColor.red}
-            onClick={() => dispatch('removeRow', row.columnId, row.id)}
-          />
+          <HeaderIcon icon="sphere" />
+          <HeaderTitle>Column</HeaderTitle>
         </Header>
+        {showHandle && (
+          <ButtonWrapper>
+            <Icon.Button icon="page-break" color={TwitterColor.green} onClick={() => setMode('split')} />
+            <Icon.Button
+              icon="bin"
+              color={TwitterColor.red}
+              onClick={() => dispatch('removeRow', row.columnId, row.id)}
+            />
+          </ButtonWrapper>
+        )}
         <StyledSplitter
           type="vertical"
           active={mode === 'split'}
@@ -51,7 +58,7 @@ export const Row = ({ row, cellStyles, generalStyles, totalHeight, isLastRow }: 
           onSplit={(value) => (setMode('unset'), dispatch('splitRow', row.columnId, row.id, value.pct))}
         />
       </Wrapper>
-      {isLastRow ? null : <DragHandleVertical Size="0" hidden={mode === 'split'} {...handleVertical} />}
+      {isLastRow ? null : <DragHandleVertical Size="0" hidden={mode === 'split' || !showHandle} {...handleVertical} />}
     </>
   );
 };
@@ -75,12 +82,49 @@ const Header = styled.header`
   position: relative;
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
-  padding-right: 4px;
+  padding: 0 9px 0 0;
+  &:before {
+    flex: 0 0 auto;
+    content: counter(cell-number);
+    counter-increment: cell-number;
+    font-size: 10px;
+    margin: 1px 0 0 3px;
+    padding: 1px;
+    line-height: 1;
+    color: ${({ theme: { color } }) => color.subText};
+    align-self: flex-start;
+  }
+`;
+
+const HeaderIcon = styled(Icon)`
+  font-size: 20px;
+  margin: 0 6px 0 8px;
+  color: ${({ theme: { color } }) => color.subText};
+`;
+
+const HeaderTitle = styled.span`
+  font-size: 16px;
+  color: ${({ theme: { color } }) => color.primaryText};
 `;
 
 const StyledSplitter = styled(Splitter)<{ headerHeight: string }>`
   height: calc(100% - ${({ headerHeight }) => headerHeight});
   width: 100%;
+`;
+
+const ButtonWrapper = styled.div`
+  position: absolute;
+  padding: 2px 8px 4px;
+  box-sizing: border-box;
+  font-size: 22px;
+  border-radius: 0 0 8px 8px;
+  background: ${({ theme: { color } }) => color.border};
+  right: 8px;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
 `;

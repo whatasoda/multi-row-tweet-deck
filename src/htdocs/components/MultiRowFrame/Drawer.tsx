@@ -13,11 +13,12 @@ const VANILLA: VanillaTweetDeck = { drawerWidth, headerHeight: 40 };
 interface WrapperWithDrawerProps {
   opened: boolean;
   drawer: React.ReactElement | null;
+  showHandle: boolean;
   className?: string;
   children?: React.ReactElement | null;
 }
 
-export const WrapperWithDrawer = ({ opened, drawer, className, children }: WrapperWithDrawerProps) => {
+export const WrapperWithDrawer = ({ opened, drawer, showHandle, className, children }: WrapperWithDrawerProps) => {
   const profile = useMultiRowProfile();
   const dispatch = useMultiRowProfileDispatch();
   const drawerWidthRef = useRef(profile.drawer.width);
@@ -35,7 +36,7 @@ export const WrapperWithDrawer = ({ opened, drawer, className, children }: Wrapp
       <Drawer style={style.drawer}>
         <DrawerContentWrapper children={opened ? drawer : null} />
       </Drawer>
-      <DragHandleHorizontal Size="6px" hidden={!opened} {...handleDrawerWidth} />
+      {showHandle && <DragHandleHorizontal Size="6px" hidden={!opened} {...handleDrawerWidth} />}
       {children}
     </Wrapper>
   );

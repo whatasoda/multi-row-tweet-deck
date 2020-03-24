@@ -7,10 +7,11 @@ import { ColumnCreator } from './ColumnCreator';
 import { useMultiRowProfile } from '../../utils/useMultiRowProfile';
 
 interface CellsProps {
+  showHandle: boolean;
   className?: string;
 }
 
-export const Cells = ({ className }: CellsProps) => {
+export const Cells = ({ showHandle, className }: CellsProps) => {
   const profile = useMultiRowProfile();
   const [cellStyles, generalStyles] = useMemo(() => {
     const cellStyles = createCellStyles(profile);
@@ -24,9 +25,15 @@ export const Cells = ({ className }: CellsProps) => {
     <Wrapper className={className}>
       <Scroll>
         {profile.cells.columnOrder.map((id) => (
-          <Column key={id} column={columns[id]} cellStyles={cellStyles} generalStyles={generalStyles} />
+          <Column
+            key={id}
+            showHandle={showHandle}
+            column={columns[id]}
+            cellStyles={cellStyles}
+            generalStyles={generalStyles}
+          />
         ))}
-        <ColumnCreator />
+        <ColumnCreator showHandle={showHandle} />
       </Scroll>
     </Wrapper>
   );
@@ -48,4 +55,5 @@ const Scroll = styled.div`
   width: 100%;
   box-sizing: border-box;
   margin-right: 300px;
+  counter-reset: cell-number;
 `;
