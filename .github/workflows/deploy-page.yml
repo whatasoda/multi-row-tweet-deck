@@ -1,0 +1,33 @@
+name: Deploy multirow.page
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/deploy-page.yml
+      - src/htdocs/**/*
+      - src/shared/**/*
+      - package.json
+      - package-lock.json
+      - tsconfig.json
+      - tsconfig.htdocs.json
+
+jobs:
+  deploy-gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10
+      - name: Install NPM Dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build:htdocs
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./dist/htdocs
+          cname: multirow.page
