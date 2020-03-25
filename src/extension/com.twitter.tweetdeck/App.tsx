@@ -8,7 +8,7 @@ export const App = () => {
 
   useEffect(() => {
     (async () => {
-      const repository = createRepository(await getStorageInfrastructure('auto'));
+      const repository = createRepository(getStorageInfrastructure('auto'));
 
       const selectedId = await repository.getSelectedProfileId();
       if (selectedId === null) return;

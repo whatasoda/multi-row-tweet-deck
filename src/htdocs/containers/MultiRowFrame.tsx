@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { createRepository } from '../../shared/storage/repository';
 import { getStorageInfrastructure } from '../../shared/storage/infrastructure';
 import { EXTENSION_ID, WEB_EVENT, MAX_PROFILE_COUNT } from '../../shared/constants';
-import { createExtensionMessageSender, getRuntime } from '../../shared/messages';
+import { MessageSender } from '../../shared/messages';
 import {
   useMultiRowProfileOriginal,
   useMultiRowProfileDispatch,
@@ -14,12 +14,10 @@ import { createProfile, createDefaultProfile } from '../../shared/store/MultiRow
 
 const INITIAL_SORT_RULE: OneOfProfileSortRule = 'dateRecentUse';
 
-type RepositoryValue =
-  | { loading: true; error: null; repository: null; defaultValue: null }
-  | { loading: false; error: Error; repository: null; defaultValue: null }
-  | { loading: false; error: null; repository: StorageRepository; defaultValue: DefaultValues };
+type RepositoryState = { loading: true; value: null } | { loading: false; value: Value };
 
-interface DefaultValues {
+interface Value {
+  repository: StorageRepository;
   profile: MultiRowProfile | null;
   profiles: ProfileWithMetaData[];
   selectedId: string | null;
@@ -32,80 +30,48 @@ interface MultiRowFrameInboundProps extends MultiRowFrameOutboundProps {
   defaultSelectedId: string | null;
 }
 
+const prepareRepositoryValue = async (repository: StorageRepository): Promise<RepositoryState> => {
+  const profiles = await repository.getProfileList(INITIAL_SORT_RULE);
+  const { profile = null } = profiles[0] || {};
+  const selectedId = await repository.getSelectedProfileId();
+
+  return { loading: false, value: { repository, profile, selectedId, profiles } };
+};
+
 export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
-  const [repositoryValue, setRepositoryValue] = useState<RepositoryValue>({
-    loading: true,
-    error: null,
-    repository: null,
-    defaultValue: null,
-  });
+  const [repositoryValue, setRepositoryValue] = useState<RepositoryState>({ loading: true, value: null });
 
   useEffect(() => {
-    const success = async (repository: StorageRepository) => {
-      const profiles = await repository.getProfileList(INITIAL_SORT_RULE);
-      const { profile = null } = profiles[0] || {};
-      const selectedId = await repository.getSelectedProfileId();
-      setRepositoryValue({
-        loading: false,
-        error: null,
-        repository,
-        defaultValue: { profile, selectedId, profiles },
-      });
-    };
-
-    const runtime = getRuntime();
-    if (!runtime) {
-      return void getStorageInfrastructure('page')
-        .then(createRepository)
-        .then(success);
-    }
-
     let connected = false;
-    const repositories: Record<'remote' | 'page', StorageRepository> = { page: null as any, remote: null as any };
-    const sendConnect = createExtensionMessageSender(runtime, EXTENSION_ID, 'connect');
-    const tryConnect = async () => {
+    const sendConnectMessage = MessageSender(EXTENSION_ID, 'connect');
+    const remote = createRepository(getStorageInfrastructure('auto'));
+    const page = createRepository(getStorageInfrastructure('page'));
+
+    const connect = async () => {
       if (connected) return;
-      const { page, remote } = repositories;
       try {
-        await sendConnect();
+        await sendConnectMessage();
         connected = true;
         await remote.mergeStorage(await page.getWholeStorage());
         await page.cleanup();
-        await success(remote);
-
-        window.removeEventListener(WEB_EVENT.connect, tryConnect);
+        setRepositoryValue(await prepareRepositoryValue(remote));
       } catch (e) {
+        setRepositoryValue(await prepareRepositoryValue(page));
+        window.addEventListener(WEB_EVENT.connect, connect, { once: true });
         console.log(e.message); // eslint-disable-line no-console
-        await success(page);
       }
     };
 
-    (async () => {
-      repositories.remote = createRepository(await getStorageInfrastructure('auto'));
-      repositories.page = createRepository(await getStorageInfrastructure('page'));
-
-      await tryConnect();
-      if (connected) return;
-      window.addEventListener(WEB_EVENT.connect, tryConnect);
-    })();
-
-    return () => {
-      window.removeEventListener(WEB_EVENT.connect, tryConnect);
-    };
+    connect();
+    return () => window.removeEventListener(WEB_EVENT.connect, connect);
   }, []);
 
   if (repositoryValue.loading) return <Loading>Loading...</Loading>;
-  if (repositoryValue.error) return <ShowError>{repositoryValue.error.message}</ShowError>;
 
-  const { profile, selectedId, profiles } = repositoryValue.defaultValue;
+  const { repository, profile, selectedId, profiles } = repositoryValue.value;
   return (
     <MultiRowProfileProvider initialState={profile || undefined}>
-      <MultiRowFrameComponent
-        {...props}
-        repository={repositoryValue.repository}
-        defaultSelectedId={selectedId}
-        profiles={profiles}
-      />
+      <MultiRowFrameComponent {...props} repository={repository} defaultSelectedId={selectedId} profiles={profiles} />
     </MultiRowProfileProvider>
   );
 };
@@ -256,5 +222,3 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
 
 // TODO: split them to 'fragments' directory
 const Loading = styled.div``;
-
-const ShowError = styled.div``;
