@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { ROOT_CLASS_NAME } from '../../shared/constants';
 import { updateVanillaTweetDeck } from '../../shared/styleFactory';
 import { App } from './App';
+import '../../shared/browser';
 
 const render = () => {
   const root = document.documentElement;
