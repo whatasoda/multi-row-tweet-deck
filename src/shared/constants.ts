@@ -19,4 +19,4 @@ export const WEB_EVENT = (<T extends string>(inputs: readonly T[]): Record<T, st
     acc[key] = `${EXTENSION_ID}:${key}`;
     return acc;
   }, {});
-})(['connect'] as const);
+})(['installed'] as const);

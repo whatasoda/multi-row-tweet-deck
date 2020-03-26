@@ -57,13 +57,13 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
         setRepositoryValue(await prepareRepositoryValue(remote));
       } catch (e) {
         setRepositoryValue(await prepareRepositoryValue(page));
-        window.addEventListener(WEB_EVENT.connect, connect, { once: true });
+        window.addEventListener(WEB_EVENT.installed, connect, { once: true });
         console.log(e.message); // eslint-disable-line no-console
       }
     };
 
     connect();
-    return () => window.removeEventListener(WEB_EVENT.connect, connect);
+    return () => window.removeEventListener(WEB_EVENT.installed, connect);
   }, []);
 
   if (repositoryValue.loading) return <Loading>Loading...</Loading>;
