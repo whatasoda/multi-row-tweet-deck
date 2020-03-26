@@ -17,7 +17,7 @@ module.exports = (options = defaultOptions) => {
       rules: [
         {
           test: /\.tsx?$/,
-          exclude: /node_modules/,
+          exclude: /(node_modules|\.json\.ts$)/,
           use: [
             {
               loader: 'ts-loader',
@@ -42,10 +42,5 @@ module.exports = (options = defaultOptions) => {
       }),
       new CleanWebpackPlugin(),
     ],
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-      },
-    },
   });
 };

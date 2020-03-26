@@ -17,4 +17,9 @@ module.exports = merge(require('../common.config')({ __rootdir, tsconfig }), {
       template: path.resolve(__rootdir, 'src/htdocs/index.html'),
     }),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
 });
