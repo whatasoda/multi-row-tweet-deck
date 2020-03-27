@@ -76,8 +76,10 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
   );
 };
 
-const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
+const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
   const dispatch = useMultiRowProfileDispatch();
+
+  const repositoryRef = useRef(repo);
 
   const profile = useMultiRowProfileOriginal();
   const editingProfileRef = useRef(profile);
@@ -102,10 +104,15 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
 
   const methods = useMemo(() => {
     const reloadProfileList = async () => {
-      setProfileList(await repository.getProfileList(sortRuleRef.current));
+      const { current: repository } = repositoryRef;
+      const profileList = await repository.getProfileList(sortRuleRef.current);
+      const selectedProfileId = await repository.getSelectedProfileId();
+      setProfileList(profileList);
+      setSelectedProfileId(selectedProfileId);
     };
 
     const saveProfile = async () => {
+      const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       if (savedProfileRef.current === current) return;
       await repository.setProfile(current);
@@ -120,6 +127,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     };
 
     const switchProfile = async (id: string) => {
+      const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       if (current.id === id) {
         return;
@@ -137,6 +145,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     };
 
     const deleteCurrentProfile = async () => {
+      const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       if (confirm(`この操作は取り消せません。本当に「${current.displayName}」を削除しますか？`)) {
         await repository.deleteProfile(current.id);
@@ -155,6 +164,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     };
 
     const createNewProfile = async () => {
+      const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       if (profileCountRef.current >= MAX_PROFILE_COUNT) {
         return alert(`保存できるプロフィールは${MAX_PROFILE_COUNT}個までです。`);
@@ -170,6 +180,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     };
 
     const selectCurrentProfile = async () => {
+      const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       await repository.setSelectedProfileId(current.id);
       setSelectedProfileId(current.id);
@@ -184,7 +195,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
       createNewProfile,
       selectCurrentProfile,
     ] as const;
-  }, [repository]);
+  }, []);
 
   const [
     reloadProfileList,
@@ -195,6 +206,12 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     createNewProfile,
     selectCurrentProfile,
   ] = methods;
+
+  useEffect(() => {
+    return () => {
+      reloadProfileList();
+    };
+  }, [repo]);
 
   return useMemo(
     () => (
@@ -216,7 +233,7 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
         }}
       />
     ),
-    [repository, drawerType, profileList, selectedProfileId, sortRule],
+    [repo, drawerType, profileList, selectedProfileId, sortRule],
   );
 };
 

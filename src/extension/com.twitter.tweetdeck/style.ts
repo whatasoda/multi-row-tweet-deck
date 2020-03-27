@@ -30,7 +30,7 @@ const applyPseudoSelectors = ({ cells, header }: MultiRowProfile) => {
     const rowCount = rowOrder.length;
 
     return css`
-      &:nth-child(n + ${count + 1}):nth-child(${isLastColumn ? '-' : 0}n + ${count + rowCount + 1}) {
+      &:nth-child(n + ${count + 1}) {
         width: ${width};
       }
       ${rowOrder.map(
@@ -45,6 +45,7 @@ const applyPseudoSelectors = ({ cells, header }: MultiRowProfile) => {
 
   return css`
     flex: 0 0 auto;
+    margin-right: ${gap}px;
     ${items}
   `;
 };

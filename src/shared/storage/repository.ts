@@ -41,7 +41,9 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
     }
 
     {
-      await local.set({ v3: { selectedProfile: localTarget.selectedProfile } });
+      if (localTarget.selectedProfile) {
+        await local.set({ v3: { selectedProfile: localTarget.selectedProfile } });
+      }
     }
   };
 

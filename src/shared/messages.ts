@@ -1,10 +1,10 @@
-type MessageTypeEntry = [string, object, unknown];
+type MessageTypeEntry = [string, any[], unknown];
 
 type Sync = StorageInfrastructure['sync'];
 type Local = StorageInfrastructure['local'];
 
 type Entries = [
-  ['connect', {}, undefined],
+  ['connect', [], undefined],
   ['storage.sync.get', Parameters<Sync['get']>, Partial<StorageSync>],
   ['storage.sync.set', Parameters<Sync['set']>, undefined],
   ['storage.sync.remove', Parameters<Sync['remove']>, undefined],
@@ -43,7 +43,7 @@ export type ExtensionMessageHandlers = HandlersOf<Entries>;
 export const MessageSender = ((extensionId, type) => {
   if (typeof browser === 'undefined') return () => Promise.reject();
 
-  return (value) => {
+  return (...value) => {
     return new Promise((resolve, reject) => {
       return browser.runtime.sendMessage(extensionId, { type, value }, (response) => {
         const { lastError } = browser.runtime;

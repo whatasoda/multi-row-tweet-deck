@@ -4,8 +4,8 @@ import { EXTENSION_ID } from '../constants';
 const memo: Partial<Record<'remote' | 'owned' | 'page', StorageInfrastructure>> = {};
 
 export const getStorageInfrastructure = (req: 'auto' | 'page' = 'auto'): StorageInfrastructure => {
-  if (req === 'auto') {
-    if (typeof browser !== undefined) {
+  if (req === 'auto' && typeof browser !== undefined) {
+    if (browser.runtime.id) {
       return (memo.owned = memo.owned || createOwned());
     } else {
       return (memo.remote = memo.remote || createRemote());
@@ -31,25 +31,25 @@ const createRemote = (): StorageInfrastructure => ({
 const createOwned = (): StorageInfrastructure => {
   const { runtime, storage } = browser;
 
-  const promisify = <T, U>(func: (arg: T, callback: (value?: U) => void) => void) => {
+  const promisify = <T, U>(func: (arg: T, callback: (value?: U) => void) => void, self: any) => {
     return (arg: T) => {
       return new Promise<U>((resolve, reject) => {
-        return func(arg, (value?: U) => (runtime.lastError ? reject(runtime.lastError) : resolve(value)));
+        return func.apply(self, [arg, (value?: U) => (runtime.lastError ? reject(runtime.lastError) : resolve(value))]);
       });
     };
   };
 
   return {
     sync: {
-      get: promisify(storage.sync.get),
-      set: promisify(storage.sync.set),
-      remove: promisify(storage.sync.remove),
+      get: promisify(storage.sync.get, storage.sync),
+      set: promisify(storage.sync.set, storage.sync),
+      remove: promisify(storage.sync.remove, storage.sync),
     },
 
     local: {
-      get: promisify(storage.local.get),
-      set: promisify(storage.local.set),
-      remove: promisify(storage.local.remove),
+      get: promisify(storage.local.get, storage.local),
+      set: promisify(storage.local.set, storage.local),
+      remove: promisify(storage.local.remove, storage.local),
     },
   };
 };

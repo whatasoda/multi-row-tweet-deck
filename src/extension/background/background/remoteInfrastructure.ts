@@ -2,6 +2,8 @@ import { getStorageInfrastructure } from '../../../shared/storage/infrastructure
 import { ExtensionMessageHandlers, OneOfExtensionMessage } from '../../../shared/messages';
 
 export const initRemoteInfrastructure = () => {
+  const { externally_connectable = {} } = browser.runtime.getManifest();
+  const { matches = [] } = externally_connectable;
   const { local, sync } = getStorageInfrastructure('auto');
 
   const handlers: ExtensionMessageHandlers = {
@@ -16,13 +18,12 @@ export const initRemoteInfrastructure = () => {
 
   chrome.runtime.onMessageExternal.addListener((message: OneOfExtensionMessage, sender, sendResponse) => {
     const { url = '' } = sender;
-    if (!url.startsWith('https://tweetdeck.twitter.com/') || !url.startsWith('https://multirow.page/')) {
-      return;
+    if (matches.some((match) => match.startsWith(url))) {
+      Promise.resolve().then(async () => {
+        sendResponse(await handlers[message.type]?.(message.value as any));
+      });
+      return true;
     }
-
-    Promise.resolve().then(async () => {
-      sendResponse(await handlers[message.type]?.(message.value as any));
-    });
 
     return true;
   });

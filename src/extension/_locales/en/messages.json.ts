@@ -6,4 +6,4 @@ const createMessages = () => {
   });
 };
 
-module.exports = () => ({ code: JSON.stringify(createMessages()) });
+module.exports = (): ValLoader => ({ code: JSON.stringify(createMessages()), cacheable: true });

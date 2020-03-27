@@ -20,7 +20,7 @@ export const updateVanillaTweetDeck = () => {
   const { height: headerHeight } = getComputedStyle(dummy);
   vanilla.headerHeight = parseFloat(headerHeight) || vanilla.headerHeight;
 
-  document.documentElement.removeChild(dummy);
+  dummy.remove();
 };
 
 export const createDrawerStyle = (drawer: MultiRowProfile['drawer']) => {
