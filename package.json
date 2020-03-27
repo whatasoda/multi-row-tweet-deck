@@ -6,7 +6,7 @@
   "scripts": {
     "dev:htdocs": "webpack-dev-server --mode development --config scripts/webpack/htdocs/dev.config.js",
     "build:htdocs": "webpack --mode production --config scripts/webpack/htdocs/prod.config.js",
-    "dev:extension": "webpack --watch --mode development --config scripts/webpack/extension/prod.config.js",
+    "dev:extension": "webpack --watch --mode development --config scripts/webpack/extension/dev.config.js",
     "build:extension": "webpack --mode production --config scripts/webpack/extension/prod.config.js"
   },
   "repository": {

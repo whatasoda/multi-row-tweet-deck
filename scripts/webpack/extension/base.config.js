@@ -42,6 +42,8 @@ module.exports = merge(require('../common.config')({ __rootdir, tsconfig }), {
         from: path.resolve(__rootdir, 'assets/icons/'),
         ignore: ['*.ai', '*.svg'],
         to: 'icons',
+        cache: true,
+        force: true,
       },
     ]),
   ],
