@@ -5,6 +5,7 @@ import { Cells } from './Cells';
 import { Options } from './drawer/Options';
 import { WrapperWithDrawer } from './drawer/Drawer';
 import { ProfileList } from './drawer/ProfileList';
+import { Home } from './drawer/Home';
 
 interface MultiRowFrameProps {
   drawerType: OneOfDrawerType;
@@ -45,8 +46,8 @@ export const MultiRowFrame = ({
         opened={type !== 'unset'}
         showHandle={showHandle}
         drawer={
-          type === 'options' ? (
-            <Options {...{ saveProfile, discardChanges }} />
+          type === 'home' ? (
+            <Home />
           ) : type === 'profileList' ? (
             <ProfileList
               {...{
@@ -61,6 +62,8 @@ export const MultiRowFrame = ({
                 setSortRule,
               }}
             />
+          ) : type === 'options' ? (
+            <Options {...{ saveProfile, discardChanges }} />
           ) : null
         }
       >

@@ -2,7 +2,7 @@ import React from 'react';
 
 import IcomoonReact from 'icomoon-react';
 import { selection } from './selection';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export type OneOfIcon = typeof selection['icons'][number]['properties']['name'];
 interface IconProps {
@@ -23,13 +23,16 @@ const StyledIcomoonReact = styled(IcomoonReact)<{ Color?: string }>`
 `;
 
 type ButtonProps = Omit<JSX.IntrinsicElements['button'], 'children' | 'ref'>;
-
 Icon.Button = ({ icon, color, ...props }: IconProps & ButtonProps) => (
-  <ButtonWrapper {...props} Color={color} children={<Icon icon={icon} />} />
+  <Button {...props} Color={color} children={<Icon icon={icon} />} />
 );
 
-const ButtonWrapper = styled.button<{ Color?: string }>`
-  color: ${({ Color }) => Color || 'inherit'};
+type AnchorProps = Omit<JSX.IntrinsicElements['a'], 'children' | 'ref'>;
+Icon.Link = ({ icon, color, ...props }: IconProps & AnchorProps) => (
+  <Anchor {...props} Color={color} as="a" children={<Icon icon={icon} />} />
+);
+
+const wrapperStyle = css`
   display: inline-block;
   width: 1.4em;
   height: 1em;
@@ -62,4 +65,14 @@ const ButtonWrapper = styled.button<{ Color?: string }>`
       opacity: 1;
     }
   }
+`;
+
+const Button = styled.button<{ Color?: string }>`
+  color: ${({ Color }) => Color || 'inherit'};
+  ${wrapperStyle}
+`;
+
+const Anchor = styled.a<{ Color?: string }>`
+  color: ${({ Color }) => Color || 'inherit'};
+  ${wrapperStyle}
 `;

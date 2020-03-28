@@ -1,12 +1,11 @@
 import React from 'react';
-// import styled from 'styled-components';
+import styled from 'styled-components';
 import { Icon } from '../../../../shared/components/Icon';
 import { TwitterColor } from '../../../../shared/theme';
 import { ProfileNameOption } from './ProfileName';
 import { HeaderOption } from './Header';
 import { CellGapOption } from './CellGap';
 import { Section, Title, SectionBottom } from '../Section';
-import styled from 'styled-components';
 
 interface OptionsProps {
   saveProfile: () => Promise<void>;

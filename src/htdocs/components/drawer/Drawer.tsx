@@ -64,5 +64,7 @@ const DrawerContentWrapper = styled.div`
   height: 100%;
   box-sizing: border-box;
   padding-top: 10px;
-  width: ${MIN_DRAWER_WIDTH - 30}px;
+  width: ${MIN_DRAWER_WIDTH - 20}px;
+  overflow-x: hidden;
+  overflow-y: auto;
 `;

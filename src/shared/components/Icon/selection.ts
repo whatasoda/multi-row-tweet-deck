@@ -3,6 +3,22 @@ export const selection = {
   icons: [
     {
       icon: {
+        paths: ['M1024 608l-192-192v-288h-128v160l-192-192-512 512v32h128v320h320v-192h128v192h320v-320h128z'],
+        attrs: [],
+        isMulticolor: false,
+        isMulticolor2: false,
+        tags: ['home', 'house'],
+        defaultCode: 59650,
+        grid: 16,
+      },
+      attrs: [],
+      properties: { ligatures: 'home3, house3', name: 'home', id: 2, order: 23, prevSize: 32, code: 59650 },
+      setIdx: 0,
+      setId: 0,
+      iconIdx: 2,
+    },
+    {
+      icon: {
         paths: [
           'M1024 320l-512-256-512 256 512 256 512-256zM512 148.97l342.058 171.030-342.058 171.030-342.058-171.030 342.058-171.030zM921.444 460.722l102.556 51.278-512 256-512-256 102.556-51.278 409.444 204.722zM921.444 652.722l102.556 51.278-512 256-512-256 102.556-51.278 409.444 204.722z',
         ],

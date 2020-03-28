@@ -12,6 +12,7 @@ interface NavBarProps {
 
 export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) => {
   const icons: [OneOfDrawerType, React.ReactElement][] = [
+    ['home', <Icon icon="home" />],
     ['profileList', <Icon icon="stack" />],
     ['options', <Icon icon="cog" />],
   ];
@@ -27,7 +28,9 @@ export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) =>
           return <Component key={type} onClick={handleClick} children={icon} />;
         })}
       </TopWrapper>
-      <MiddleWrapper />
+      <MiddleWrapper>
+        <HeroName>MultiRow TweetDeck</HeroName>
+      </MiddleWrapper>
       <BottomWrapper>
         <Logo />
       </BottomWrapper>
@@ -54,6 +57,9 @@ const TopWrapper = styled.div`
 
 const MiddleWrapper = styled.div`
   flex: 1 0 auto;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
 `;
 
 const BottomWrapper = styled.div`
@@ -87,4 +93,13 @@ const ButtonOpened = styled(ButtonBase)`
   width: 48px;
   border-radius: 45px 0 0 45px;
   background-color: ${({ theme: { color } }) => color.primaryButtonPushed};
+`;
+
+const HeroName = styled.h1`
+  letter-spacing: 0.075em;
+  writing-mode: vertical-rl;
+  color: ${TwitterColor.white};
+  padding: 0 8px 0 0;
+  margin: 12px 0;
+  transform: rotateZ(180deg);
 `;

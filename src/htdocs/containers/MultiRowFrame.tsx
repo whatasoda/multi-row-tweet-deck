@@ -99,7 +99,7 @@ const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles 
   const profileCountRef = useRef(profileList.length);
   profileCountRef.current = profileList.length;
 
-  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('profileList');
+  const [drawerType, setDrawerType] = useState<OneOfDrawerType>('home');
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(defaultSelectedId);
 
   const methods = useMemo(() => {
