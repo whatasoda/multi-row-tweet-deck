@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { clamp } from '../../shared/utils/math';
 
 interface SplitterValue {
   pct: number;
@@ -52,7 +53,7 @@ export const Splitter = ({ active, className, type, onCanceled, onSplit }: Split
       if (!(srcElement instanceof HTMLElement)) return;
       if (wrapper !== srcElement && wrapper !== srcElement.parentElement) return;
 
-      const px = offset + (wrapper === srcElement ? 0 : srcElement[keys.childOffset]);
+      const px = clamp(offset + (wrapper === srcElement ? 0 : srcElement[keys.childOffset]), 0, wrapper.clientHeight);
       const pct = (px / wrapper[keys.base]) * 100;
       nextValue = { pct, px };
       needsUpdate = true;
