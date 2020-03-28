@@ -1,4 +1,4 @@
-import { locales } from '../locales';
+import { locales } from '../../../locales';
 
 const createMessages = () => {
   return locales.messages({

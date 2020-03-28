@@ -28,6 +28,18 @@ module.exports = (options = defaultOptions) => {
           ],
         },
         {
+          test: /\/_jsons\/.+\.json\.ts$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: { name: (n) => n.split('/_jsons/')[1].replace(/\.tsx?$/, '') },
+            },
+            'val-loader',
+            'ts-loader',
+          ],
+        },
+        {
           test: /\.(png)$/,
           use: ['file-loader'],
         },
