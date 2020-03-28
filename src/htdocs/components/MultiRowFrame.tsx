@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { NavBar } from './NavBar';
 import { Cells } from './Cells';
-import { Options } from './Options';
-import { WrapperWithDrawer } from './Drawer';
-import { ProfileList } from './ProfileList';
+import { Options } from './drawer/Options';
+import { WrapperWithDrawer } from './drawer/Drawer';
+import { ProfileList } from './drawer/ProfileList';
 
 interface MultiRowFrameProps {
   drawerType: OneOfDrawerType;

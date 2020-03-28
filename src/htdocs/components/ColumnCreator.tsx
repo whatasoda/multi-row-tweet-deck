@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Icon } from '../../../shared/components/Icon';
-import { TwitterColor } from '../../../shared/theme';
-import { Splitter } from './Splitter';
-import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
+import { Icon } from '../../shared/components/Icon';
+import { TwitterColor } from '../../shared/theme';
+import { Splitter } from '../utils/Splitter';
+import { useMultiRowProfileDispatch } from '../utils/useMultiRowProfile';
 
 interface ColumnCreatorProps {
   showHandle: boolean;

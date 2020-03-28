@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { TwitterColor } from '../../../shared/theme';
 import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../utils/useMultiRowProfile';
 import { useDrag } from '../../utils/useDrag';
-import { DragHandleHorizontal } from './DragHandle';
+import { DragHandleHorizontal } from '../../utils/DragHandle';
 import { MIN_DRAWER_WIDTH } from '../../../shared/constants';
 import { createDrawerStyle, vanilla } from '../../../shared/styleFactory';
 

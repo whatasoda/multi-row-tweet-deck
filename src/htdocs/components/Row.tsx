@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useMultiRowProfileDispatch } from '../../utils/useMultiRowProfile';
-import { useDrag } from '../../utils/useDrag';
-import { DragHandleVertical } from './DragHandle';
-import { Icon } from '../../../shared/components/Icon';
-import { TwitterColor } from '../../../shared/theme';
-import { Splitter } from './Splitter';
+import { useMultiRowProfileDispatch } from '../utils/useMultiRowProfile';
+import { useDrag } from '../utils/useDrag';
+import { DragHandleVertical } from '../utils/DragHandle';
+import { Icon } from '../../shared/components/Icon';
+import { TwitterColor } from '../../shared/theme';
+import { Splitter } from '../utils/Splitter';
 
 interface RowProps {
   showHandle: boolean;

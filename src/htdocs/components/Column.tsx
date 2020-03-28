@@ -1,12 +1,12 @@
 import React, { useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import shallowequal from 'shallowequal';
-import { useDrag } from '../../utils/useDrag';
-import { useMultiRowProfileDispatch, useMultiRowProfile } from '../../utils/useMultiRowProfile';
-import { DragHandleHorizontal } from './DragHandle';
+import { useDrag } from '../utils/useDrag';
+import { useMultiRowProfileDispatch, useMultiRowProfile } from '../utils/useMultiRowProfile';
+import { DragHandleHorizontal } from '../utils/DragHandle';
 import { Row } from './Row';
-import { HEADER_HEIGHT } from '../../../shared/constants';
-import { createCellStylesInColumn } from '../../../shared/styleFactory';
+import { HEADER_HEIGHT } from '../../shared/constants';
+import { createCellStylesInColumn } from '../../shared/styleFactory';
 
 interface ColumnProps {
   id: string;

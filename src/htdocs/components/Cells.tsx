@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Column } from './Column';
 import { ColumnCreator } from './ColumnCreator';
-import { useMultiRowProfile } from '../../utils/useMultiRowProfile';
+import { useMultiRowProfile } from '../utils/useMultiRowProfile';
 
 interface CellsProps {
   showHandle: boolean;
