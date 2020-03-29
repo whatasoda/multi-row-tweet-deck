@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Icon } from '../../shared/components/Icon';
 import { TwitterColor } from '../../shared/theme';
 import { Logo } from '../../shared/components/Logo';
+import { LanguageSelection } from '../utils/LanguageSelection';
 
 interface NavBarProps {
   className?: string;
@@ -27,9 +28,10 @@ export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) =>
               : ([ButtonClosed, () => setDrawerType(type)] as const);
           return <Component key={type} onClick={handleClick} children={icon} />;
         })}
+        <StyledLanguageSelection />
       </TopWrapper>
       <MiddleWrapper>
-        <HeroName>MultiRow TweetDeck</HeroName>
+        <HeroName>MultiRow{'\n'}TweetDeck</HeroName>
       </MiddleWrapper>
       <BottomWrapper>
         <Logo />
@@ -102,4 +104,17 @@ const HeroName = styled.h1`
   padding: 0 8px 0 0;
   margin: 12px 0;
   transform: rotateZ(180deg);
+  @media (max-height: 700px) {
+    white-space: pre-line;
+    font-size: 20px;
+    line-height: 1.2em;
+    padding: 0 2px;
+  }
+`;
+
+const StyledLanguageSelection = styled(LanguageSelection)`
+  font-size: 24px;
+  width: 36px;
+  text-align: center;
+  padding: 2px 0;
 `;
