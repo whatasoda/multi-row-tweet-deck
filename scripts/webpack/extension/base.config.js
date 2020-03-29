@@ -1,7 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-require('ts-node').register();
 
 const __rootdir = path.resolve(__dirname, '../../../');
 const tsconfig = path.resolve(__rootdir, 'tsconfig.extension.json');

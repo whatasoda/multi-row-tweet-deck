@@ -1,3 +1,3 @@
-# Multi Row TweetDeck
+# MultiRow TweetDeck
 to build
 `npm run build`

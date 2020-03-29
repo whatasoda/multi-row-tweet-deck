@@ -22,7 +22,7 @@ const createManifest = (): chrome.runtime.Manifest => ({
   key,
   author,
   version,
-  name: 'Multi Row TweetDeck',
+  name: 'MultiRow TweetDeck',
   homepage_url: 'https://multirow.page/',
   default_locale: 'en',
   description: locales.m.description,

@@ -25,9 +25,13 @@
     }
   },
   "dependencies": {
+    "i18next": "^19.3.4",
+    "i18next-browser-languagedetector": "^4.0.2",
+    "i18next-xhr-backend": "^3.2.2",
     "icomoon-react": "^2.0.16",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-i18next": "^11.3.4",
     "shallowequal": "^1.1.0",
     "styled-components": "^4.3.2",
     "uuid": "^7.0.2"

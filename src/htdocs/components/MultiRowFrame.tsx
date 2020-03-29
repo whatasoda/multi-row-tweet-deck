@@ -38,7 +38,7 @@ export const MultiRowFrame = ({
   selectCurrentProfile,
   setSortRule,
 }: MultiRowFrameProps) => {
-  const showHandle = type == 'options';
+  const showHandle = type === 'options';
   return (
     <Wrapper>
       <CustomNavBar type={type} setDrawerType={setDrawerType} />

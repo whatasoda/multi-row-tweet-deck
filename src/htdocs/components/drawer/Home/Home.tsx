@@ -2,25 +2,20 @@ import React from 'react';
 import styled from 'styled-components';
 import { Section, Title } from '../Section';
 import { Icon } from '../../../../shared/components/Icon';
+import { useTranslation } from 'react-i18next';
+import { ws } from '../../../../shared/utils/whitespace';
 
 export const Home = () => {
+  const [t] = useTranslation();
   return (
     <>
       <Section>
         <Title>About</Title>
-        <Description>
-          MultiRow TweetDeck extends your TweetDeck layout with customizable rows. <br />
-          <br />
-          You can try customization of layouts on this page because this also serves as a setting page. <br />
-          <br />
-          Even if you make your layout before installation, the configuration is loaded from the extension later. <br />
-          <br />
-          So feel free to try it. Just switching to the setting mode by the buttons on the left. <br />
-        </Description>
+        <Description>{ws(t('about'))}</Description>
       </Section>
       <Section>
         <Title>Installation</Title>
-        <Description>MultiRow TweetDeck supports GoogleChrome and Firefox. Click icons below to get!</Description>
+        <Description>{ws(t('installationMessage'))}</Description>
         <Links>
           <Icon.Link
             href="https://chrome.google.com/webstore/detail/multi-row-tweetdeck/cjlaagghmikageagedknpkmapcjodnno"

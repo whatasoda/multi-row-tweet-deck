@@ -1,6 +1,7 @@
 const merge = require('webpack-merge');
 const webpack = require('webpack');
 const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
+require('ts-node').register();
 
 const styledComponentsTransformer = createStyledComponentsTransformer({ minify: true });
 
@@ -8,6 +9,7 @@ const defaultOptions = { __rootdir: '', tsconfig: '' };
 
 module.exports = (options = defaultOptions) => {
   const { tsconfig } = { ...defaultOptions, ...options };
+
   return merge({
     resolve: {
       extensions: ['.js', '.ts', '.tsx', '.json'],

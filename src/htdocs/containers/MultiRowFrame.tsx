@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState, Suspense } from 'react';
 import styled from 'styled-components';
 import { createRepository } from '../../shared/storage/repository';
 import { getStorageInfrastructure } from '../../shared/storage/infrastructure';
@@ -11,6 +11,7 @@ import {
 } from '../utils/useMultiRowProfile';
 import { MultiRowFrame as Component } from '../components/MultiRowFrame';
 import { createProfile, createDefaultProfile } from '../../shared/store/MultiRowProfile';
+import { useTranslation } from 'react-i18next';
 
 const INITIAL_SORT_RULE: OneOfProfileSortRule = 'dateRecentUse';
 
@@ -71,13 +72,16 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
   const { repository, profile, selectedId, profiles } = repositoryValue.value;
   return (
     <MultiRowProfileProvider initialState={profile || undefined}>
-      <MultiRowFrameComponent {...props} repository={repository} defaultSelectedId={selectedId} profiles={profiles} />
+      <Suspense fallback={<Loading>Loading...</Loading>}>
+        <MultiRowFrameComponent {...props} repository={repository} defaultSelectedId={selectedId} profiles={profiles} />
+      </Suspense>
     </MultiRowProfileProvider>
   );
 };
 
 const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
   const dispatch = useMultiRowProfileDispatch();
+  const [t] = useTranslation();
 
   const repositoryRef = useRef(repo);
 
@@ -132,7 +136,7 @@ const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles 
       if (current.id === id) {
         return;
       } else if (savedProfileRef.current !== current) {
-        const shouldDiscard = confirm(`「${current.displayName}」 への未保存の変更は破棄されます。よろしいですか？`);
+        const shouldDiscard = confirm(`"${current.displayName}": ${t('confirmOnSwitchProfile')}`);
         if (!shouldDiscard) return;
       }
 
@@ -147,7 +151,7 @@ const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles 
     const deleteCurrentProfile = async () => {
       const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
-      if (confirm(`この操作は取り消せません。本当に「${current.displayName}」を削除しますか？`)) {
+      if (confirm(`"${current.displayName}": ${t('confirmOnDeleteCurrentProfile')}`)) {
         await repository.deleteProfile(current.id);
         let profiles = await repository.getProfileList(sortRuleRef.current);
 
@@ -167,9 +171,9 @@ const MultiRowFrameComponent = ({ repository: repo, defaultSelectedId, profiles 
       const { current: repository } = repositoryRef;
       const { current } = editingProfileRef;
       if (profileCountRef.current >= MAX_PROFILE_COUNT) {
-        return alert(`保存できるプロフィールは${MAX_PROFILE_COUNT}個までです。`);
+        return alert(t('alertOnCreateNewProfile'));
       } else if (savedProfileRef.current !== current) {
-        const ok = confirm(`「${current.displayName}」 への未保存の変更を破棄して新しいプロファイルを作成しますか？`);
+        const ok = confirm(`"${current.displayName}": ${t('confirmOnCreateNewProfile')}`);
         if (!ok) return;
       }
       const newProfile = createProfile('New Profile', []);

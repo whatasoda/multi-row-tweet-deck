@@ -4,6 +4,8 @@ import { TwitterColor } from '../../../../shared/theme';
 import { Section, Title } from '../Section';
 import { useMultiRowProfile } from '../../../utils/useMultiRowProfile';
 import { Icon } from '../../../../shared/components/Icon';
+import { useTranslation } from 'react-i18next';
+import { ws } from '../../../../shared/utils/whitespace';
 
 interface ProfileListProps {
   profileList: ProfileWithMetaData[];
@@ -18,11 +20,6 @@ interface ProfileListProps {
 }
 
 const rules: OneOfProfileSortRule[] = ['dateRecentUse', 'dateCreated', 'dateUpdated'];
-const ruleText: Record<OneOfProfileSortRule, string> = {
-  dateCreated: '作成順',
-  dateRecentUse: '使用順',
-  dateUpdated: '更新順',
-};
 
 export const ProfileList = ({
   profileList,
@@ -36,15 +33,14 @@ export const ProfileList = ({
   setSortRule,
 }: ProfileListProps) => {
   const curr = useMultiRowProfile(({ id }) => id);
+  const [t] = useTranslation();
   return (
     <Section>
       <Title>Profile List</Title>
       <SelectWrapper>
         <Select defaultValue={sortRule} onChange={(evt) => setSortRule(evt.target.value as OneOfProfileSortRule)}>
           {rules.map((rule) => (
-            <option key={rule} value={rule}>
-              {ruleText[rule]}
-            </option>
+            <option key={rule} value={rule} children={t(rule)} />
           ))}
         </Select>
         <DownIcon icon="down" />
@@ -81,11 +77,7 @@ export const ProfileList = ({
           <Icon.Button icon="star" onClick={selectCurrentProfile} />
         </ButtonWrapperRight>
       </ButtonWrapperRoot>
-      <p>
-        編集したいプロファイルを選択してください。
-        <br />
-        ★がついているプロファイルがTweetDeckに反映されます。
-      </p>
+      <p>{ws(t('profileListDescription'))}</p>
     </Section>
   );
 };
