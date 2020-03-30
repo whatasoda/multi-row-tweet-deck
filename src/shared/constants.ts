@@ -1,3 +1,6 @@
+declare const InstallTrigger: any;
+export const isFirefox = typeof InstallTrigger !== 'undefined';
+
 export const HEADER_HEIGHT = {
   default: 50,
   medium: 40,

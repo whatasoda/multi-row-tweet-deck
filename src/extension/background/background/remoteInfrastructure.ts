@@ -1,5 +1,6 @@
 import { getStorageInfrastructure } from '../../../shared/storage/infrastructure';
 import { ExtensionMessageHandlers, OneOfExtensionMessage } from '../../../shared/messages';
+import { isFirefox } from '../../../shared/constants';
 
 export const initRemoteInfrastructure = () => {
   const { externally_connectable = {} } = browser.runtime.getManifest();
@@ -16,15 +17,16 @@ export const initRemoteInfrastructure = () => {
     connect: () => ({ payload: undefined }),
   };
 
-  chrome.runtime.onMessageExternal.addListener((message: OneOfExtensionMessage, sender, sendResponse) => {
+  const evt = isFirefox ? browser.runtime.onMessage : browser.runtime.onMessageExternal;
+  evt.addListener((message: OneOfExtensionMessage, sender, sendResponse) => {
     const { url = '' } = sender;
+    console.log(message);
+
     if (matches.some((match) => match.startsWith(url))) {
       Promise.resolve().then(async () => {
         sendResponse(await handlers[message.type]?.(message.value as any));
       });
       return true;
     }
-
-    return true;
   });
 };

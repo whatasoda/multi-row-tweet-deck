@@ -1,3 +1,6 @@
+import { sendMessageWithPolyfill } from './firefox-polyfill';
+import { isFirefox } from './constants';
+
 type MessageTypeEntry = [string, any[], unknown];
 
 type Sync = StorageInfrastructure['sync'];
@@ -41,7 +44,13 @@ export type OneOfExtensionMessagePayload = OneOfMessagePayloadOf<Entries>;
 export type ExtensionMessageHandlers = HandlersOf<Entries>;
 
 export const MessageSender = ((extensionId, type) => {
-  if (typeof browser === 'undefined') return () => Promise.reject();
+  if (typeof browser === 'undefined') {
+    if (isFirefox) {
+      return (...value) => sendMessageWithPolyfill({ type, value });
+    } else {
+      return () => Promise.reject();
+    }
+  }
 
   return (...value) => {
     return new Promise((resolve, reject) => {

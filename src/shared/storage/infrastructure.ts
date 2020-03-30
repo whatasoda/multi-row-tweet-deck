@@ -1,11 +1,11 @@
 import { MessageSender } from '../messages';
-import { EXTENSION_ID } from '../constants';
+import { EXTENSION_ID, isFirefox } from '../constants';
 
 const memo: Partial<Record<'remote' | 'owned' | 'page', StorageInfrastructure>> = {};
 
 export const getStorageInfrastructure = (req: 'auto' | 'page' = 'auto'): StorageInfrastructure => {
-  if (req === 'auto' && typeof browser !== undefined) {
-    if (browser.runtime.id) {
+  if (req === 'auto' && (typeof browser !== 'undefined' || isFirefox)) {
+    if (typeof browser !== 'undefined' && browser.runtime.id) {
       return (memo.owned = memo.owned || createOwned());
     } else {
       return (memo.remote = memo.remote || createRemote());

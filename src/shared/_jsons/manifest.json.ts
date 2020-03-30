@@ -37,6 +37,10 @@ const createManifest = (): chrome.runtime.Manifest => ({
       matches: ['https://tweetdeck.twitter.com/*'],
       js: ['com.twitter.tweetdeck.js'],
     },
+    {
+      matches: [page],
+      js: ['page.multirow.js'],
+    },
   ],
   background: {
     scripts: ['background.js'],
