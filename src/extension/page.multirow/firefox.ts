@@ -2,9 +2,7 @@ import { initOnContentScript } from '../../shared/firefox-polyfill';
 
 export const initFirefox = () => {
   initOnContentScript((value, sendResponse) => {
-    console.log(value);
-    
-    browser.runtime.sendMessage(value, (response) => response(sendResponse));
+    browser.runtime.sendMessage(value, (response) => sendResponse(response));
     return true;
   });
 };

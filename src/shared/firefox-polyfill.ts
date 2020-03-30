@@ -28,7 +28,6 @@ interface MessageBase {
 }
 
 export const initOnContentScript = (handler: (value: any, sendResponse: (value: any) => void) => void | true) => {
-  console.log('hekqophkeqop');
   window.addEventListener('message', (event) => {
     const data = filterPolyfillMessage(event);
     if (!data) return;
@@ -68,7 +67,7 @@ export const initOnContentScript = (handler: (value: any, sendResponse: (value: 
 };
 
 export const sendMessageWithPolyfill = (value: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     const requestId = uuid();
     const listen = (event: WindowEventMap['message']) => {
       const data = filterPolyfillMessage(event);

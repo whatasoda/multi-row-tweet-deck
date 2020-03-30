@@ -2,9 +2,9 @@ import { getStorageInfrastructure } from '../../../shared/storage/infrastructure
 import { ExtensionMessageHandlers, OneOfExtensionMessage } from '../../../shared/messages';
 import { isFirefox } from '../../../shared/constants';
 
+const match = process.env.NODE_ENV === 'production' ? 'https://multirow.page/' : 'http://localhost:8080/';
+
 export const initRemoteInfrastructure = () => {
-  const { externally_connectable = {} } = browser.runtime.getManifest();
-  const { matches = [] } = externally_connectable;
   const { local, sync } = getStorageInfrastructure('auto');
 
   const handlers: ExtensionMessageHandlers = {
@@ -20,9 +20,8 @@ export const initRemoteInfrastructure = () => {
   const evt = isFirefox ? browser.runtime.onMessage : browser.runtime.onMessageExternal;
   evt.addListener((message: OneOfExtensionMessage, sender, sendResponse) => {
     const { url = '' } = sender;
-    console.log(message);
 
-    if (matches.some((match) => match.startsWith(url))) {
+    if (url.startsWith(match)) {
       Promise.resolve().then(async () => {
         sendResponse(await handlers[message.type]?.(message.value as any));
       });

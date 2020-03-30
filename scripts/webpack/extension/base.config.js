@@ -9,6 +9,7 @@ module.exports = merge(require('../common.config')({ __rootdir, tsconfig }), {
   entry: {
     background: path.resolve(__rootdir, 'src/extension/background/index.ts'),
     'com.twitter.tweetdeck': path.resolve(__rootdir, 'src/extension/com.twitter.tweetdeck/index.tsx'),
+    'page.multirow': path.resolve(__rootdir, 'src/extension/page.multirow/index.ts'),
     '../jsons-extension': [
       path.resolve(__rootdir, 'src/shared/_jsons/manifest.json.ts'),
       path.resolve(__rootdir, 'src/shared/_jsons/_locales/en/messages.json.ts'),

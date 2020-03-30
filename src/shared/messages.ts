@@ -46,7 +46,7 @@ export type ExtensionMessageHandlers = HandlersOf<Entries>;
 export const MessageSender = ((extensionId, type) => {
   if (typeof browser === 'undefined') {
     if (isFirefox) {
-      return (...value) => sendMessageWithPolyfill({ type, value });
+      return async (...value) => (await sendMessageWithPolyfill({ type, value })).payload;
     } else {
       return () => Promise.reject();
     }
