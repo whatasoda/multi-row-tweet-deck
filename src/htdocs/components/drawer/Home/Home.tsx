@@ -21,10 +21,7 @@ export const Home = () => {
             href="https://chrome.google.com/webstore/detail/multi-row-tweetdeck/cjlaagghmikageagedknpkmapcjodnno"
             icon="chrome"
           />
-          <Icon.Link
-            href="https://chrome.google.com/webstore/detail/multi-row-tweetdeck/cjlaagghmikageagedknpkmapcjodnno"
-            icon="firefox"
-          />
+          <Icon.Link href="https://addons.mozilla.org/ja/firefox/addon/multirow-tweetdeck/" icon="firefox" />
         </Links>
       </Section>
     </>
