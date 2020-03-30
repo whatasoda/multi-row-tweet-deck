@@ -23,6 +23,7 @@ A profile marked ★ is reflected in your TweetDeck after reloading.`,
   confirmOnDeleteCurrentProfile: 'This operation cannot be undone. Do you really want to delete this profile?',
   alertOnCreateNewProfile: `You cannot save more than ${MAX_PROFILE_COUNT} profiles.`,
   confirmOnCreateNewProfile: 'Are you sure if you discard unsaved changes for this profile and create a new profile?',
+  beforeUnload: 'Are you sure if leaving this page without saving current changes?',
 });
 
 module.exports = (): ValLoader => ({

@@ -38,4 +38,5 @@ export const locales = createLocales({
   confirmOnDeleteCurrentProfile: 'a message on delete current profile',
   alertOnCreateNewProfile: 'a message on create new profile',
   confirmOnCreateNewProfile: 'a message on create new profile',
+  beforeUnload: 'a message on before unload',
 });

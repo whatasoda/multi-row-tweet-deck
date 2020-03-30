@@ -121,6 +121,20 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
     }
   }, [repository]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: WindowEventMap['beforeunload']) => {
+      if (editingProfileRef.current !== savedProfileRef.current) {
+        const message = t('beforeUnload');
+        event.returnValue = message;
+        return message;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   const methods = useMemo(() => {
     const reloadProfileList = async () => {
       const profileList = await repository.getProfileList(sortRuleRef.current);

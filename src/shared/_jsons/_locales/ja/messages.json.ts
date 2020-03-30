@@ -21,6 +21,7 @@ const message = locales.messages({
   confirmOnDeleteCurrentProfile: 'この操作は取り消せません。本当にこのプロファイルを削除しますか?',
   alertOnCreateNewProfile: `保存できるプロフィールは${MAX_PROFILE_COUNT}個までです。`,
   confirmOnCreateNewProfile: 'このプロファイルへの未保存の変更を破棄して新しいプロファイルを作成しますか?',
+  beforeUnload: '未保存のプロファイルがあります。本当にページを離れますか?',
 });
 
 module.exports = (): ValLoader => ({
