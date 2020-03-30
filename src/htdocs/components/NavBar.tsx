@@ -1,9 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Icon } from '../../shared/components/Icon';
 import { TwitterColor } from '../../shared/theme';
 import { Logo } from '../../shared/components/Logo';
 import { LanguageSelection } from '../utils/LanguageSelection';
+import { ThemeToggler } from '../../shared/utils/ThemeProvider';
 
 interface NavBarProps {
   className?: string;
@@ -29,6 +30,7 @@ export const NavBar = ({ className, type: curr, setDrawerType }: NavBarProps) =>
           return <Component key={type} onClick={handleClick} children={icon} />;
         })}
         <StyledLanguageSelection />
+        <StyledThemeToggler />
       </TopWrapper>
       <MiddleWrapper>
         <HeroName>MultiRow{'\n'}TweetDeck</HeroName>
@@ -104,7 +106,7 @@ const HeroName = styled.h1`
   padding: 0 8px 0 0;
   margin: 12px 0;
   transform: rotateZ(180deg);
-  @media (max-height: 700px) {
+  @media (max-height: 740px) {
     white-space: pre-line;
     font-size: 20px;
     line-height: 1.2em;
@@ -112,9 +114,18 @@ const HeroName = styled.h1`
   }
 `;
 
-const StyledLanguageSelection = styled(LanguageSelection)`
+const extraButtonStyle = css`
   font-size: 24px;
   width: 36px;
   text-align: center;
   padding: 2px 0;
+  margin: 0 0 8px;
+`;
+
+const StyledLanguageSelection = styled(LanguageSelection)`
+  ${extraButtonStyle}
+`;
+
+const StyledThemeToggler = styled(ThemeToggler)`
+  ${extraButtonStyle}
 `;
