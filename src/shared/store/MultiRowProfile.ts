@@ -250,7 +250,8 @@ export const createProfile = (displayName: string, base: [number, number[]][]): 
 
 export const createDefaultProfile = () => {
   return createProfile('Default Profile', [
-    [300, [10, 20, 50, 20]],
-    [500, [50, 30, 20]],
+    [500, [75, 25]],
+    [300, [0, 100]],
+    [300, [35, 25, 20, 20]],
   ]);
 };
