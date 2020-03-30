@@ -1,6 +1,6 @@
 {
   "name": "multi-row-tweet-deck",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Google Chrome Extension for multi row view of TweetDeck",
   "main": "index.js",
   "scripts": {
