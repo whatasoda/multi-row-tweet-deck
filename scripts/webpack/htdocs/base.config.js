@@ -27,6 +27,12 @@ module.exports = merge(require('../common.config')({ __rootdir, tsconfig }), {
   optimization: {
     splitChunks: {
       chunks: 'all',
+      cacheGroups: {
+        i18next: {
+          test: /[\\/]node_modules[\\/](i18next|i18next-browser-languagedetector|i18next-xhr-backend|react-i18next)[\\/]/,
+          name: 'i18next',
+        },
+      },
     },
   },
 });
