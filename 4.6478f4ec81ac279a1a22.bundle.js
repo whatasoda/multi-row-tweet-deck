@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[4],{33:function(e,o,t){"use strict";t.r(o),t.d(o,"init",(function(){return n}));const n=({storage:e})=>({sync:{get:e.sync.get,set:e.sync.set,remove:e.sync.remove},local:{get:e.local.get,set:e.local.set,remove:e.local.remove}})}}]);
