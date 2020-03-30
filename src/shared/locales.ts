@@ -29,6 +29,7 @@ export const locales = createLocales({
   description: 'a short description about the extension',
   about: 'a long description about the extension',
   installationMessage: 'a message to promote installing the extension',
+  contact: 'a message about contact',
   dateRecentUse: 'a label for "dateRecentUse" sort rule',
   dateCreated: 'a label for "dateCreated" sort rule',
   dateUpdated: 'a label for "dateUpdated" sort rule',

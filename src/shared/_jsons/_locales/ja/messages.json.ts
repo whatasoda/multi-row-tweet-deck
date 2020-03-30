@@ -1,3 +1,4 @@
+import path from 'path';
 import { locales } from '../../../locales';
 import { MAX_PROFILE_COUNT } from '../../../constants';
 
@@ -9,6 +10,7 @@ const message = locales.messages({
 
 その際作ったレイアウトはインストール後に自動で反映されるので、まずは左のボタンからお気軽にお試しください！`,
   installationMessage: 'MultiRow TweetDeck は Google Chrome と Firefox に対応しています。',
+  contact: 'フィードバックをお待ちしています！',
   dateRecentUse: '最近使用した順',
   dateCreated: '作成された順',
   dateUpdated: '更新された順',
@@ -21,4 +23,12 @@ const message = locales.messages({
   confirmOnCreateNewProfile: 'このプロファイルへの未保存の変更を破棄して新しいプロファイルを作成しますか?',
 });
 
-module.exports = (): ValLoader => ({ code: JSON.stringify(message), cacheable: true });
+module.exports = (): ValLoader => ({
+  code: JSON.stringify(message),
+  cacheable: true,
+  contextDependencies: [
+    path.resolve(__dirname, '../../../locales.ts'),
+    path.resolve(__dirname, '../../../types/custom.d.ts'),
+    path.resolve(__dirname, '../../../constants.ts'),
+  ],
+});

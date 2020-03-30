@@ -8,6 +8,7 @@ type OneOfProfileSelectionMode = 'edit' | 'use';
 interface ValLoader {
   code: string;
   cacheable?: boolean;
+  contextDependencies?: string[];
 }
 
 declare module '*.png' {
