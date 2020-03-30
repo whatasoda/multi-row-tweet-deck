@@ -59,7 +59,11 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
       } catch (e) {
         setRepositoryValue(await prepareRepositoryValue(page));
         window.addEventListener(WEB_EVENT.installed, connect, { once: true });
-        console.log(e.message); // eslint-disable-line no-console
+        if (e instanceof Error) {
+          console.log(e); // eslint-disable-line no-console
+        } else {
+          console.log(e.message); // eslint-disable-line no-console
+        }
       }
     };
 
