@@ -3,6 +3,8 @@ const date = (type: 'now' | 'zero' = 'now') => {
   return new Date().toISOString();
 };
 
+const withSyncDefault = (value: any): StorageSync => (value ? { ...SYNC_DEFAULT, ...value } : { ...SYNC_DEFAULT });
+const withLocalDefault = (value: any): StorageLocal => (value ? { ...LOCAL_DEFAULT, ...value } : { ...LOCAL_DEFAULT });
 const SYNC_DEFAULT: StorageSync = { v3: { profiles: {} } };
 const LOCAL_DEFAULT: StorageLocal = { v3: { selectedProfile: null } };
 
@@ -14,14 +16,14 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
   };
 
   const getWholeStorage = async () => {
-    return [await sync.get(SYNC_DEFAULT), await local.get(LOCAL_DEFAULT)] as const;
+    return [withSyncDefault(await sync.get(SYNC_DEFAULT)), withLocalDefault(await local.get(LOCAL_DEFAULT))] as const;
   };
 
   const mergeStorage = async (target: readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]) => {
     const [{ v3: syncTarget }, { v3: localTarget }] = target;
 
     {
-      const curr = await sync.get(SYNC_DEFAULT);
+      const curr = withSyncDefault(await sync.get(SYNC_DEFAULT));
       const next = Object.entries(syncTarget.profiles).reduce(
         (acc, [id, profile]) => {
           const existing = acc[id];
@@ -53,17 +55,17 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
   };
 
   const getProfileList = async (sortRule: OneOfProfileSortRule = 'dateRecentUse') => {
-    const { v3 } = await sync.get(SYNC_DEFAULT);
+    const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
 
     return Object.values(v3.profiles).sort(({ [sortRule]: a }, { [sortRule]: b }) => (a < b ? 1 : -1));
   };
 
   const getProfile = async (id: string) => {
-    const { v3 } = await sync.get(SYNC_DEFAULT);
+    const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
     return v3.profiles[id] ?? undefined;
   };
   const setProfile = async (profile: MultiRowProfile) => {
-    const { v3: curr } = await sync.get(SYNC_DEFAULT);
+    const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
     const { id } = profile;
     const existing = curr.profiles[id];
     const next: ProfileWithMetaData = {
@@ -78,23 +80,23 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
     await sync.set({ v3: { ...curr, profiles: { ...curr.profiles, [id]: next } } });
   };
   const deleteProfile = async (id: string) => {
-    const { v3: curr } = await sync.get(SYNC_DEFAULT);
+    const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
     const next = { ...curr.profiles };
     delete next[id];
     await sync.set({ v3: { ...curr, profiles: next } });
   };
 
   const getSelectedProfileId = async () => {
-    const { v3 } = await local.get(LOCAL_DEFAULT);
+    const { v3 } = withLocalDefault(await local.get(LOCAL_DEFAULT));
     return v3.selectedProfile ?? null;
   };
 
   const setSelectedProfileId = async (id: string | null) => {
-    const { v3: currLocal } = await local.get(LOCAL_DEFAULT);
+    const { v3: currLocal } = withLocalDefault(await local.get(LOCAL_DEFAULT));
     await local.set({ v3: { ...currLocal, selectedProfile: id } });
 
     if (!id) return;
-    const { v3: currSync } = await sync.get(SYNC_DEFAULT);
+    const { v3: currSync } = withSyncDefault(await sync.get(SYNC_DEFAULT));
 
     if (!currSync.profiles[id]) return;
     const next: ProfileWithMetaData = { ...currSync.profiles[id], dateRecentUse: date() };
