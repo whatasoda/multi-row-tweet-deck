@@ -7,7 +7,8 @@
     "dev:htdocs": "webpack-dev-server --mode development --config scripts/webpack/htdocs/dev.config.js",
     "build:htdocs": "webpack --mode production --config scripts/webpack/htdocs/prod.config.js",
     "dev:extension": "webpack --watch --mode development --config scripts/webpack/extension/dev.config.js",
-    "build:extension": "webpack --mode production --config scripts/webpack/extension/prod.config.js"
+    "build:extension": "webpack --mode production --config scripts/webpack/extension/prod.config.js",
+    "cleanup": "rimraf dist/jsons*"
   },
   "repository": {
     "type": "git",
@@ -57,6 +58,7 @@
     "husky": "^2.3.0",
     "lint-staged": "^8.1.7",
     "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^2.3.5",
     "ts-loader": "^6.0.0",
     "ts-node": "^8.8.1",
@@ -66,6 +68,7 @@
     "webpack": "^4.31.0",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.10.3",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "zip-webpack-plugin": "^3.0.0"
   }
 }
