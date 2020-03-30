@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { Section, Title } from '../Section';
 import { Icon } from '../../../../shared/components/Icon';
-import { useTranslation } from 'react-i18next';
 import { ws } from '../../../../shared/utils/whitespace';
+import whatasoda from '../../../../../assets/whatasoda.png';
 
 export const Home = () => {
   const [t] = useTranslation();
@@ -24,6 +25,11 @@ export const Home = () => {
           <Icon.Link href="https://addons.mozilla.org/ja/firefox/addon/multirow-tweetdeck/" icon="firefox" />
         </Links>
       </Section>
+      <Section>
+        <Title>Contact</Title>
+        <Description>{t('contact')}</Description>
+        <MyAccount>@whatasoda</MyAccount>
+      </Section>
     </>
   );
 };
@@ -40,4 +46,26 @@ const Links = styled.div`
   flex-direction: row;
   justify-content: space-around;
   font-size: 40px;
+`;
+
+const MyAccount = styled.a`
+  display: block;
+  padding: 0 0 0 60px;
+  margin: 6px 0;
+  font-size: 20px;
+  line-height: 50px;
+  position: relative;
+  &:before {
+    content: '';
+    display: block;
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url(${whatasoda});
+    background-size: contain;
+    border-radius: 25px;
+  }
 `;

@@ -1,3 +1,4 @@
+import path from 'path';
 import { locales } from '../../../locales';
 import { MAX_PROFILE_COUNT } from '../../../constants';
 
@@ -11,6 +12,7 @@ Even if you make your layout before installation, the configuration is loaded fr
 
 So feel free to try it. Just switching to the setting mode by the buttons on the left.`,
   installationMessage: 'MultiRow TweetDeck supports GoogleChrome and Firefox. Click icons below to get!',
+  contact: 'Give me your feedback! Japanese and (beginner) English available',
   dateRecentUse: 'sort by date recent use',
   dateCreated: 'sort by date created',
   dateUpdated: 'sort by date updated',
@@ -23,4 +25,12 @@ A profile marked ★ is reflected in your TweetDeck after reloading.`,
   confirmOnCreateNewProfile: 'Are you sure if you discard unsaved changes for this profile and create a new profile?',
 });
 
-module.exports = (): ValLoader => ({ code: JSON.stringify(message), cacheable: true });
+module.exports = (): ValLoader => ({
+  code: JSON.stringify(message),
+  cacheable: true,
+  contextDependencies: [
+    path.resolve(__dirname, '../../../locales.ts'),
+    path.resolve(__dirname, '../../../types/custom.d.ts'),
+    path.resolve(__dirname, '../../../constants.ts'),
+  ],
+});

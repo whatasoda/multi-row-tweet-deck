@@ -84,7 +84,6 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
 };
 
 const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: MultiRowFrameInboundProps) => {
-  const initial = useRef(true);
   const dispatch = useMultiRowProfileDispatch();
 
   const [t] = useTranslation();
@@ -110,12 +109,17 @@ const MultiRowFrameComponent = ({ repository, defaultSelectedId, profiles }: Mul
   const [drawerType, setDrawerType] = useState<OneOfDrawerType>('home');
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(defaultSelectedId);
 
+  const initial = useRef(true);
   useEffect(() => {
-    if (initial.current) return;
-    reloadProfileList();
+    if (initial.current) {
+      if (!profiles.length) {
+        repository.setProfile(profile).then(reloadProfileList);
+      }
+      initial.current = false;
+    } else {
+      reloadProfileList();
+    }
   }, [repository]);
-
-  initial.current = false;
 
   const methods = useMemo(() => {
     const reloadProfileList = async () => {
