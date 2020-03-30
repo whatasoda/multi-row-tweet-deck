@@ -19,10 +19,15 @@ export const Home = () => {
         <Description>{ws(t('installationMessage'))}</Description>
         <Links>
           <Icon.Link
-            href="https://chrome.google.com/webstore/detail/multi-row-tweetdeck/cjlaagghmikageagedknpkmapcjodnno"
             icon="chrome"
+            target="_blank"
+            href="https://chrome.google.com/webstore/detail/multi-row-tweetdeck/cjlaagghmikageagedknpkmapcjodnno"
           />
-          <Icon.Link href="https://addons.mozilla.org/ja/firefox/addon/multirow-tweetdeck/" icon="firefox" />
+          <Icon.Link
+            icon="firefox"
+            target="_blank"
+            href="https://addons.mozilla.org/ja/firefox/addon/multirow-tweetdeck/"
+          />
         </Links>
       </Section>
       <Section>
