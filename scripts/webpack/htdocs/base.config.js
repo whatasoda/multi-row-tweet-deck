@@ -21,6 +21,7 @@ module.exports = merge(require('../common.config')({ __rootdir, tsconfig }), {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__rootdir, 'src/htdocs/index.html'),
+      favicon: path.resolve(__rootdir, 'assets/icons/icon-128.png'),
       excludeChunks: ['../jsons-htdocs'],
     }),
   ],
