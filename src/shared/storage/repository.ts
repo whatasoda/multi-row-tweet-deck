@@ -31,7 +31,7 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
   };
 
   const prepareMerge = async () => {
-    const indices = Object.values(withSyncDefault(await sync.get(SYNC_DEFAULT)).v3.indexMap);
+    const indices = Object.values(withSyncDefault(await sync.get(SYNC_DEFAULT)).v3.indexMap || {});
     return [
       Object.values(await sync.get(indices)).filter(Boolean) as ProfileWithMetaData[],
       withLocalDefault(await local.get(LOCAL_DEFAULT)),
@@ -80,8 +80,10 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
 
   const getProfileList = async (sortRule: OneOfProfileSortRule = 'dateRecentUse') => {
     const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
-    const profiles = await sync.get(Object.values(v3.indexMap));
+    const indices = Object.values(v3.indexMap || {});
+    if (!indices.length) return [];
 
+    const profiles = await sync.get(indices);
     return Object.values(profiles)
       .filter<ProfileWithMetaData>(Boolean as any)
       .sort(({ [sortRule]: a }, { [sortRule]: b }) => (a < b ? 1 : -1));
@@ -89,14 +91,14 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
 
   const getProfile = async (id: string) => {
     const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
-    const idx = v3.indexMap[id];
+    const idx = v3.indexMap?.[id];
     return typeof idx === 'number' ? (await sync.get(idx))[idx] ?? undefined : undefined;
   };
   const setProfile = async (profile: MultiRowProfile) => {
     const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
     const { id } = profile;
 
-    if (id in curr.indexMap) {
+    if (id in (curr.indexMap || {})) {
       const idx = curr.indexMap[id];
       const next: ProfileWithMetaData = {
         ...(await getProfile(id))!,

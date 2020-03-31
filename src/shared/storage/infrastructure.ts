@@ -3,6 +3,15 @@ import { EXTENSION_ID, isFirefox } from '../constants';
 
 const memo: Partial<Record<'remote' | 'owned' | 'page', StorageInfrastructure>> = {};
 
+type AcceptableValue = string | number | (string | number)[] | object | null;
+const normalize = <T extends AcceptableValue>(keys: T): T => {
+  if (typeof keys === 'object') {
+    return (Array.isArray(keys) ? keys.map((key) => `${key}`) : keys) as T;
+  } else {
+    return `${keys}` as T;
+  }
+};
+
 export const getStorageInfrastructure = (req: 'auto' | 'page' = 'auto'): StorageInfrastructure => {
   if (req === 'auto' && (typeof browser !== 'undefined' || isFirefox)) {
     if (typeof browser !== 'undefined' && browser.runtime.id) {
@@ -31,10 +40,16 @@ const createRemote = (): StorageInfrastructure => ({
 const createOwned = (): StorageInfrastructure => {
   const { runtime, storage } = browser;
 
-  const promisify = <T, U>(func: (arg: T, callback: (value?: U) => void) => void, self: any) => {
+  const promisify = <T extends AcceptableValue, U>(
+    func: (arg: T, callback: (value?: U) => void) => void,
+    self: any,
+  ) => {
     return (arg: T) => {
       return new Promise<U>((resolve, reject) => {
-        return func.apply(self, [arg, (value?: U) => (runtime.lastError ? reject(runtime.lastError) : resolve(value))]);
+        return func.apply(self, [
+          normalize(arg),
+          (value?: U) => (runtime.lastError ? reject(runtime.lastError) : resolve(value)),
+        ]);
       });
     };
   };
