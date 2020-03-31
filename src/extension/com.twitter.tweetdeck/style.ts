@@ -84,6 +84,15 @@ const staticStyle = css`
       margin-right: 9px;
     }
   }
+
+  .column.is-options-open {
+    z-index: 2;
+    overflow: visible;
+    .column-detail,
+    .column-detail-level-2 {
+      display: none;
+    }
+  }
 `;
 
 export const StyleInjection = createGlobalStyle<{ profile: MultiRowProfile }>`
