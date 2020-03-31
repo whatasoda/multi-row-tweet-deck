@@ -4,6 +4,7 @@ import { getStorageInfrastructure } from '../../../shared/storage/infrastructure
 
 export const migrateLegacyProfile = async () => {
   const repository = createRepository(getStorageInfrastructure('auto'));
+  await repository.remapProfiles();
 
   const legacyProfiles = await repository.getLegacyProfiles();
   if (!legacyProfiles) return;
@@ -37,8 +38,8 @@ export const migrateLegacyProfile = async () => {
     });
 
     await repository.setProfile(profile);
-    if (legacySelectedIdx === idx) {
-      await repository.setSelectedProfileId(id);
+    if (`${legacySelectedIdx}` === `${idx}`) {
+      await repository.setSelectedProfileId(profile.id);
     }
   });
   await Promise.all(promises);

@@ -22,7 +22,7 @@ const createRemote = (): StorageInfrastructure => ({
     remove: MessageSender(EXTENSION_ID, 'storage.local.remove'),
   },
   sync: {
-    get: MessageSender(EXTENSION_ID, 'storage.sync.get'),
+    get: MessageSender(EXTENSION_ID, 'storage.sync.get') as StorageInfrastructure['sync']['get'],
     set: MessageSender(EXTENSION_ID, 'storage.sync.set'),
     remove: MessageSender(EXTENSION_ID, 'storage.sync.remove'),
   },
@@ -43,7 +43,7 @@ const createOwned = (): StorageInfrastructure => {
     sync: {
       get: promisify(storage.sync.get, storage.sync),
       set: promisify(storage.sync.set, storage.sync),
-      remove: promisify(storage.sync.remove, storage.sync),
+      remove: promisify(storage.sync.remove, storage.sync) as StorageInfrastructure['sync']['remove'],
     },
 
     local: {
@@ -60,7 +60,8 @@ const createPage = (): StorageInfrastructure => {
     local: `${EXTENSION_ID}:local`,
   };
 
-  const arrify = (input: string | string[]) => (typeof input === 'string' ? [input] : input);
+  const arrify = (input: string | number | (string | number)[]) =>
+    typeof input === 'string' || typeof input === 'number' ? [input] : input;
 
   const createArea = <T extends keyof StorageInfrastructure>(type: T): StorageInfrastructure[T] => {
     const storageKey = storageKeyMap[type];
@@ -72,7 +73,7 @@ const createPage = (): StorageInfrastructure => {
       return curr;
     };
 
-    const get = (keys: string | string[] | object | null) => {
+    const get = (keys: string | number | (string | number)[] | object | null) => {
       if (keys === null) {
         return Promise.resolve(base(() => {}));
       } else {
@@ -80,7 +81,7 @@ const createPage = (): StorageInfrastructure => {
         const initial = typeof keys === 'object' && !Array.isArray(keys) ? keys : {};
 
         const curr = base(() => {});
-        const picked = keyList.reduce<Record<string, any>>((acc, key) => {
+        const picked = keyList.reduce<Record<string | number, any>>((acc, key) => {
           if (key in curr) acc[key] = curr[key];
           return acc;
         }, initial);
@@ -94,7 +95,7 @@ const createPage = (): StorageInfrastructure => {
       return Promise.resolve();
     };
 
-    const remove = (keys: string | string[]) => {
+    const remove = (keys: string | number | (string | number)[]) => {
       const removal = arrify(keys);
       base((curr) => {
         const next = { ...curr };

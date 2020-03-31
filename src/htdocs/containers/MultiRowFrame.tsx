@@ -53,7 +53,7 @@ export const MultiRowFrame = (props: MultiRowFrameOutboundProps) => {
       try {
         await sendConnectMessage();
         connected = true;
-        await remote.mergeStorage(await page.getWholeStorage());
+        await remote.mergeStorage(await page.prepareMerge());
         await page.cleanup();
         setRepositoryValue(await prepareRepositoryValue(remote));
       } catch (e) {

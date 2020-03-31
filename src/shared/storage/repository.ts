@@ -5,7 +5,7 @@ const date = (type: 'now' | 'zero' = 'now') => {
 
 const withSyncDefault = (value: any): StorageSync => (value ? { ...SYNC_DEFAULT, ...value } : { ...SYNC_DEFAULT });
 const withLocalDefault = (value: any): StorageLocal => (value ? { ...LOCAL_DEFAULT, ...value } : { ...LOCAL_DEFAULT });
-const SYNC_DEFAULT: StorageSync = { v3: { profiles: {} } };
+const SYNC_DEFAULT: StorageSync = { v3: { profiles: {}, indexMap: {}, lastIndex: 0 } };
 const LOCAL_DEFAULT: StorageLocal = { v3: { selectedProfile: null } };
 
 export const createRepository = ({ local, sync }: StorageInfrastructure): StorageRepository => {
@@ -15,35 +15,59 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
     await Promise.all([sync.remove('profiles'), local.remove('currentProfile')]);
   };
 
-  const getWholeStorage = async () => {
-    return [withSyncDefault(await sync.get(SYNC_DEFAULT)), withLocalDefault(await local.get(LOCAL_DEFAULT))] as const;
+  const remapProfiles = async () => {
+    const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
+    if (!Object.values(curr.profiles).length) return;
+    const next = Object.entries(curr.profiles).reduce<StorageSync>(
+      (acc, [id, profile]) => {
+        const idx = (acc.v3.indexMap[id] = acc.v3.lastIndex = acc.v3.lastIndex + 1);
+        acc[idx] = profile;
+        return acc;
+      },
+      { v3: { ...SYNC_DEFAULT.v3 } },
+    );
+    next.v3.profiles = {};
+    await sync.set(next);
   };
 
-  const mergeStorage = async (target: readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]) => {
-    const [{ v3: syncTarget }, { v3: localTarget }] = target;
+  const prepareMerge = async () => {
+    const indices = Object.values(withSyncDefault(await sync.get(SYNC_DEFAULT)).v3.indexMap);
+    return [
+      Object.values(await sync.get(indices)).filter(Boolean) as ProfileWithMetaData[],
+      withLocalDefault(await local.get(LOCAL_DEFAULT)),
+    ] as const;
+  };
+
+  const mergeStorage = async (target: readonly [ProfileWithMetaData[], Pick<StorageLocal, 'v3'>]) => {
+    const [profiles, { v3: localTarget }] = target;
 
     {
       const curr = withSyncDefault(await sync.get(SYNC_DEFAULT));
-      const next = Object.entries(syncTarget.profiles).reduce(
-        (acc, [id, profile]) => {
-          const existing = acc[id];
-          if (!existing || existing.dateUpdated >= profile.dateUpdated) {
-            acc[id] = {
+      const next = profiles.reduce<Promise<StorageSync>>(async (accPromise, profile) => {
+        const acc = await accPromise;
+        const { id } = profile.profile;
+        if (id in curr.v3.indexMap) {
+          const idx = curr.v3.indexMap[id];
+          const existing = (await getProfile(id))!;
+          if (existing.dateUpdated >= profile.dateUpdated) {
+            acc[idx] = {
               ...profile,
               dateUpdated: date(),
               dateRecentUse:
                 existing.dateRecentUse >= profile.dateRecentUse ? existing.dateRecentUse : profile.dateRecentUse,
             };
           }
-          return acc;
-        },
-        { ...curr.v3.profiles },
-      );
-      await sync.set({ v3: { ...curr.v3, profiles: next } });
+        } else {
+          const idx = (acc.v3.indexMap[id] = acc.v3.lastIndex = acc.v3.lastIndex + 1);
+          acc[idx] = { ...profile, dateUpdated: date() };
+        }
+        return acc;
+      }, Promise.resolve({ v3: { ...curr.v3 } }));
+      await sync.set(await next);
     }
 
     {
-      if (localTarget.selectedProfile) {
+      if (typeof localTarget.selectedProfile === 'string') {
         await local.set({ v3: { selectedProfile: localTarget.selectedProfile } });
       }
     }
@@ -56,34 +80,51 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
 
   const getProfileList = async (sortRule: OneOfProfileSortRule = 'dateRecentUse') => {
     const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
+    const profiles = await sync.get(Object.values(v3.indexMap));
 
-    return Object.values(v3.profiles).sort(({ [sortRule]: a }, { [sortRule]: b }) => (a < b ? 1 : -1));
+    return Object.values(profiles)
+      .filter<ProfileWithMetaData>(Boolean as any)
+      .sort(({ [sortRule]: a }, { [sortRule]: b }) => (a < b ? 1 : -1));
   };
 
   const getProfile = async (id: string) => {
     const { v3 } = withSyncDefault(await sync.get(SYNC_DEFAULT));
-    return v3.profiles[id] ?? undefined;
+    const idx = v3.indexMap[id];
+    return typeof idx === 'number' ? (await sync.get(idx))[idx] ?? undefined : undefined;
   };
   const setProfile = async (profile: MultiRowProfile) => {
     const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
     const { id } = profile;
-    const existing = curr.profiles[id];
-    const next: ProfileWithMetaData = {
-      ...curr.profiles[id],
-      profile,
-      dateUpdated: date(),
-    };
-    if (!existing) {
-      next.dateCreated = date();
-      next.dateRecentUse = date('zero');
+
+    if (id in curr.indexMap) {
+      const idx = curr.indexMap[id];
+      const next: ProfileWithMetaData = {
+        ...(await getProfile(id))!,
+        profile,
+        dateUpdated: date(),
+      };
+      await sync.set({ [idx]: next });
+    } else {
+      const idx = curr.lastIndex + 1;
+      const next: ProfileWithMetaData = {
+        dateCreated: date(),
+        dateRecentUse: date('zero'),
+        dateUpdated: date(),
+        profile,
+      };
+      await sync.set({
+        v3: { ...curr, indexMap: { ...curr.indexMap, [id]: idx }, lastIndex: idx },
+        [idx]: next,
+      });
     }
-    await sync.set({ v3: { ...curr, profiles: { ...curr.profiles, [id]: next } } });
   };
   const deleteProfile = async (id: string) => {
     const { v3: curr } = withSyncDefault(await sync.get(SYNC_DEFAULT));
-    const next = { ...curr.profiles };
+    const next = { ...curr.indexMap };
+    const idx = next[id];
     delete next[id];
-    await sync.set({ v3: { ...curr, profiles: next } });
+    await sync.set({ v3: { ...curr, indexMap: next } });
+    await sync.remove(idx);
   };
 
   const getSelectedProfileId = async () => {
@@ -98,16 +139,17 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
     if (!id) return;
     const { v3: currSync } = withSyncDefault(await sync.get(SYNC_DEFAULT));
 
-    if (!currSync.profiles[id]) return;
-    const next: ProfileWithMetaData = { ...currSync.profiles[id], dateRecentUse: date() };
-    await sync.set({ v3: { ...currSync, profiles: { ...currSync.profiles, [id]: next } } });
+    if (!(id in currSync.indexMap)) return;
+    const idx = currSync.indexMap[id];
+    await sync.set({ [idx]: { ...(await getProfile(id))!, dateRecentUse: date() } });
   };
 
   return {
     getLegacyProfiles,
     getLegacySelectedProfileId,
     cleanLegacyProfiles,
-    getWholeStorage,
+    remapProfiles,
+    prepareMerge,
     mergeStorage,
     cleanup,
     getProfileList,

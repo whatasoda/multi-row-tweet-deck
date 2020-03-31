@@ -18,7 +18,10 @@ interface LegacyStorageLocal {
 interface StorageSync extends Partial<LegacyStorageSync> {
   v3: {
     profiles: Record<string, ProfileWithMetaData>;
+    indexMap: Record<string, number>;
+    lastIndex: number;
   };
+  [idx: number]: ProfileWithMetaData;
 }
 
 interface StorageLocal extends Partial<LegacyStorageLocal> {
@@ -32,7 +35,6 @@ interface ProfileWithMetaData {
   dateCreated: string;
   dateUpdated: string;
   dateRecentUse: string;
-  legacyId: number;
 }
 
 type OneOfProfileSortRule = Exclude<keyof ProfileWithMetaData, 'profile' | 'legacyId'>;
@@ -42,8 +44,9 @@ interface StorageRepository {
   getLegacySelectedProfileId(): Promise<number | undefined>;
   cleanLegacyProfiles(): Promise<void>;
 
-  getWholeStorage(): Promise<readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]>;
-  mergeStorage(target: readonly [Pick<StorageSync, 'v3'>, Pick<StorageLocal, 'v3'>]): Promise<void>;
+  remapProfiles(): Promise<void>;
+  prepareMerge(): Promise<readonly [ProfileWithMetaData[], Pick<StorageLocal, 'v3'>]>;
+  mergeStorage(target: readonly [ProfileWithMetaData[], Pick<StorageLocal, 'v3'>]): Promise<void>;
 
   cleanup(): Promise<void>;
 
