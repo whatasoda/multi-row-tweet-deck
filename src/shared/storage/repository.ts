@@ -48,8 +48,8 @@ export const createRepository = ({ local, sync }: StorageInfrastructure): Storag
         const { id } = profile.profile;
         if (id in curr.v3.indexMap) {
           const idx = curr.v3.indexMap[id];
-          const existing = (await getProfile(id))!;
-          if (existing.dateUpdated >= profile.dateUpdated) {
+          const existing = await getProfile(id);
+          if (existing && existing.dateUpdated >= profile.dateUpdated) {
             acc[idx] = {
               ...profile,
               dateUpdated: date(),
